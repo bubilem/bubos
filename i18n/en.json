@@ -54,6 +54,8 @@
   "ui.reset.confirm": "Really delete the whole system and start over? Work that was not exported will be lost.",
   "ui.import.bad": "Could not load the file: {msg}",
   "ui.import.confirm": "Loading a file replaces the current system. Continue?",
+  "ui.docs": "Documentation",
+  "ui.docs.title": "Open the documentation and manual in a new tab",
   "ui.theme": "Theme",
   "ui.lang": "Language",
   "ui.hint": "Tip: Tab completes, ↑/↓ browse the history, Ctrl+C interrupts a command. Your work is stored in this browser – use Export to move it.",

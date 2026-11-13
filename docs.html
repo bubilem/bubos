@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="cs" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BubOS – dokumentace</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/bubos.css">
+  <link rel="stylesheet" href="css/docs.css">
+</head>
+<body class="docs">
+  <header class="top">
+    <h1>Bub<span>OS</span> <small>dokumentace</small></h1>
+    <nav>
+      <a class="btn" href="index.html">← Zpět do terminálu</a>
+      <button id="btn-lang" class="icon" title="Jazyk příkazového manuálu / language of the command reference"></button>
+      <button id="btn-theme" class="icon" title="Vzhled"></button>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <aside id="toc" aria-label="Obsah">
+      <input id="search" type="search" placeholder="Hledat příkaz…" autocomplete="off" aria-label="Hledat příkaz">
+      <ol>
+        <li><a href="#uvod">1. Úvod a rychlý start</a></li>
+        <li><a href="#ovladani">2. Ovládání terminálu</a></li>
+        <li><a href="#system">3. Jak systém funguje</a></li>
+        <li><a href="#shell">4. Příkazový řádek (shell)</a></li>
+        <li><a href="#fs">5. Souborový systém</a></li>
+        <li><a href="#uzivatele">6. Uživatelé a práva</a></li>
+        <li><a href="#ukladani">7. Ukládání, export a import</a></li>
+        <li><a href="#struktura">8. Struktura projektu</a></li>
+        <li><a href="#vyvoj">9. Pro vývojáře</a></li>
+        <li><a href="#prikazy">10. Referenční příručka příkazů</a>
+          <ul id="toc-cmds"></ul>
+        </li>
+      </ol>
+    </aside>
+
+    <main>
+      <!-- ============================ 1 ============================ -->
+      <section id="uvod">
+        <h2>1. Úvod a rychlý start</h2>
+        <p><b>BubOS</b> je výukový simulátor Linuxu, který běží celý ve vašem prohlížeči. Nic se neinstaluje a nic se neposílá na server –
+          „počítač“ je jen program v JavaScriptu, který předstírá, že je Linux. Můžete tedy bez obav zkoušet i příkazy, které by na
+          skutečném stroji něco rozbily (například <code>rm -r /</code>): kdyby se něco pokazilo, tlačítko <b>Přeinstalovat</b> vrátí systém do výchozího stavu.</p>
+        <p>Simulátor je <em>výukový</em>: chová se jako Linux (příkazy se jmenují stejně, mají stejné volby a podobné hlášení), ale není to
+          dokonalá kopie. Co není podporováno, je u příslušné části výslovně uvedeno.</p>
+
+        <h3>Přihlášení</h3>
+        <p>Systém tě po spuštění automaticky přihlásí jako uživatele <code>student</code>. Další účet je <code>root</code> (správce).
+          Po příkazu <code>exit</code> se objeví přihlašovací výzva.</p>
+        <table>
+          <tr><th>Uživatel</th><th>Heslo</th><th>Poznámka</th></tr>
+          <tr><td><code>student</code></td><td><code>student</code></td><td>běžný uživatel, člen skupiny <code>sudo</code> (smí používat <code>sudo</code>)</td></tr>
+          <tr><td><code>root</code></td><td><code>root</code></td><td>správce, smí všechno</td></tr>
+        </table>
+
+        <h3>Prvních pět minut</h3>
+        <pre class="term"><span class="p">student@bubos:~$</span> pwd                     <span class="c"># kde jsem?</span>
+/home/student
+<span class="p">student@bubos:~$</span> ls                      <span class="c"># co tu je?</span>
+Documents  Downloads  README.txt
+<span class="p">student@bubos:~$</span> cd Documents           <span class="c"># přejdi do složky</span>
+<span class="p">student@bubos:~/Documents$</span> cat pisen.txt   <span class="c"># vypiš soubor</span>
+<span class="p">student@bubos:~/Documents$</span> grep ERROR log.txt | wc -l   <span class="c"># kolik je v logu chyb?</span>
+<span class="p">student@bubos:~/Documents$</span> man ls              <span class="c"># manuál k příkazu</span>
+<span class="p">student@bubos:~/Documents$</span> help                <span class="c"># přehled všech příkazů</span></pre>
+        <p>Příkazy se zadávají anglicky, stejně jako v opravdovém Linuxu. Nápověda a chybová hlášení jsou česky nebo anglicky
+          podle přepínače <b>CS / EN</b> v horní liště (nebo příkazem <code>lang</code>).</p>
+
+        <h3>Horní lišta</h3>
+        <table>
+          <tr><th>Tlačítko</th><th>Co dělá</th></tr>
+          <tr><td><b>Dokumentace</b></td><td>otevře tuto stránku v nové záložce (terminál zůstane běžet)</td></tr>
+          <tr><td><b>Export</b></td><td>stáhne celý váš systém (soubory, uživatele, nastavení) jako soubor <code>bubos-RRRRMMDD-HHMM.json</code></td></tr>
+          <tr><td><b>Import</b></td><td>načte dříve uložený soubor a <em>nahradí</em> jím aktuální systém (předtím se zeptá)</td></tr>
+          <tr><td><b>Přeinstalovat</b></td><td>smaže vše a vytvoří čistý systém (předtím se zeptá)</td></tr>
+          <tr><td><b>CS / EN</b></td><td>přepne jazyk rozhraní, nápovědy a hlášení</td></tr>
+          <tr><td><b>☾ / ☀</b></td><td>přepne tmavý / světlý vzhled</td></tr>
+        </table>
+      </section>
+
+      <!-- ============================ 2 ============================ -->
+      <section id="ovladani">
+        <h2>2. Ovládání terminálu</h2>
+        <h3>Klávesy na příkazovém řádku</h3>
+        <table>
+          <tr><th>Klávesa</th><th>Funkce</th></tr>
+          <tr><td><kbd>Enter</kbd></td><td>provede příkaz</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>doplní příkaz, cestu, proměnnou nebo jméno uživatele. Když je možností víc, doplní společný začátek; druhé stisknutí vypíše všechny možnosti</td></tr>
+          <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>listuje historií příkazů</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>přeruší rozepsaný řádek nebo běžící příkaz (výpis <code>^C</code>); když je označený text, kopíruje</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>na prázdném řádku = konec vstupu / odhlášení (jako <code>exit</code>)</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>vymaže obrazovku (jako <code>clear</code>)</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd> / <kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>kurzor na začátek / konec řádku</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>U</kbd> / <kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>smaže text před / za kurzorem</td></tr>
+        </table>
+        <p><b>Mobil a tablet:</b> pod terminálem je lišta s klávesami <kbd>Tab</kbd>, <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>Ctrl+C</kbd>, <kbd>Ctrl+D</kbd> a znaky
+          <code>|</code> <code>~</code> <code>/</code> <code>-</code> <code>&gt;</code>, které se na mobilní klávesnici špatně hledají.</p>
+
+        <h3>Prohlížeč <code>less</code> a <code>man</code></h3>
+        <table>
+          <tr><th>Klávesa</th><th>Funkce</th></tr>
+          <tr><td><kbd>q</kbd>, <kbd>Esc</kbd></td><td>konec</td></tr>
+          <tr><td><kbd>mezerník</kbd>, <kbd>f</kbd>, <kbd>PageDown</kbd></td><td>o stránku dolů</td></tr>
+          <tr><td><kbd>b</kbd>, <kbd>PageUp</kbd></td><td>o stránku nahoru</td></tr>
+          <tr><td><kbd>j</kbd>, <kbd>↓</kbd>, <kbd>Enter</kbd></td><td>o řádek dolů</td></tr>
+          <tr><td><kbd>k</kbd>, <kbd>↑</kbd></td><td>o řádek nahoru</td></tr>
+          <tr><td><kbd>g</kbd> / <kbd>G</kbd> (nebo <kbd>Home</kbd> / <kbd>End</kbd>)</td><td>začátek / konec</td></tr>
+        </table>
+
+        <h3>Editor <code>nano</code></h3>
+        <table>
+          <tr><th>Klávesa</th><th>Funkce</th></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd> nebo <kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>uloží soubor</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd></td><td>konec; pokud jsou neuložené změny, zeptá se: <kbd>Y</kbd> uložit, <kbd>N</kbd> zahodit, <kbd>Esc</kbd> zůstat</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>vyjme aktuální řádek</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>U</kbd></td><td>vloží naposledy vyjmutý řádek</td></tr>
+        </table>
+        <p>Dole v editoru jsou stejné akce také jako klikací tlačítka. Soubor, který nemáte právo měnit, se otevře jen pro čtení.</p>
+      </section>
+
+      <!-- ============================ 3 ============================ -->
+      <section id="system">
+        <h2>3. Jak systém funguje</h2>
+        <p>BubOS je poskládaný z několika vrstev. Každá vrstva smí používat jen vrstvy pod sebou, takže se dá jádro testovat bez prohlížeče.</p>
+        <pre class="diagram">┌────────────────────────────────────────────────────────────┐
+│  index.html + css/bubos.css          stránka a vzhled        │
+├────────────────────────────────────────────────────────────┤
+│  js/main.js    start, přihlášení, hlavní smyčka, tlačítka    │
+├───────────────────────────┬────────────────────────────────┤
+│  js/ui/                   │  js/os/linux/                   │
+│  terminál, pager, editor  │  profil Linuxu: seznam příkazů, │
+│  (DOM)                    │  PATH, prompt, výchozí soubory, │
+│                           │  commands/*.js (1 příkaz = 1)   │
+├───────────────────────────┴────────────────────────────────┤
+│  js/core/    JÁDRO – bez DOM, testovatelné v Node            │
+│  vfs · users · shell/ · streams · process · storage · i18n   │
+└────────────────────────────────────────────────────────────┘
+  i18n/ (hlášení cs, en)    man/ (manuálové stránky cs, en)</pre>
+
+        <h3>Co se stane po zadání příkazu</h3>
+        <p>Například <code>grep ERROR log.txt | wc -l</code>:</p>
+        <ol>
+          <li><b>Terminál</b> (<code>ui/terminal.js</code>) přečte řádek a předá ho <code>main.js</code>.</li>
+          <li><b>Shell</b> (<code>core/shell/shell.js</code>) provede expanzi historie (<code>!!</code>) a zapíše řádek do historie.</li>
+          <li><b>Parser</b> (<code>parse.js</code>) rozloží řádek na příkazy, roury a přesměrování; aliasy rozvine už tady.</li>
+          <li>Pro každý příkaz v rouře se vytvoří <b>simulovaný proces</b> (PID z tabulky procesů) a všechny běží <em>souběžně</em>, spojené rourami (<code>streams.js</code>).</li>
+          <li>Slova se <b>expandují</b> (<code>expand.js</code>): <code>~</code>, <code>$PROMENNA</code>, <code>$(příkaz)</code>, hvězdičky <code>*.txt</code>.</li>
+          <li>Shell <b>najde příkaz</b>: nejdřív vestavěné (<code>cd</code>, <code>echo</code>…), pak soubor v adresářích z <code>PATH</code>
+            (<code>/usr/local/bin:/usr/bin:/bin</code>). V souborovém systému kontroluje práva (potřebujete právo <code>x</code>).</li>
+          <li>Soubor v <code>/usr/bin</code> je jen „stub“ s jedním řádkem <code>#!bubos:grep</code>; podle něj se načte modul <code>js/os/linux/commands/grep.js</code> a zavolá se jeho funkce <code>run(ctx)</code>.</li>
+          <li>Výstup příkazu putuje rourou do dalšího; poslední příkaz píše do terminálu. Návratový kód se uloží do <code>$?</code>.</li>
+        </ol>
+
+        <h3>Procesy</h3>
+        <p>Každý spuštěný příkaz dostane číslo procesu (PID). <code>ps</code> ukazuje i několik „systémových“ procesů (init, cron, sshd…), které jsou jen
+          dekorace. Příkazem <code>kill</code> nebo klávesou <kbd>Ctrl</kbd>+<kbd>C</kbd> se běžící příkaz přeruší. Tabulka procesů se neukládá do exportu.</p>
+      </section>
+
+      <!-- ============================ 4 ============================ -->
+      <section id="shell">
+        <h2>4. Příkazový řádek (shell)</h2>
+        <p>Shell se snaží napodobit <code>bash</code>. Níže je vše, co umí.</p>
+
+        <h3>Spojování příkazů</h3>
+        <table>
+          <tr><th>Zápis</th><th>Význam</th></tr>
+          <tr><td><code>a ; b</code></td><td>proveď <code>a</code>, pak <code>b</code></td></tr>
+          <tr><td><code>a &amp;&amp; b</code></td><td><code>b</code> jen když <code>a</code> uspěl (návratový kód 0)</td></tr>
+          <tr><td><code>a || b</code></td><td><code>b</code> jen když <code>a</code> selhal</td></tr>
+          <tr><td><code>a | b</code></td><td>roura: výstup <code>a</code> se stane vstupem <code>b</code></td></tr>
+          <tr><td><code>a &amp;</code></td><td>spustí <code>a</code> na pozadí; shell vypíše <code>[1] PID</code></td></tr>
+        </table>
+
+        <h3>Přesměrování</h3>
+        <table>
+          <tr><th>Zápis</th><th>Význam</th></tr>
+          <tr><td><code>příkaz &gt; soubor</code></td><td>výstup do souboru (přepíše ho)</td></tr>
+          <tr><td><code>příkaz &gt;&gt; soubor</code></td><td>výstup na konec souboru</td></tr>
+          <tr><td><code>příkaz &lt; soubor</code></td><td>soubor jako vstup</td></tr>
+          <tr><td><code>příkaz 2&gt; soubor</code></td><td>chybový výstup do souboru</td></tr>
+          <tr><td><code>příkaz 2&gt;&amp;1</code></td><td>chyby do stejného místa jako běžný výstup</td></tr>
+          <tr><td><code>příkaz &amp;&gt; soubor</code></td><td>výstup i chyby do souboru</td></tr>
+          <tr><td><code>/dev/null</code></td><td>„černá díra“ – cokoli do ní zapíšete, zmizí</td></tr>
+        </table>
+
+        <h3>Uvozovky, proměnné a expanze</h3>
+        <table>
+          <tr><th>Zápis</th><th>Význam</th></tr>
+          <tr><td><code>'text'</code></td><td>apostrofy: vše doslova, nic se nerozvíjí</td></tr>
+          <tr><td><code>"text $VAR"</code></td><td>uvozovky: rozvinou se <code>$proměnné</code> a <code>$(příkazy)</code>, mezery zůstanou pohromadě</td></tr>
+          <tr><td><code>\x</code></td><td>zpětné lomítko ruší zvláštní význam následujícího znaku</td></tr>
+          <tr><td><code>VAR=hodnota</code></td><td>nastaví proměnnou shellu; <code>export VAR</code> ji předá spuštěným příkazům</td></tr>
+          <tr><td><code>$VAR</code>, <code>${VAR}</code></td><td>hodnota proměnné</td></tr>
+          <tr><td><code>${VAR:-výchozí}</code></td><td>hodnota, nebo „výchozí“, je-li proměnná prázdná</td></tr>
+          <tr><td><code>$?</code></td><td>návratový kód posledního příkazu (0 = úspěch)</td></tr>
+          <tr><td><code>$$</code></td><td>PID shellu</td></tr>
+          <tr><td><code>$0</code> … <code>$9</code></td><td>jméno skriptu a jeho argumenty</td></tr>
+          <tr><td><code>$(příkaz)</code>, <code>`příkaz`</code></td><td>nahradí se výstupem příkazu</td></tr>
+          <tr><td><code>~</code></td><td>domovský adresář (<code>/home/student</code>)</td></tr>
+          <tr><td><code>*</code> <code>?</code> <code>[abc]</code> <code>[!abc]</code></td><td>zástupné znaky (globbing): libovolný řetězec / jeden znak / jeden ze znaků / žádný z nich. Skryté soubory (s tečkou) se jim vyhýbají</td></tr>
+          <tr><td><code># poznámka</code></td><td>zbytek řádku se ignoruje</td></tr>
+        </table>
+        <p>Předdefinované proměnné: <code>HOME</code>, <code>USER</code>, <code>LOGNAME</code>, <code>SHELL</code>, <code>PATH</code>, <code>PWD</code>, <code>OLDPWD</code>,
+          <code>HOSTNAME</code>, <code>TERM</code>, <code>LANG</code>.</p>
+
+        <h3>Aliasy</h3>
+        <p><code>alias ll='ls -l'</code> vytvoří zkratku, <code>unalias ll</code> ji zruší. Výchozí aliasy (z <code>~/.bashrc</code>): <code>ll</code>, <code>la</code>, <code>..</code>, <code>grep</code> s barvou.</p>
+
+        <h3>Historie</h3>
+        <ul>
+          <li>Příkazy se ukládají do <code>~/.bash_history</code> (tedy i do exportu) a listuje se v nich šipkami; <code>history</code> je vypíše.</li>
+          <li><code>!!</code> zopakuje poslední příkaz, <code>!5</code> příkaz číslo 5, <code>!ls</code> poslední příkaz začínající na <code>ls</code>.</li>
+          <li>Řádek začínající mezerou se do historie neuloží.</li>
+        </ul>
+
+        <h3>Skripty a <code>~/.bashrc</code></h3>
+        <p>Textový soubor s příkazy (jeden na řádek) můžete spustit třemi způsoby: <code>source skript.sh</code> (v aktuálním shellu), nebo mu dát právo
+          spuštění <code>chmod +x skript.sh</code> a zavolat <code>./skript.sh</code> (ve vlastním podřízeném shellu, s argumenty v <code>$1</code>, <code>$2</code>…).
+          Při každém přihlášení se automaticky provede <code>~/.bashrc</code> – tam jsou aliasy a <code>export EDITOR=nano</code>.</p>
+
+        <h3>Co zatím neumí</h3>
+        <p>Podmínky a cykly (<code>if</code>, <code>for</code>, <code>while</code>), funkce, aritmetiku <code>$((…))</code>, <code>jobs</code>/<code>fg</code>/<code>bg</code>
+          a tvrdé odkazy (<code>ln</code> bez <code>-s</code>). Jsou v plánu další iterace (viz <code>docs/PROJEKT.md</code>).</p>
+      </section>
+
+      <!-- ============================ 5 ============================ -->
+      <section id="fs">
+        <h2>5. Souborový systém</h2>
+        <p>Souborový systém je celý v paměti prohlížeče jako strom JSON objektů. Každý uzel (soubor, adresář, odkaz) má typ, práva (<code>mode</code>), vlastníka
+          (<code>uid</code>), skupinu (<code>gid</code>) a čas změny. Soubor navíc obsahuje text, adresář seznam potomků, odkaz cíl.
+          Soubor smí mít nejvýše 1 MiB. Strom začíná kořenem <code>/</code>; oddělovačem je lomítko.</p>
+
+        <h3>Cesty</h3>
+        <ul>
+          <li><b>Absolutní</b> začíná lomítkem: <code>/etc/passwd</code>. <b>Relativní</b> se počítá od aktuálního adresáře: <code>Documents/log.txt</code>.</li>
+          <li><code>.</code> = aktuální adresář, <code>..</code> = nadřazený, <code>~</code> = váš domov, <code>cd -</code> = zpět do předchozího.</li>
+          <li>Velká a malá písmena se rozlišují: <code>Soubor.txt</code> a <code>soubor.txt</code> jsou dva různé soubory.</li>
+        </ul>
+
+        <h3>Adresářový strom po instalaci</h3>
+        <p>Takto vypadá systém po prvním spuštění nebo po <b>Přeinstalovat</b> (vytváří ho <code>js/os/linux/skeleton.js</code>).</p>
+        <pre class="tree"><b>/</b>
+├── bin → usr/bin            <span class="c">symbolický odkaz (stejně jako ve skutečném Linuxu)</span>
+├── sbin → usr/sbin          <span class="c">odkaz</span>
+├── lib → usr/lib            <span class="c">odkaz</span>
+├── <b>boot</b>                    <span class="c">(prázdný) zavaděč a jádro</span>
+├── <b>dev</b>
+│   └── null                 <span class="c">zařízení „černá díra“</span>
+├── <b>etc</b>                     <span class="c">nastavení systému</span>
+│   ├── passwd               <span class="c">seznam uživatelů</span>
+│   ├── group                <span class="c">seznam skupin</span>
+│   ├── shadow               <span class="c">hesla (čitelné jen pro root a skupinu shadow, práva 640)</span>
+│   ├── hostname             <span class="c">jméno počítače (bubos)</span>
+│   ├── hosts                <span class="c">tabulka jmen (localhost)</span>
+│   ├── os-release           <span class="c">identifikace systému</span>
+│   ├── shells               <span class="c">povolené shelly</span>
+│   ├── issue                <span class="c">text před přihlášením</span>
+│   ├── motd                 <span class="c">uvítací zpráva po přihlášení</span>
+│   └── skel/.bashrc         <span class="c">šablona pro domovské adresáře nových uživatelů</span>
+├── <b>home</b>
+│   └── <b>student</b>               <span class="c">domovský adresář (~) uživatele student</span>
+│       ├── .bashrc          <span class="c">aliasy a proměnné při přihlášení</span>
+│       ├── .bash_history    <span class="c">historie příkazů (vznikne při práci)</span>
+│       ├── README.txt       <span class="c">uvítací návod</span>
+│       ├── Downloads/       <span class="c">(prázdný)</span>
+│       └── Documents/
+│           ├── pisen.txt    <span class="c">báseň (v angličtině poem.txt) – na cvičení s cat, head, tail</span>
+│           ├── studenti.csv <span class="c">tabulka žáků (středníky) – na cut, sort, grep</span>
+│           ├── log.txt      <span class="c">24 řádků logu INFO / WARN / ERROR – na grep, wc, uniq</span>
+│           └── projekt/     <span class="c">ukázkový projekt – na find, tree, grep -r</span>
+│               ├── Makefile, .gitignore
+│               ├── src/main.c, src/util.c
+│               ├── include/util.h
+│               └── docs/README.md
+├── <b>media</b>, <b>mnt</b>, <b>opt</b>, <b>srv</b>, <b>sys</b>, <b>run</b>   <span class="c">(prázdné) připojená média, volné místo pro instalace…</span>
+├── <b>proc</b>                    <span class="c">ukázkové informace o „jádře“</span>
+│   ├── version, cpuinfo, meminfo, uptime
+├── <b>root</b>                    <span class="c">domov správce (práva 700)</span>
+│   └── .bashrc
+├── <b>tmp</b>                     <span class="c">dočasné soubory, smí zapisovat každý (práva 1777 – „sticky bit“)</span>
+├── <b>usr</b>
+│   ├── bin/                 <span class="c">„programy“ – pro každý příkaz jeden stub soubor</span>
+│   ├── sbin/, lib/, share/
+│   └── local/bin/           <span class="c">místo pro vaše vlastní skripty (je v PATH)</span>
+└── <b>var</b>
+    ├── log/syslog           <span class="c">systémový log (čitelný jen pro root a skupinu adm)</span>
+    ├── log/auth.log         <span class="c">log přihlášení</span>
+    ├── tmp/
+    └── www/html/index.html  <span class="c">ukázková webová stránka</span></pre>
+        <p>Obsah <code>/proc</code>, <code>/dev</code> a logů jsou jen statické ukázkové soubory (v budoucnu se mohou stát dynamickými).</p>
+
+        <h3>Typy souborů a barvy v <code>ls</code></h3>
+        <table>
+          <tr><th>První znak v <code>ls -l</code></th><th>Typ</th><th>Barva</th></tr>
+          <tr><td><code>-</code></td><td>obyčejný soubor</td><td>bílá (zelená, je-li spustitelný)</td></tr>
+          <tr><td><code>d</code></td><td>adresář</td><td>modrá</td></tr>
+          <tr><td><code>l</code></td><td>symbolický odkaz (<code>ln -s</code>)</td><td>azurová</td></tr>
+          <tr><td><code>c</code></td><td>zařízení (např. <code>/dev/null</code>)</td><td>žlutá</td></tr>
+        </table>
+
+        <h3>Přístupová práva</h3>
+        <p>Každý soubor má tři trojice práv: pro <b>vlastníka</b>, <b>skupinu</b> a <b>ostatní</b>. Každé právo je <code>r</code> (čtení, 4), <code>w</code> (zápis, 2), <code>x</code> (spuštění, 1).
+          Zápis <code>-rwxr-x---</code> tedy znamená: vlastník smí vše, skupina čte a spouští, ostatní nic. Číselně: <code>750</code>.
+          U adresáře znamená <code>r</code> vypsat obsah, <code>w</code> vytvářet a mazat v něm, <code>x</code> do něj vstoupit. Správce <code>root</code> obchází čtení a zápis; spustit smí jen soubory s nějakým <code>x</code>.
+          Měnit práva smí vlastník (<code>chmod</code>) nebo root, vlastníka mění (<code>chown</code>) jen root.</p>
+        <p><b>Sticky bit</b> (<code>t</code> na konci práv, např. u <code>/tmp</code>): mazat nebo přejmenovávat soubory v adresáři smí jen jejich vlastník, vlastník adresáře a root.</p>
+        <p>Nové soubory dostanou práva <code>644</code> a adresáře <code>755</code> (umask 022).</p>
+      </section>
+
+      <!-- ============================ 6 ============================ -->
+      <section id="uzivatele">
+        <h2>6. Uživatelé a práva</h2>
+        <p>Uživatelé jsou stejně jako v Linuxu uložení v textových souborech – můžete si je vypsat příkazem <code>cat</code>.</p>
+        <table>
+          <tr><th>Soubor</th><th>Obsah</th></tr>
+          <tr><td><code>/etc/passwd</code></td><td>jeden řádek na uživatele: <code>jméno:x:UID:GID:popis:domov:shell</code></td></tr>
+          <tr><td><code>/etc/group</code></td><td>skupiny: <code>jméno:x:GID:členové</code></td></tr>
+          <tr><td><code>/etc/shadow</code></td><td>hesla uložená jako otisk (hash). V BubOS je hashování <em>jen symbolické</em> – jde o výuku, ne o bezpečnost</td></tr>
+        </table>
+        <p>Předvytvoření uživatelé: <code>root</code> (UID 0), systémoví (<code>daemon</code>, <code>bin</code>, <code>sys</code>, <code>www-data</code>, <code>nobody</code> – nelze se jimi přihlásit) a <code>student</code> (UID 1000, skupiny <code>student</code>, <code>users</code>, <code>sudo</code>).</p>
+        <ul>
+          <li><code>whoami</code>, <code>id</code>, <code>groups</code> – kdo jsem a v jakých skupinách.</li>
+          <li><code>su uživatel</code> – přepne uživatele (zeptá se na jeho heslo); <code>su -</code> navíc nahraje jeho prostředí. <code>exit</code> vrací zpět.</li>
+          <li><code>sudo příkaz</code> – provede příkaz jako root. Smí jen členové skupiny <code>sudo</code>, zeptá se na <em>vaše</em> heslo a 5 minut si ho pamatuje (<code>sudo -k</code> zapomene).</li>
+          <li><code>sudo useradd -m alice</code> – vytvoří uživatele (s <code>-m</code> i domovský adresář podle <code>/etc/skel</code>); <code>sudo passwd alice</code> nastaví heslo.</li>
+        </ul>
+        <p><b>Co zkusit:</b> jako student vypište <code>cat /etc/shadow</code> (nepovede se: <em>Permission denied</em>), pak <code>sudo cat /etc/shadow</code> (povede).</p>
+      </section>
+
+      <!-- ============================ 7 ============================ -->
+      <section id="ukladani">
+        <h2>7. Ukládání, export a import</h2>
+        <p>Žádná data se neposílají na server. Server (PHP, Python…) pouze doručí statické soubory.</p>
+        <ul>
+          <li><b>Automatické ukládání:</b> každá změna se asi 0,4 s po ní uloží do databáze prohlížeče (IndexedDB <code>bubos</code>; záložně <code>localStorage</code>). Ukládá se také při zavření nebo přepnutí záložky. Po obnovení stránky se vše načte zpět.</li>
+          <li><b>Důsledek:</b> data jsou svázaná s konkrétním prohlížečem a počítačem. Na jiný počítač je přenesete tlačítky <b>Export</b> a <b>Import</b>. Smazání dat prohlížeče smaže i váš systém, proto exportujte důležitou práci.</li>
+          <li><b>Import</b> přijímá jen platný soubor BubOS do 20 MB; obsah se před použitím zkontroluje a nikdy se nevkládá do stránky jako HTML.</li>
+          <li><b>Přeinstalovat</b> smaže uložený stav a vytvoří nový systém (jazyk zůstane).</li>
+        </ul>
+
+        <h3>Formát souboru exportu</h3>
+        <pre>{
+  "format": 1,                    // verze formátu
+  "app": "bubos",
+  "os": "linux",                  // typ systému
+  "savedAt": "2026-11-13T10:15:00.000Z",
+  "settings": { "lang": "cs", "theme": "dark" },
+  "fs": { "type": "dir", "mode": 493, "uid": 0, "gid": 0, "mtime": 1763000000000,
+          "children": { "etc": { … }, "home": { … } } }
+}</pre>
+        <p>Je to obyčejné JSON, takže ho lze otevřít i v textovém editoru. Neukládá se tabulka procesů, otevřený editor ani rozepsaný příkaz.</p>
+      </section>
+
+      <!-- ============================ 8 ============================ -->
+      <section id="struktura">
+        <h2>8. Struktura projektu (všechny soubory)</h2>
+        <p>Takto vypadá složka <code>bubos</code> na disku. Aplikace nepotřebuje žádný překlad ani instalaci – prohlížeč načítá soubory přímo.</p>
+
+        <h3>Kořen</h3>
+        <table class="files">
+          <tr><th>Soubor</th><th>Účel</th></tr>
+          <tr><td><code>index.html</code></td><td>hlavní stránka: horní lišta, plocha terminálu, patička; načítá <code>js/main.js</code></td></tr>
+          <tr><td><code>docs.html</code></td><td>tato dokumentace</td></tr>
+          <tr><td><code>favicon.svg</code></td><td>ikona stránky (cyan výzva <code>&gt;_</code> s oranžovým kurzorem v rámečku na černém podkladu)</td></tr>
+          <tr><td><code>start.bat</code></td><td>spouštěč pro Windows: najde PHP, Node nebo Python, spustí místní server a otevře prohlížeč (<code>start.bat 9000</code> = jiný port)</td></tr>
+          <tr><td><code>package.json</code></td><td>jen skripty <code>npm test</code> a <code>npm start</code>; žádné závislosti</td></tr>
+          <tr><td><code>README.md</code></td><td>stručný úvod projektu</td></tr>
+          <tr><td><code>CLAUDE.md</code></td><td>pokyny a kontext pro asistenta Claude při vývoji</td></tr>
+          <tr><td><code>.claude/launch.json</code></td><td>nastavení náhledového serveru ve vývojovém nástroji</td></tr>
+        </table>
+
+        <h3><code>css/</code> – vzhled</h3>
+        <table class="files">
+          <tr><td><code>css/bubos.css</code></td><td>barvy (tmavé / světlé téma jako proměnné, tlumená „flat“ paleta bez záře), rozložení, terminál, pager, editor, lišta kláves pro dotyk</td></tr>
+          <tr><td><code>css/docs.css</code></td><td>doplňky pro stránku dokumentace</td></tr>
+        </table>
+
+        <h3><code>docs/</code> – vývojářská dokumentace</h3>
+        <table class="files">
+          <tr><td><code>docs/PROJEKT.md</code></td><td>cíl projektu, učiněná rozhodnutí, stav a plán dalších kroků</td></tr>
+          <tr><td><code>docs/ARCHITEKTURA.md</code></td><td>vrstvy, tok příkazu, konvence kódu, formát exportu</td></tr>
+        </table>
+
+        <h3><code>i18n/</code> a <code>man/</code> – texty</h3>
+        <table class="files">
+          <tr><td><code>i18n/cs.json</code>, <code>i18n/en.json</code></td><td>překlady rozhraní a chybových hlášení (ploché klíče typu <code>err.ENOENT</code>). Chybí-li klíč, použije se angličtina</td></tr>
+          <tr><td><code>man/cs.txt</code>, <code>man/en.txt</code></td><td>manuálové stránky všech příkazů; každá začíná řádkem <code>#### jméno</code>. Čtou je <code>man</code>, <code>help</code>, <code>--help</code> i referenční příručka níže</td></tr>
+        </table>
+
+        <h3><code>js/</code> – program</h3>
+        <table class="files">
+          <tr><td><code>js/main.js</code></td><td>jediné místo, kde se potkává stránka a jádro: načtení uloženého stavu, přihlášení, smyčka „přečti řádek → proveď“, tlačítka v liště, automatické ukládání</td></tr>
+        </table>
+
+        <h4><code>js/ui/</code> – uživatelské rozhraní (smí používat DOM)</h4>
+        <table class="files">
+          <tr><td><code>terminal.js</code></td><td>terminál: výstup, řádek se vstupem, historie, Tab, klávesové zkratky, lišta kláves; otevírá přes sebe pager a editor</td></tr>
+          <tr><td><code>ansi.js</code></td><td>převádí barevné escape sekvence (<code>\x1b[1;34m</code>) na zbarvené prvky stránky</td></tr>
+          <tr><td><code>pager.js</code></td><td>celoobrazovkový prohlížeč textu pro <code>less</code> a <code>man</code></td></tr>
+          <tr><td><code>editor.js</code></td><td>editor ve stylu <code>nano</code></td></tr>
+        </table>
+
+        <h4><code>js/core/</code> – jádro (bez DOM, testovatelné v Node)</h4>
+        <table class="files">
+          <tr><td><code>vfs.js</code></td><td>virtuální souborový systém: uzly, práva, symbolické odkazy, sticky bit, normalizace cest, kontrola importu</td></tr>
+          <tr><td><code>users.js</code></td><td>uživatelé a skupiny v <code>/etc/passwd</code>, <code>group</code>, <code>shadow</code>; hesla; vytvoření uživatele</td></tr>
+          <tr><td><code>machine.js</code></td><td>„počítač“ = profil OS + souborový systém + procesy + nastavení; tvorba čistého a obnova z exportu; <code>snapshot()</code></td></tr>
+          <tr><td><code>process.js</code></td><td>tabulka simulovaných procesů (PID, přerušení)</td></tr>
+          <tr><td><code>streams.js</code></td><td>roura s omezenou pamětí (<code>Pipe</code>), vstup (<code>Stdin</code>) a zapisovače do textu a souborů</td></tr>
+          <tr><td><code>storage.js</code></td><td>IndexedDB, export a import souboru, kontrola formátu</td></tr>
+          <tr><td><code>i18n.js</code></td><td>funkce <code>t('klíč', {proměnné})</code> a načítání slovníků</td></tr>
+          <tr><td><code>args.js</code></td><td>společný zpracovatel voleb příkazů (<code>-abc</code>, <code>-n 5</code>, <code>--long=hodnota</code>)</td></tr>
+          <tr><td><code>regex.js</code></td><td>převod POSIX regulárních výrazů (pro <code>grep</code> aj.) na JavaScriptové</td></tr>
+          <tr><td><code>util.js</code></td><td>chybové třídy (<code>CmdError</code>, <code>Interrupt</code>…), <code>sleep</code>, sloupcový výpis</td></tr>
+        </table>
+        <h4><code>js/core/shell/</code> – interpret příkazů</h4>
+        <table class="files">
+          <tr><td><code>parse.js</code></td><td>rozbor řádku na příkazy, roury, přesměrování, uvozovky a proměnné; rozvinutí aliasů</td></tr>
+          <tr><td><code>expand.js</code></td><td>expanze <code>~</code>, <code>$VAR</code>, <code>$(…)</code>, dělení na slova a globbing</td></tr>
+          <tr><td><code>complete.js</code></td><td>doplňování klávesou Tab</td></tr>
+          <tr><td><code>shell.js</code></td><td>třída <code>Shell</code>: stav relace (uživatel, adresář, proměnné, aliasy, historie), spouštění rour, přesměrování, hledání příkazů, hlášení chyb</td></tr>
+        </table>
+
+        <h4><code>js/os/linux/</code> – profil Linuxu</h4>
+        <table class="files">
+          <tr><td><code>profile.js</code></td><td>seznam příkazů (<code>COMMANDS</code>), <code>PATH</code>, vzhled promptu, načítání příkazů a manuálu, nastavení doplňování Tab pro jednotlivé příkazy</td></tr>
+          <tr><td><code>skeleton.js</code></td><td>výchozí obsah souborového systému (strom z kapitoly 5)</td></tr>
+          <tr><td><code>lib.js</code></td><td>společné pomocné funkce příkazů (formát dat a velikostí, barvy v <code>ls</code>, čtení vstupu)</td></tr>
+          <tr><td><code>commands/*.js</code></td><td>jeden soubor = jeden příkaz (seznam níže). Další OS (např. Windows) by měl vlastní složku <code>js/os/&lt;os&gt;/</code></td></tr>
+        </table>
+        <p class="note">Soubory příkazů v <code>js/os/linux/commands/</code>:</p>
+        <div id="cmd-files" class="cmd-files"></div>
+
+        <h3><code>tests/</code> a <code>tools/</code></h3>
+        <table class="files">
+          <tr><td><code>tests/helpers.js</code></td><td>virtuální terminál bez prohlížeče: <code>boot()</code> vrací <code>{ run, sh, m, tty }</code></td></tr>
+          <tr><td><code>tests/shell.test.js</code></td><td>scénáře testů shellu a příkazů; spuštění <code>npm test</code></td></tr>
+          <tr><td><code>tools/serve.mjs</code></td><td>nouzový statický server v Node (<code>node tools/serve.mjs 8080</code>), když není PHP ani Python</td></tr>
+        </table>
+      </section>
+
+      <!-- ============================ 9 ============================ -->
+      <section id="vyvoj">
+        <h2>9. Pro vývojáře</h2>
+        <h3>Spuštění</h3>
+        <p>Stačí libovolný statický server ve složce projektu (moduly ES nefungují po otevření souboru přes <code>file://</code>):</p>
+        <pre>python -m http.server 8080      # nebo: php -S localhost:8080
+# potom otevřít http://localhost:8080
+# Windows: dvojklik na start.bat</pre>
+        <p>Testy: <code>npm test</code> (Node 18+, bez závislostí).</p>
+
+        <h3>Přidání nového příkazu</h3>
+        <ol>
+          <li>Vytvořte <code>js/os/linux/commands/jmeno.js</code>:
+<pre>export default {
+  async run(ctx) {
+    // ctx.args = argumenty, ctx.stdin / ctx.stdout / ctx.stderr, ctx.fs, ctx.user, ctx.env, ctx.tty …
+    await ctx.stdout.write('ahoj\n');
+    return 0;              // návratový kód
+  },
+};</pre></li>
+          <li>Přidejte jméno do pole <code>COMMANDS</code> v <code>js/os/linux/profile.js</code>. Příkaz, který musí běžet přímo v shellu (mění jeho stav), přidejte i do <code>SHELL_ONLY</code> v <code>profile.js</code> <em>a</em> <code>skeleton.js</code>.</li>
+          <li>Napište stránku <code>#### jmeno</code> do <code>man/cs.txt</code> i <code>man/en.txt</code>. První řádek pod <code>JMÉNO</code> / <code>NAME</code> je <code>jmeno - popis</code>; ten se objeví v <code>help</code> i v této příručce.</li>
+          <li>Přidejte překlady hlášení do <code>i18n/cs.json</code> i <code>i18n/en.json</code> a test do <code>tests/shell.test.js</code>.</li>
+        </ol>
+        <p>Chyby se hlásí výjimkou <code>throw new CmdError('text', kód)</code> ve formátu GNU (<code>program: operand: zpráva</code>). Dlouhé smyčky mají volat <code>ctx.check()</code>, aby šly přerušit <kbd>Ctrl+C</kbd>.</p>
+        <p>Podrobnosti viz <code>docs/ARCHITEKTURA.md</code> a <code>docs/PROJEKT.md</code> (plán: <code>sed</code>, <code>awk</code>, <code>if/for/while</code>, síť, lekce, profil Windows).</p>
+      </section>
+
+      <!-- ============================ 10 ============================ -->
+      <section id="prikazy">
+        <h2>10. Referenční příručka příkazů</h2>
+        <p>Tato část se načítá přímo z manuálových stránek (<code>man/cs.txt</code> nebo <code>man/en.txt</code>), takže je vždy shodná s tím, co ukáže příkaz <code>man</code>.
+          Jazyk příručky přepnete tlačítkem <b>CS / EN</b> nahoře. <span id="count"></span></p>
+        <p class="note">Příklad čtení: <code>[ ]</code> v zápisu použití znamená „nepovinné“, <code>...</code> „lze opakovat“, VELKÁ PÍSMENA jsou místa, která nahradíte vlastní hodnotou.</p>
+        <div id="cmds"><p class="note">Načítám…</p></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="js/docs.js"></script>
+</body>
+</html>

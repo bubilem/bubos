@@ -54,6 +54,8 @@
   "ui.reset.confirm": "Opravdu smazat celý systém a začít znovu? Nezálohovaná práce bude ztracena.",
   "ui.import.bad": "Soubor se nepodařilo načíst: {msg}",
   "ui.import.confirm": "Načtení souboru nahradí aktuální systém. Pokračovat?",
+  "ui.docs": "Dokumentace",
+  "ui.docs.title": "Otevřít dokumentaci a manuál v nové záložce",
   "ui.theme": "Vzhled",
   "ui.lang": "Jazyk",
   "ui.hint": "Tip: Tab doplňuje, ↑/↓ listují historií, Ctrl+C přeruší příkaz. Práce se ukládá v tomto prohlížeči – pro přenos použij Export.",

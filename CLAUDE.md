@@ -12,7 +12,8 @@ Přehled rozhodnutí a plán: `docs/PROJEKT.md`. Architektura a konvence: `docs/
 - Komentáře v kódu česky, stručné; styl kódu viz okolní soubory.
 
 ## Příkazy
-- Testy: `npm test` (= `node --test tests/`; Node 24 stačí, bez závislostí).
+- Testy: `npm test` (= `node --test`; Node 24 stačí, bez závislostí; `node --test tests/` na Node 24 nefunguje).
+- Uživatelská dokumentace/manuál: `docs.html` (+ `css/docs.css`, `js/docs.js`), odkaz „Dokumentace“ je v horní liště `index.html`. Referenční příručka příkazů se čte z `man/*.txt` sama (nový příkaz = jen přidat do `CATS` v `js/docs.js`, jinak spadne do „Ostatní“); ručně psané kapitoly (struktura FS, soubory projektu, klávesy) je nutné při změnách aktualizovat.
 - Spuštění: `python -m http.server 8080` (PHP na dev stroji nebylo), pak http://localhost:8080. ES moduly nejdou z `file://`.
 - `.claude/launch.json` má konfiguraci `bubos` pro preview_start.
 

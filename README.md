@@ -10,7 +10,8 @@ Ručně:
 Stačí statický webserver ve složce projektu, např. `php -S localhost:8080` nebo `python -m http.server 8080`
 (ES moduly nefungují z `file://`). Na produkci prostě nahrajte složku na PHP hosting.
 
-Dokumentace: `docs/PROJEKT.md` (rozhodnutí, stav, plán, přenos na jiný stroj), `docs/ARCHITEKTURA.md` (vrstvy a konvence), `CLAUDE.md` (kontext pro Clauda).
+Uživatelský manuál: `docs.html` (v aplikaci odkaz „Dokumentace“ v horní liště) – příkazy, klávesy, struktura systému i projektu.
+Vývojářská dokumentace: `docs/PROJEKT.md` (rozhodnutí, stav, plán, přenos na jiný stroj), `docs/ARCHITEKTURA.md` (vrstvy a konvence), `CLAUDE.md` (kontext pro Clauda).
 
 ## Struktura
 
