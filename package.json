@@ -1,0 +1,10 @@
+{
+  "name": "bubos",
+  "private": true,
+  "type": "module",
+  "description": "BubOS – výukový simulátor Linuxu v prohlížeči",
+  "scripts": {
+    "test": "node --test tests/",
+    "start": "python -m http.server 8080"
+  }
+}

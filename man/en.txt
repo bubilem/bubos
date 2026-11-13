@@ -1,0 +1,694 @@
+#### ls
+NAME
+    ls - list directory contents
+SYNOPSIS
+    ls [OPTION]... [FILE]...
+DESCRIPTION
+    Lists files and directories. Without arguments it lists the current directory.
+OPTIONS
+    -a   show hidden files too (names starting with a dot)
+    -A   like -a, but without . and ..
+    -l   long format: permissions, owner, group, size, date
+    -h   human-readable sizes (with -l)
+    -R   list subdirectories recursively
+    -d   list the directory itself, not its contents
+    -t   sort by modification time, newest first
+    -S   sort by size, largest first
+    -r   reverse the order
+    -F   append / to directories, * to executables, @ to links
+EXAMPLES
+    ls -la ~          all files in the home directory, in detail
+    ls -lh /etc       readable sizes
+SEE ALSO
+    tree, find, cd
+
+#### cd
+NAME
+    cd - change the working directory
+SYNOPSIS
+    cd [DIRECTORY]
+DESCRIPTION
+    Without arguments goes to the home directory. "cd -" returns to the previous directory.
+    ".." is the parent directory, "." the current one, "~" your home directory.
+EXAMPLES
+    cd /etc           absolute path (starts with /)
+    cd ../Documents   relative path
+SEE ALSO
+    pwd, ls
+
+#### pwd
+NAME
+    pwd - print the current working directory
+SYNOPSIS
+    pwd
+DESCRIPTION
+    Prints the absolute path of the directory you are in.
+SEE ALSO
+    cd
+
+#### cat
+NAME
+    cat - concatenate files and print them
+SYNOPSIS
+    cat [-n] [FILE]...
+DESCRIPTION
+    Prints the contents of the files one after another. Without arguments it reads standard input
+    (finish with Ctrl+D). With long files use less.
+OPTIONS
+    -n   number all output lines
+EXAMPLES
+    cat a.txt b.txt > all.txt     join two files
+SEE ALSO
+    less, head, tail
+
+#### touch
+NAME
+    touch - create an empty file or update its time
+SYNOPSIS
+    touch [-c] FILE...
+DESCRIPTION
+    Creates the file if it does not exist, otherwise sets its modification time to now.
+OPTIONS
+    -c   do not create missing files
+
+#### mkdir
+NAME
+    mkdir - make directories
+SYNOPSIS
+    mkdir [-p] [-m MODE] DIRECTORY...
+OPTIONS
+    -p   create parent directories as needed, no error if it exists
+    -m   set permissions (e.g. 700)
+EXAMPLES
+    mkdir -p projects/2026/notes
+
+#### rmdir
+NAME
+    rmdir - remove empty directories
+SYNOPSIS
+    rmdir DIRECTORY...
+DESCRIPTION
+    Removes only empty directories. For non-empty ones use rm -r.
+
+#### rm
+NAME
+    rm - remove files or directories
+SYNOPSIS
+    rm [-rfv] FILE...
+DESCRIPTION
+    Removes files permanently - there is no recycle bin!
+OPTIONS
+    -r   remove directories and their contents recursively
+    -f   ignore missing files, never complain
+    -v   explain what is being done
+EXAMPLES
+    rm old.txt
+    rm -r build/
+SEE ALSO
+    rmdir
+
+#### cp
+NAME
+    cp - copy files and directories
+SYNOPSIS
+    cp [-rvn] SOURCE... DESTINATION
+DESCRIPTION
+    Copies SOURCE to DESTINATION. If DESTINATION is an existing directory, the files are copied into it.
+OPTIONS
+    -r   copy directories recursively
+    -v   explain what is being done
+    -n   do not overwrite existing files
+EXAMPLES
+    cp a.txt backup/
+    cp -r projekt projekt-copy
+
+#### mv
+NAME
+    mv - move or rename files
+SYNOPSIS
+    mv [-vn] SOURCE... DESTINATION
+DESCRIPTION
+    Moves files to another directory, or renames when the destination is a new name.
+EXAMPLES
+    mv old.txt new.txt       rename
+    mv *.txt Documents/      move several files
+
+#### ln
+NAME
+    ln - make links between files
+SYNOPSIS
+    ln -s TARGET [LINK_NAME]
+DESCRIPTION
+    Creates a symbolic link (a shortcut pointing to TARGET). Hard links are not supported in BubOS.
+OPTIONS
+    -s   symbolic link (required)
+    -f   remove an existing destination
+EXAMPLES
+    ln -s /var/log logs
+
+#### head
+NAME
+    head - print the first lines of files
+SYNOPSIS
+    head [-n N] [FILE]...
+DESCRIPTION
+    Prints the first 10 lines (or N lines) of each file or of standard input.
+EXAMPLES
+    head -n 3 log.txt
+    ls -l | head -5
+SEE ALSO
+    tail
+
+#### tail
+NAME
+    tail - print the last lines of files
+SYNOPSIS
+    tail [-n N] [FILE]...
+DESCRIPTION
+    Prints the last 10 lines (or N lines) of each file or of standard input.
+EXAMPLES
+    tail -n 5 /var/log/syslog
+SEE ALSO
+    head
+
+#### wc
+NAME
+    wc - count lines, words and bytes
+SYNOPSIS
+    wc [-lwcm] [FILE]...
+OPTIONS
+    -l   lines
+    -w   words
+    -c   bytes
+    -m   characters
+EXAMPLES
+    ls | wc -l          how many items are in the directory
+
+#### sort
+NAME
+    sort - sort lines of text
+SYNOPSIS
+    sort [-rnuf] [-k KEY] [-t SEP] [FILE]...
+OPTIONS
+    -r   reverse order
+    -n   numeric sort
+    -u   remove duplicate lines
+    -f   ignore case
+    -k   sort by field number KEY (e.g. -k2 or -k2,2)
+    -t   field separator (default: whitespace)
+EXAMPLES
+    sort -t';' -k3 -n studenti.csv      by the third column, numerically
+
+#### uniq
+NAME
+    uniq - report or omit repeated adjacent lines
+SYNOPSIS
+    uniq [-cdui] [FILE]
+DESCRIPTION
+    Works only on ADJACENT duplicate lines, so sort the input first.
+OPTIONS
+    -c   prefix lines with the number of occurrences
+    -d   only print duplicated lines
+    -u   only print unique lines
+    -i   ignore case
+EXAMPLES
+    sort names.txt | uniq -c
+
+#### tee
+NAME
+    tee - read from input and write to output and files
+SYNOPSIS
+    tee [-a] FILE...
+DESCRIPTION
+    Copies standard input both to standard output and to the files - like a T-junction in a pipe.
+OPTIONS
+    -a   append instead of overwrite
+EXAMPLES
+    ls | tee list.txt | wc -l
+
+#### tree
+NAME
+    tree - list directory contents as a tree
+SYNOPSIS
+    tree [-ad] [-L LEVEL] [DIRECTORY]...
+OPTIONS
+    -a   include hidden files
+    -d   directories only
+    -L   maximum depth
+
+#### find
+NAME
+    find - search for files in a directory hierarchy
+SYNOPSIS
+    find [PATH...] [EXPRESSION]
+DESCRIPTION
+    Walks the directories and prints (or acts on) the entries that match all the tests.
+EXPRESSION
+    -name PATTERN    name matches the pattern (quote it: "*.txt")
+    -iname PATTERN   the same, ignoring case
+    -type f|d|l      file, directory, link
+    -empty           empty files or directories
+    -maxdepth N      descend at most N levels
+    -mindepth N      skip the first N levels
+    ! TEST           negate the test
+    -print           print the path (default)
+    -delete          delete the matches
+    -exec CMD {} ;   run CMD for every match ({} is the path)
+EXAMPLES
+    find . -name "*.c"
+    find ~ -type f -exec ls -l {} ;
+
+#### chmod
+NAME
+    chmod - change file permissions
+SYNOPSIS
+    chmod [-R] MODE FILE...
+DESCRIPTION
+    MODE is either octal (755: owner rwx, group r-x, others r-x; r=4, w=2, x=1)
+    or symbolic: who (u=user, g=group, o=others, a=all) + operator (+, -, =) + rwx.
+OPTIONS
+    -R   apply to directories recursively
+EXAMPLES
+    chmod 644 notes.txt
+    chmod u+x script.sh
+    chmod go-rwx secret.txt
+SEE ALSO
+    chown, ls -l
+
+#### chown
+NAME
+    chown - change file owner and group
+SYNOPSIS
+    chown [-R] OWNER[:GROUP] FILE...
+DESCRIPTION
+    Only root may change the owner. Use sudo.
+EXAMPLES
+    sudo chown student:users report.txt
+
+#### grep
+NAME
+    grep - print lines that match a pattern
+SYNOPSIS
+    grep [OPTION]... PATTERN [FILE]...
+DESCRIPTION
+    Searches for PATTERN (a basic regular expression) in the files or in standard input.
+    Quote the pattern so the shell does not interpret it.
+OPTIONS
+    -i   ignore case
+    -v   invert: print lines that do NOT match
+    -n   show line numbers
+    -c   only count matching lines
+    -l   only print names of files with a match
+    -r   search directories recursively
+    -E   extended regular expressions (+ ? | () {} without backslashes)
+    -F   fixed string, not a regular expression
+    -w   match whole words only
+    -x   match whole lines only
+    -o   print only the matching part
+    -q   quiet, only set the exit status
+REGULAR EXPRESSIONS
+    .      any character          ^   start of line        $   end of line
+    *      repeat 0 or more times [abc]  one of a, b, c    [^abc] none of them
+    [[:digit:]] a digit           \< \>  word boundaries    \| alternation (-E: |)
+EXAMPLES
+    grep -n ERROR log.txt
+    grep -E "^(Anna|Boris)" studenti.csv
+    grep -rl "main" projekt/
+SEE ALSO
+    find, cut
+
+#### cut
+NAME
+    cut - remove sections from each line
+SYNOPSIS
+    cut -d DELIM -f LIST [FILE]...
+    cut -c LIST [FILE]...
+OPTIONS
+    -d   field delimiter (default: tab)
+    -f   fields to keep: 1,3  or 2-4  or 2-
+    -c   characters to keep
+    -s   skip lines without the delimiter
+EXAMPLES
+    cut -d';' -f1,3 studenti.csv
+    cut -d: -f1 /etc/passwd
+
+#### tr
+NAME
+    tr - translate or delete characters
+SYNOPSIS
+    tr [-dsc] SET1 [SET2]
+DESCRIPTION
+    Reads standard input and replaces characters of SET1 with the corresponding characters of SET2.
+    Sets can contain ranges (a-z) and classes ([:upper:], [:digit:] ...).
+OPTIONS
+    -d   delete characters of SET1
+    -s   squeeze repeated characters
+    -c   complement SET1
+EXAMPLES
+    echo hello | tr a-z A-Z
+    tr -d '\n' < file.txt
+
+#### echo
+NAME
+    echo - display a line of text
+SYNOPSIS
+    echo [-ne] [TEXT]...
+OPTIONS
+    -n   do not print the trailing newline
+    -e   interpret backslash escapes (\n, \t, \e ...)
+EXAMPLES
+    echo "Hello $USER"
+    echo hello > file.txt        write to a file (overwrites)
+    echo more >> file.txt        append to a file
+
+#### export
+NAME
+    export - mark variables for export to child processes
+SYNOPSIS
+    export [NAME[=VALUE]]...
+DESCRIPTION
+    A plain variable (x=5) is visible only in the shell. After export, programs started from the
+    shell see it too (listed by env). Without arguments lists the exported variables.
+EXAMPLES
+    export EDITOR=nano
+    PATH="$PATH:$HOME/bin"
+
+#### unset
+NAME
+    unset - remove a variable
+SYNOPSIS
+    unset NAME...
+
+#### alias
+NAME
+    alias - define or show aliases
+SYNOPSIS
+    alias [NAME[=VALUE]]...
+DESCRIPTION
+    An alias replaces the first word of a command with a text. Without arguments lists the aliases.
+    Put permanent aliases into ~/.bashrc.
+EXAMPLES
+    alias ll='ls -l'
+
+#### unalias
+NAME
+    unalias - remove aliases
+SYNOPSIS
+    unalias [-a] NAME...
+
+#### exit logout
+NAME
+    exit, logout - leave the shell
+SYNOPSIS
+    exit [CODE]
+DESCRIPTION
+    Ends the current shell. After su or sudo -i it returns to the previous user, otherwise it logs out.
+    Ctrl+D does the same.
+
+#### history
+NAME
+    history - show the command history
+SYNOPSIS
+    history [N | -c]
+DESCRIPTION
+    Lists numbered previous commands (stored in ~/.bash_history). Use the up/down arrows to browse them.
+    !! repeats the last command, !N command number N, !text the last command starting with text.
+OPTIONS
+    -c   clear the history
+
+#### source .
+NAME
+    source, . - run commands from a file in the current shell
+SYNOPSIS
+    source FILE
+DESCRIPTION
+    Typically used to re-read ~/.bashrc after editing aliases.
+
+#### type
+NAME
+    type - describe how a name would be interpreted
+SYNOPSIS
+    type NAME...
+EXAMPLES
+    type cd ls ll
+
+#### which
+NAME
+    which - locate a command
+SYNOPSIS
+    which NAME...
+DESCRIPTION
+    Prints the full path of the program that would run, searching the directories in $PATH.
+
+#### clear
+NAME
+    clear - clear the terminal screen
+SYNOPSIS
+    clear
+DESCRIPTION
+    The same as pressing Ctrl+L.
+
+#### help
+NAME
+    help - overview of commands
+SYNOPSIS
+    help [COMMAND]
+DESCRIPTION
+    Lists all commands with a short description. With an argument it shows the manual page.
+
+#### man
+NAME
+    man - show the manual page of a command
+SYNOPSIS
+    man COMMAND
+DESCRIPTION
+    Opens the manual in a pager: space = next page, b = back, q = quit.
+    Most commands also accept --help.
+EXAMPLES
+    man grep
+
+#### less
+NAME
+    less - view a file page by page
+SYNOPSIS
+    less [FILE]
+DESCRIPTION
+    Space = next page, b = back, arrows or j/k = one line, g/G = start/end, q = quit.
+EXAMPLES
+    less /var/log/syslog
+    ls -l /etc | less
+
+#### nano
+NAME
+    nano - simple text editor
+SYNOPSIS
+    nano [FILE]
+DESCRIPTION
+    Type to edit. The shortcuts are shown at the bottom (^ means Ctrl).
+    Ctrl+O saves, Ctrl+X exits, Ctrl+K cuts a line, Ctrl+U pastes it.
+EXAMPLES
+    nano notes.txt
+
+#### env
+NAME
+    env - show the environment
+SYNOPSIS
+    env
+DESCRIPTION
+    Prints the exported variables (NAME=value).
+SEE ALSO
+    export, printenv
+
+#### printenv
+NAME
+    printenv - print the value of environment variables
+SYNOPSIS
+    printenv [NAME]...
+
+#### true false
+NAME
+    true, false - do nothing, successfully / unsuccessfully
+SYNOPSIS
+    true
+    false
+DESCRIPTION
+    They only set the exit status (0 or 1). Useful with && and ||.
+
+#### test [
+NAME
+    test, [ - check file types and compare values
+SYNOPSIS
+    test EXPRESSION
+    [ EXPRESSION ]
+DESCRIPTION
+    Exit status 0 means true. Tests: -e exists, -f regular file, -d directory, -r -w -x permissions,
+    -s not empty, -z empty string, -n non-empty string, a = b, a != b, n -eq -ne -lt -le -gt -ge m.
+EXAMPLES
+    [ -f notes.txt ] && echo exists
+
+#### sleep
+NAME
+    sleep - delay for a specified time
+SYNOPSIS
+    sleep NUMBER[s|m|h|d]
+EXAMPLES
+    sleep 5 &        wait in the background
+
+#### date
+NAME
+    date - print the date and time
+SYNOPSIS
+    date [+FORMAT]
+EXAMPLES
+    date +%Y-%m-%d
+    date "+%H:%M:%S"
+
+#### uname
+NAME
+    uname - print system information
+SYNOPSIS
+    uname [-asnrvmo]
+OPTIONS
+    -a   everything
+    -r   kernel release
+
+#### hostname
+NAME
+    hostname - show the computer name
+SYNOPSIS
+    hostname
+
+#### whoami
+NAME
+    whoami - print the current user name
+SYNOPSIS
+    whoami
+
+#### id
+NAME
+    id - print user and group IDs
+SYNOPSIS
+    id [USER]
+DESCRIPTION
+    Shows the user ID (uid), primary group (gid) and all groups of a user.
+
+#### groups
+NAME
+    groups - print the groups a user is in
+SYNOPSIS
+    groups [USER]
+
+#### su
+NAME
+    su - switch user
+SYNOPSIS
+    su [-] [USER]
+DESCRIPTION
+    Starts a shell as another user (default root); asks for that user's password unless you are root.
+    With "-" a full login shell is started (home directory, fresh environment). Leave with exit.
+EXAMPLES
+    su -
+    su - bob
+
+#### sudo
+NAME
+    sudo - run a command as another user (root)
+SYNOPSIS
+    sudo [-u USER] COMMAND [ARGUMENT]...
+    sudo -i | -s
+DESCRIPTION
+    Allowed only for members of the group sudo. Asks for YOUR password (remembered for 5 minutes).
+OPTIONS
+    -u   run as this user instead of root
+    -i   login shell as root
+    -s   shell as root
+    -k   forget the remembered password
+EXAMPLES
+    sudo cat /etc/shadow
+    sudo useradd -m alice
+
+#### useradd
+NAME
+    useradd - create a new user
+SYNOPSIS
+    useradd [-m] [-s SHELL] [-G GROUPS] [-c COMMENT] LOGIN
+DESCRIPTION
+    Root only. The user is added to /etc/passwd, /etc/group and /etc/shadow.
+    The new account has no password yet - set one with passwd.
+OPTIONS
+    -m   create the home directory
+    -s   login shell (default /bin/bash)
+    -G   additional groups, comma separated
+EXAMPLES
+    sudo useradd -m -G sudo alice
+    sudo passwd alice
+
+#### passwd
+NAME
+    passwd - change a password
+SYNOPSIS
+    passwd [USER]
+DESCRIPTION
+    Without argument changes your own password (asks for the current one). Root can change anyone's.
+
+#### ps
+NAME
+    ps - report running processes
+SYNOPSIS
+    ps [aux | -ef]
+DESCRIPTION
+    Without arguments shows your processes in this terminal. "ps aux" and "ps -ef" show all processes.
+SEE ALSO
+    kill
+
+#### kill
+NAME
+    kill - terminate a process
+SYNOPSIS
+    kill [-SIGNAL] PID...
+DESCRIPTION
+    Stops the process with the given PID (find it with ps). You can only kill your own processes.
+EXAMPLES
+    sleep 100 &
+    kill 2345
+
+#### yes
+NAME
+    yes - repeat a string until interrupted
+SYNOPSIS
+    yes [TEXT]
+DESCRIPTION
+    Prints "y" (or TEXT) forever. Stop it with Ctrl+C or end it with head.
+EXAMPLES
+    yes | head -3
+
+#### seq
+NAME
+    seq - print a sequence of numbers
+SYNOPSIS
+    seq [-s SEP] [FIRST [STEP]] LAST
+EXAMPLES
+    seq 5
+    seq 10 -2 0
+
+#### basename
+NAME
+    basename - strip the directory from a path
+SYNOPSIS
+    basename PATH [SUFFIX]
+EXAMPLES
+    basename /home/student/a.txt .txt
+
+#### dirname
+NAME
+    dirname - strip the last component from a path
+SYNOPSIS
+    dirname PATH...
+
+#### lang
+NAME
+    lang - switch the language of BubOS
+SYNOPSIS
+    lang [cs|en]
+DESCRIPTION
+    Changes the language of messages and manual pages (also available as the CS/EN button).

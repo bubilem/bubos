@@ -1,0 +1,694 @@
+#### ls
+JMÉNO
+    ls - vypíše obsah adresáře
+POUŽITÍ
+    ls [VOLBY]... [SOUBOR]...
+POPIS
+    Vypíše soubory a adresáře. Bez argumentů vypíše aktuální adresář.
+VOLBY
+    -a   zobrazí i skryté soubory (názvy začínající tečkou)
+    -A   jako -a, ale bez . a ..
+    -l   dlouhý formát: práva, vlastník, skupina, velikost, datum
+    -h   velikosti čitelné pro člověka (s -l)
+    -R   vypíše i podadresáře (rekurzivně)
+    -d   vypíše samotný adresář, ne jeho obsah
+    -t   řadí podle času změny, nejnovější první
+    -S   řadí podle velikosti, největší první
+    -r   obrátí pořadí
+    -F   přidá / za adresáře, * za spustitelné soubory, @ za odkazy
+PŘÍKLADY
+    ls -la ~          všechny soubory v domovském adresáři podrobně
+    ls -lh /etc       čitelné velikosti
+VIZ TÉŽ
+    tree, find, cd
+
+#### cd
+JMÉNO
+    cd - změní pracovní adresář
+POUŽITÍ
+    cd [ADRESÁŘ]
+POPIS
+    Bez argumentu přejde do domovského adresáře. "cd -" se vrátí do předchozího adresáře.
+    ".." je nadřazený adresář, "." aktuální, "~" váš domovský adresář.
+PŘÍKLADY
+    cd /etc           absolutní cesta (začíná lomítkem)
+    cd ../Documents   relativní cesta
+VIZ TÉŽ
+    pwd, ls
+
+#### pwd
+JMÉNO
+    pwd - vypíše aktuální pracovní adresář
+POUŽITÍ
+    pwd
+POPIS
+    Vypíše absolutní cestu k adresáři, ve kterém se nacházíte.
+VIZ TÉŽ
+    cd
+
+#### cat
+JMÉNO
+    cat - spojí soubory a vypíše je
+POUŽITÍ
+    cat [-n] [SOUBOR]...
+POPIS
+    Vypíše obsah souborů za sebou. Bez argumentů čte standardní vstup (ukončení Ctrl+D).
+    U dlouhých souborů použijte less.
+VOLBY
+    -n   očísluje všechny řádky
+PŘÍKLADY
+    cat a.txt b.txt > vse.txt     spojí dva soubory
+VIZ TÉŽ
+    less, head, tail
+
+#### touch
+JMÉNO
+    touch - vytvoří prázdný soubor nebo aktualizuje jeho čas
+POUŽITÍ
+    touch [-c] SOUBOR...
+POPIS
+    Pokud soubor neexistuje, vytvoří ho. Jinak nastaví čas poslední změny na aktuální.
+VOLBY
+    -c   nevytváří chybějící soubory
+
+#### mkdir
+JMÉNO
+    mkdir - vytvoří adresáře
+POUŽITÍ
+    mkdir [-p] [-m PRÁVA] ADRESÁŘ...
+VOLBY
+    -p   vytvoří i chybějící nadřazené adresáře, neohlásí chybu, když už existuje
+    -m   nastaví práva (např. 700)
+PŘÍKLADY
+    mkdir -p projekty/2026/poznamky
+
+#### rmdir
+JMÉNO
+    rmdir - odstraní prázdné adresáře
+POUŽITÍ
+    rmdir ADRESÁŘ...
+POPIS
+    Odstraní jen prázdné adresáře. Pro neprázdné použijte rm -r.
+
+#### rm
+JMÉNO
+    rm - odstraní soubory nebo adresáře
+POUŽITÍ
+    rm [-rfv] SOUBOR...
+POPIS
+    Maže natrvalo – žádný koš neexistuje!
+VOLBY
+    -r   odstraní adresáře včetně obsahu (rekurzivně)
+    -f   ignoruje neexistující soubory, nikdy nehlásí chybu
+    -v   vypisuje, co se děje
+PŘÍKLADY
+    rm stary.txt
+    rm -r build/
+VIZ TÉŽ
+    rmdir
+
+#### cp
+JMÉNO
+    cp - kopíruje soubory a adresáře
+POUŽITÍ
+    cp [-rvn] ZDROJ... CÍL
+POPIS
+    Zkopíruje ZDROJ do CÍLE. Pokud je CÍL existující adresář, soubory se zkopírují do něj.
+VOLBY
+    -r   kopíruje adresáře rekurzivně
+    -v   vypisuje, co se děje
+    -n   nepřepisuje existující soubory
+PŘÍKLADY
+    cp a.txt zaloha/
+    cp -r projekt projekt-kopie
+
+#### mv
+JMÉNO
+    mv - přesune nebo přejmenuje soubory
+POUŽITÍ
+    mv [-vn] ZDROJ... CÍL
+POPIS
+    Přesune soubory do jiného adresáře, nebo přejmenuje, pokud je cíl nový název.
+PŘÍKLADY
+    mv stary.txt novy.txt       přejmenování
+    mv *.txt Documents/         přesun více souborů
+
+#### ln
+JMÉNO
+    ln - vytvoří odkazy mezi soubory
+POUŽITÍ
+    ln -s CÍL [NÁZEV_ODKAZU]
+POPIS
+    Vytvoří symbolický odkaz (zástupce ukazující na CÍL). Pevné odkazy BubOS nepodporuje.
+VOLBY
+    -s   symbolický odkaz (povinné)
+    -f   odstraní existující cíl
+PŘÍKLADY
+    ln -s /var/log logy
+
+#### head
+JMÉNO
+    head - vypíše první řádky souborů
+POUŽITÍ
+    head [-n N] [SOUBOR]...
+POPIS
+    Vypíše prvních 10 řádků (nebo N řádků) každého souboru nebo standardního vstupu.
+PŘÍKLADY
+    head -n 3 log.txt
+    ls -l | head -5
+VIZ TÉŽ
+    tail
+
+#### tail
+JMÉNO
+    tail - vypíše poslední řádky souborů
+POUŽITÍ
+    tail [-n N] [SOUBOR]...
+POPIS
+    Vypíše posledních 10 řádků (nebo N řádků) každého souboru nebo standardního vstupu.
+PŘÍKLADY
+    tail -n 5 /var/log/syslog
+VIZ TÉŽ
+    head
+
+#### wc
+JMÉNO
+    wc - spočítá řádky, slova a bajty
+POUŽITÍ
+    wc [-lwcm] [SOUBOR]...
+VOLBY
+    -l   řádky
+    -w   slova
+    -c   bajty
+    -m   znaky
+PŘÍKLADY
+    ls | wc -l          kolik je v adresáři položek
+
+#### sort
+JMÉNO
+    sort - seřadí řádky textu
+POUŽITÍ
+    sort [-rnuf] [-k KLÍČ] [-t ODDĚLOVAČ] [SOUBOR]...
+VOLBY
+    -r   opačné pořadí
+    -n   číselné řazení
+    -u   odstraní duplicitní řádky
+    -f   nerozlišuje velikost písmen
+    -k   řadí podle pole číslo KLÍČ (např. -k2 nebo -k2,2)
+    -t   oddělovač polí (výchozí: bílé znaky)
+PŘÍKLADY
+    sort -t';' -k3 -n studenti.csv      podle třetího sloupce, číselně
+
+#### uniq
+JMÉNO
+    uniq - vypíše nebo vynechá opakující se sousední řádky
+POUŽITÍ
+    uniq [-cdui] [SOUBOR]
+POPIS
+    Pracuje jen se SOUSEDNÍMI duplicitními řádky, proto vstup nejdřív seřaďte.
+VOLBY
+    -c   před řádek vypíše počet výskytů
+    -d   vypíše jen duplicitní řádky
+    -u   vypíše jen jedinečné řádky
+    -i   nerozlišuje velikost písmen
+PŘÍKLADY
+    sort jmena.txt | uniq -c
+
+#### tee
+JMÉNO
+    tee - zapíše vstup na výstup i do souborů
+POUŽITÍ
+    tee [-a] SOUBOR...
+POPIS
+    Zkopíruje standardní vstup na standardní výstup i do souborů – jako odbočka (T) v rouře.
+VOLBY
+    -a   připojí na konec místo přepsání
+PŘÍKLADY
+    ls | tee seznam.txt | wc -l
+
+#### tree
+JMÉNO
+    tree - vypíše obsah adresářů jako strom
+POUŽITÍ
+    tree [-ad] [-L ÚROVEŇ] [ADRESÁŘ]...
+VOLBY
+    -a   včetně skrytých souborů
+    -d   jen adresáře
+    -L   maximální hloubka
+
+#### find
+JMÉNO
+    find - hledá soubory ve stromu adresářů
+POUŽITÍ
+    find [CESTA...] [VÝRAZ]
+POPIS
+    Prochází adresáře a vypíše (nebo zpracuje) položky, které splňují všechny testy.
+VÝRAZ
+    -name VZOR       název odpovídá vzoru (dejte do uvozovek: "*.txt")
+    -iname VZOR      totéž bez ohledu na velikost písmen
+    -type f|d|l      soubor, adresář, odkaz
+    -empty           prázdné soubory nebo adresáře
+    -maxdepth N      sestoupí nejvýš do N úrovní
+    -mindepth N      přeskočí prvních N úrovní
+    ! TEST           neguje test
+    -print           vypíše cestu (výchozí)
+    -delete          smaže nalezené položky
+    -exec PŘÍKAZ {} ;   pro každou položku spustí příkaz ({} je cesta)
+PŘÍKLADY
+    find . -name "*.c"
+    find ~ -type f -exec ls -l {} ;
+
+#### chmod
+JMÉNO
+    chmod - změní přístupová práva souborů
+POUŽITÍ
+    chmod [-R] PRÁVA SOUBOR...
+POPIS
+    PRÁVA jsou buď osmičková (755: vlastník rwx, skupina r-x, ostatní r-x; r=4, w=2, x=1),
+    nebo symbolická: kdo (u=vlastník, g=skupina, o=ostatní, a=všichni) + operátor (+, -, =) + rwx.
+VOLBY
+    -R   použije na adresáře rekurzivně
+PŘÍKLADY
+    chmod 644 poznamky.txt
+    chmod u+x skript.sh
+    chmod go-rwx tajne.txt
+VIZ TÉŽ
+    chown, ls -l
+
+#### chown
+JMÉNO
+    chown - změní vlastníka a skupinu souboru
+POUŽITÍ
+    chown [-R] VLASTNÍK[:SKUPINA] SOUBOR...
+POPIS
+    Vlastníka smí měnit jen root. Použijte sudo.
+PŘÍKLADY
+    sudo chown student:users zprava.txt
+
+#### grep
+JMÉNO
+    grep - vypíše řádky odpovídající vzoru
+POUŽITÍ
+    grep [VOLBY]... VZOR [SOUBOR]...
+POPIS
+    Hledá VZOR (základní regulární výraz) v souborech nebo na standardním vstupu.
+    Vzor dávejte do uvozovek, aby ho neinterpretoval shell.
+VOLBY
+    -i   nerozlišuje velikost písmen
+    -v   inverze: vypíše řádky, které NEodpovídají
+    -n   zobrazí čísla řádků
+    -c   jen spočítá odpovídající řádky
+    -l   vypíše jen názvy souborů s shodou
+    -r   hledá rekurzivně v adresářích
+    -E   rozšířené regulární výrazy (+ ? | () {} bez zpětných lomítek)
+    -F   pevný řetězec, ne regulární výraz
+    -w   hledá jen celá slova
+    -x   shoda musí být celý řádek
+    -o   vypíše jen odpovídající část
+    -q   tiše, nastaví jen návratový kód
+REGULÁRNÍ VÝRAZY
+    .      libovolný znak          ^   začátek řádku        $   konec řádku
+    *      0 a více opakování      [abc]  jeden ze znaků a, b, c    [^abc] žádný z nich
+    [[:digit:]] číslice            \< \>  hranice slova     \| alternativa (-E: |)
+PŘÍKLADY
+    grep -n ERROR log.txt
+    grep -E "^(Anna|Boris)" studenti.csv
+    grep -rl "main" projekt/
+VIZ TÉŽ
+    find, cut
+
+#### cut
+JMÉNO
+    cut - vybere části každého řádku
+POUŽITÍ
+    cut -d ODDĚLOVAČ -f SEZNAM [SOUBOR]...
+    cut -c SEZNAM [SOUBOR]...
+VOLBY
+    -d   oddělovač polí (výchozí: tabulátor)
+    -f   pole, která zůstanou: 1,3  nebo  2-4  nebo  2-
+    -c   znaky, které zůstanou
+    -s   přeskočí řádky bez oddělovače
+PŘÍKLADY
+    cut -d';' -f1,3 studenti.csv
+    cut -d: -f1 /etc/passwd
+
+#### tr
+JMÉNO
+    tr - zamění nebo smaže znaky
+POUŽITÍ
+    tr [-dsc] SADA1 [SADA2]
+POPIS
+    Čte standardní vstup a znaky ze SADY1 nahrazuje odpovídajícími znaky ze SADY2.
+    Sady mohou obsahovat rozsahy (a-z) a třídy ([:upper:], [:digit:] ...).
+VOLBY
+    -d   smaže znaky ze SADY1
+    -s   sloučí opakující se znaky
+    -c   doplněk SADY1
+PŘÍKLADY
+    echo ahoj | tr a-z A-Z
+    tr -d '\n' < soubor.txt
+
+#### echo
+JMÉNO
+    echo - vypíše řádek textu
+POUŽITÍ
+    echo [-ne] [TEXT]...
+VOLBY
+    -n   nevypíše koncový nový řádek
+    -e   vyhodnotí zpětná lomítka (\n, \t, \e ...)
+PŘÍKLADY
+    echo "Ahoj $USER"
+    echo ahoj > soubor.txt        zapíše do souboru (přepíše)
+    echo dalsi >> soubor.txt      připojí na konec souboru
+
+#### export
+JMÉNO
+    export - označí proměnné pro předání podřízeným procesům
+POUŽITÍ
+    export [NÁZEV[=HODNOTA]]...
+POPIS
+    Obyčejná proměnná (x=5) je vidět jen v shellu. Po exportu ji uvidí i programy spuštěné
+    z shellu (vypíše je env). Bez argumentů vypíše exportované proměnné.
+PŘÍKLADY
+    export EDITOR=nano
+    PATH="$PATH:$HOME/bin"
+
+#### unset
+JMÉNO
+    unset - odstraní proměnnou
+POUŽITÍ
+    unset NÁZEV...
+
+#### alias
+JMÉNO
+    alias - definuje nebo vypíše aliasy
+POUŽITÍ
+    alias [NÁZEV[=HODNOTA]]...
+POPIS
+    Alias nahradí první slovo příkazu textem. Bez argumentů vypíše aliasy.
+    Trvalé aliasy patří do ~/.bashrc.
+PŘÍKLADY
+    alias ll='ls -l'
+
+#### unalias
+JMÉNO
+    unalias - odstraní aliasy
+POUŽITÍ
+    unalias [-a] NÁZEV...
+
+#### exit logout
+JMÉNO
+    exit, logout - opustí shell
+POUŽITÍ
+    exit [KÓD]
+POPIS
+    Ukončí aktuální shell. Po su nebo sudo -i se vrátí k předchozímu uživateli, jinak odhlásí.
+    Totéž udělá Ctrl+D.
+
+#### history
+JMÉNO
+    history - zobrazí historii příkazů
+POUŽITÍ
+    history [N | -c]
+POPIS
+    Vypíše očíslované dřívější příkazy (uložené v ~/.bash_history). Listovat v nich můžete šipkami nahoru/dolů.
+    !! zopakuje poslední příkaz, !N příkaz číslo N, !text poslední příkaz začínající textem.
+VOLBY
+    -c   vymaže historii
+
+#### source .
+JMÉNO
+    source, . - provede příkazy ze souboru v aktuálním shellu
+POUŽITÍ
+    source SOUBOR
+POPIS
+    Typicky se používá k novému načtení ~/.bashrc po úpravě aliasů.
+
+#### type
+JMÉNO
+    type - popíše, jak by byl název interpretován
+POUŽITÍ
+    type NÁZEV...
+PŘÍKLADY
+    type cd ls ll
+
+#### which
+JMÉNO
+    which - najde příkaz
+POUŽITÍ
+    which NÁZEV...
+POPIS
+    Vypíše úplnou cestu k programu, který by se spustil. Hledá v adresářích z $PATH.
+
+#### clear
+JMÉNO
+    clear - vymaže obrazovku terminálu
+POUŽITÍ
+    clear
+POPIS
+    Totéž jako stisk Ctrl+L.
+
+#### help
+JMÉNO
+    help - přehled příkazů
+POUŽITÍ
+    help [PŘÍKAZ]
+POPIS
+    Vypíše všechny příkazy s krátkým popisem. S argumentem zobrazí stránku manuálu.
+
+#### man
+JMÉNO
+    man - zobrazí manuálovou stránku příkazu
+POUŽITÍ
+    man PŘÍKAZ
+POPIS
+    Otevře manuál v prohlížeči: mezerník = další stránka, b = zpět, q = konec.
+    Většina příkazů také přijímá --help.
+PŘÍKLADY
+    man grep
+
+#### less
+JMÉNO
+    less - prohlíží soubor po stránkách
+POUŽITÍ
+    less [SOUBOR]
+POPIS
+    Mezerník = další stránka, b = zpět, šipky nebo j/k = řádek, g/G = začátek/konec, q = konec.
+PŘÍKLADY
+    less /var/log/syslog
+    ls -l /etc | less
+
+#### nano
+JMÉNO
+    nano - jednoduchý textový editor
+POUŽITÍ
+    nano [SOUBOR]
+POPIS
+    Pište a upravujte text. Zkratky jsou dole (^ znamená Ctrl).
+    Ctrl+O uloží, Ctrl+X ukončí, Ctrl+K vyjme řádek, Ctrl+U ho vloží.
+PŘÍKLADY
+    nano poznamky.txt
+
+#### env
+JMÉNO
+    env - zobrazí prostředí
+POUŽITÍ
+    env
+POPIS
+    Vypíše exportované proměnné (NÁZEV=hodnota).
+VIZ TÉŽ
+    export, printenv
+
+#### printenv
+JMÉNO
+    printenv - vypíše hodnoty proměnných prostředí
+POUŽITÍ
+    printenv [NÁZEV]...
+
+#### true false
+JMÉNO
+    true, false - nedělají nic, úspěšně / neúspěšně
+POUŽITÍ
+    true
+    false
+POPIS
+    Jen nastaví návratový kód (0 nebo 1). Hodí se s && a ||.
+
+#### test [
+JMÉNO
+    test, [ - zkontroluje typy souborů a porovná hodnoty
+POUŽITÍ
+    test VÝRAZ
+    [ VÝRAZ ]
+POPIS
+    Návratový kód 0 znamená pravda. Testy: -e existuje, -f běžný soubor, -d adresář, -r -w -x práva,
+    -s neprázdný, -z prázdný řetězec, -n neprázdný řetězec, a = b, a != b, n -eq -ne -lt -le -gt -ge m.
+PŘÍKLADY
+    [ -f poznamky.txt ] && echo existuje
+
+#### sleep
+JMÉNO
+    sleep - počká zadanou dobu
+POUŽITÍ
+    sleep ČÍSLO[s|m|h|d]
+PŘÍKLADY
+    sleep 5 &        čekání na pozadí
+
+#### date
+JMÉNO
+    date - vypíše datum a čas
+POUŽITÍ
+    date [+FORMÁT]
+PŘÍKLADY
+    date +%Y-%m-%d
+    date "+%H:%M:%S"
+
+#### uname
+JMÉNO
+    uname - vypíše informace o systému
+POUŽITÍ
+    uname [-asnrvmo]
+VOLBY
+    -a   vše
+    -r   verze jádra
+
+#### hostname
+JMÉNO
+    hostname - zobrazí jméno počítače
+POUŽITÍ
+    hostname
+
+#### whoami
+JMÉNO
+    whoami - vypíše jméno přihlášeného uživatele
+POUŽITÍ
+    whoami
+
+#### id
+JMÉNO
+    id - vypíše identifikátory uživatele a skupin
+POUŽITÍ
+    id [UŽIVATEL]
+POPIS
+    Zobrazí číslo uživatele (uid), primární skupinu (gid) a všechny skupiny uživatele.
+
+#### groups
+JMÉNO
+    groups - vypíše skupiny uživatele
+POUŽITÍ
+    groups [UŽIVATEL]
+
+#### su
+JMÉNO
+    su - přepne uživatele
+POUŽITÍ
+    su [-] [UŽIVATEL]
+POPIS
+    Spustí shell jako jiný uživatel (výchozí root); pokud nejste root, zeptá se na jeho heslo.
+    S "-" se spustí plné přihlášení (domovský adresář, čisté prostředí). Opustíte ho příkazem exit.
+PŘÍKLADY
+    su -
+    su - bob
+
+#### sudo
+JMÉNO
+    sudo - spustí příkaz jako jiný uživatel (root)
+POUŽITÍ
+    sudo [-u UŽIVATEL] PŘÍKAZ [ARGUMENT]...
+    sudo -i | -s
+POPIS
+    Smí jen členové skupiny sudo. Zeptá se na VAŠE heslo (pamatuje si ho 5 minut).
+VOLBY
+    -u   spustí jako tohoto uživatele místo roota
+    -i   přihlašovací shell jako root
+    -s   shell jako root
+    -k   zapomene zapamatované heslo
+PŘÍKLADY
+    sudo cat /etc/shadow
+    sudo useradd -m alice
+
+#### useradd
+JMÉNO
+    useradd - vytvoří nového uživatele
+POUŽITÍ
+    useradd [-m] [-s SHELL] [-G SKUPINY] [-c KOMENTÁŘ] LOGIN
+POPIS
+    Jen root. Uživatel se zapíše do /etc/passwd, /etc/group a /etc/shadow.
+    Nový účet zatím nemá heslo – nastavte ho příkazem passwd.
+VOLBY
+    -m   vytvoří domovský adresář
+    -s   přihlašovací shell (výchozí /bin/bash)
+    -G   další skupiny oddělené čárkou
+PŘÍKLADY
+    sudo useradd -m -G sudo alice
+    sudo passwd alice
+
+#### passwd
+JMÉNO
+    passwd - změní heslo
+POUŽITÍ
+    passwd [UŽIVATEL]
+POPIS
+    Bez argumentu změní vaše vlastní heslo (zeptá se na současné). Root může změnit heslo komukoli.
+
+#### ps
+JMÉNO
+    ps - vypíše běžící procesy
+POUŽITÍ
+    ps [aux | -ef]
+POPIS
+    Bez argumentů ukáže vaše procesy v tomto terminálu. "ps aux" a "ps -ef" ukážou všechny procesy.
+VIZ TÉŽ
+    kill
+
+#### kill
+JMÉNO
+    kill - ukončí proces
+POUŽITÍ
+    kill [-SIGNÁL] PID...
+POPIS
+    Zastaví proces se zadaným PID (zjistíte ho příkazem ps). Smíte ukončit jen své procesy.
+PŘÍKLADY
+    sleep 100 &
+    kill 2345
+
+#### yes
+JMÉNO
+    yes - opakuje řetězec, dokud není přerušen
+POUŽITÍ
+    yes [TEXT]
+POPIS
+    Vypisuje "y" (nebo TEXT) donekonečna. Zastavíte ho Ctrl+C nebo ho ukončí head.
+PŘÍKLADY
+    yes | head -3
+
+#### seq
+JMÉNO
+    seq - vypíše posloupnost čísel
+POUŽITÍ
+    seq [-s ODDĚLOVAČ] [PRVNÍ [KROK]] POSLEDNÍ
+PŘÍKLADY
+    seq 5
+    seq 10 -2 0
+
+#### basename
+JMÉNO
+    basename - odstraní z cesty adresář
+POUŽITÍ
+    basename CESTA [PŘÍPONA]
+PŘÍKLADY
+    basename /home/student/a.txt .txt
+
+#### dirname
+JMÉNO
+    dirname - odstraní z cesty poslední složku
+POUŽITÍ
+    dirname CESTA...
+
+#### lang
+JMÉNO
+    lang - přepne jazyk BubOS
+POUŽITÍ
+    lang [cs|en]
+POPIS
+    Změní jazyk hlášení a manuálových stránek (také tlačítko CS/EN nahoře).
