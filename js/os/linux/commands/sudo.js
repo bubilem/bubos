@@ -27,6 +27,7 @@ export default {
         m.sudoUntil.set(user.name, Date.now() + TTL);
       }
     }
+    if (rest.join(' ') === 'make me a sandwich') { await ctx.stdout.write('Okay.\n'); return 0; }
     if (o.i || o.s) { await ctx.sh.pushUser(target, !!o.i); return 0; }
     const env = { ...ctx.env, USER: target.name, LOGNAME: target.name, HOME: target.home };
     return ctx.exec(rest, { user: target, env });

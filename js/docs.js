@@ -10,6 +10,7 @@ const CATS = [
   ['Čtení a zpracování textu', ['cat', 'head', 'tail', 'less', 'nano', 'grep', 'cut', 'sort', 'uniq', 'wc', 'tr', 'tee', 'echo', 'printf', 'seq', 'yes', 'sed', 'awk', 'diff', 'xargs']],
   ['Uživatelé a práva', ['whoami', 'id', 'groups', 'su', 'sudo', 'useradd', 'usermod', 'userdel', 'groupadd', 'groupdel', 'passwd', 'chmod', 'chown', 'chgrp', 'umask']],
   ['Shell, proměnné a skripty', ['export', 'unset', 'env', 'printenv', 'alias', 'unalias', 'history', 'source', 'type', 'which', 'test', '[[', 'true', 'false', 'sleep', 'read', 'let', 'break', 'return', 'shift', 'local', ':', 'exit']],
+  ['Zábava a drobnosti', ['cowsay', 'fortune', 'sl', 'factor']],
   ['Systém a nápověda', ['help', 'man', 'clear', 'date', 'uname', 'hostname', 'cal', 'lang', 'mission', 'ps', 'kill']],
 ];
 // Jméno příkazu → soubor modulu (shodné s FILE v js/os/linux/profile.js)

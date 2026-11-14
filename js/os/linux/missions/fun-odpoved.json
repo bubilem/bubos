@@ -1,0 +1,24 @@
+{
+  "id": "fun-odpoved", "rev": 1, "level": 1, "needs": ["cat", "echo"],
+  "title": { "cs": "Odpověď na vše", "en": "The answer to everything" },
+  "brief": {
+    "cs": "Počítač Hlubina myšlení spočítal odpověď na otázku života, vesmíru a vůbec. Je ukrytá v souboru hlubina.txt. Přečti si ho a zapiš samotnou odpověď (jen číslo) do souboru odpoved.txt.",
+    "en": "The computer Deep Thought has computed the answer to life, the universe and everything. It is hidden in the file hlubina.txt. Read it and write just the answer (the number only) into the file odpoved.txt."
+  },
+  "setup": {
+    "files": { "~/hlubina.txt": "Hlubina myšlení počítala 7,5 milionu let.\nNa dotaz: Jaká je odpověď na život, vesmír a vůbec?\nOdpověď zní: 42\nBohužel nikdo neví, jaká byla otázka.\n" }
+  },
+  "goals": [
+    { "id": "answer", "text": { "cs": "odpoved.txt obsahuje číslo 42", "en": "odpoved.txt contains the number 42" }, "check": { "fileEquals": ["~/odpoved.txt", "42"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Neopisuj ručně: vyber řádek s odpovědí příkazem grep a číslo vystřihni (cut nebo awk)", "en": "Do not copy by hand: pick the line with the answer using grep and cut out the number (cut or awk)" }, "check": { "line": "grep.*\\|\\s*(cut|awk|sed)" } }
+  ],
+  "hints": [
+    { "cs": "cat hlubina.txt soubor vypíše. Odpověď je na řádku, který začíná slovem Odpověď.", "en": "cat hlubina.txt prints the file. The answer is on the line that starts with Odpověď." },
+    { "cs": "echo 42 > odpoved.txt zapíše číslo do souboru. Chytřejší je grep 'Odpověď' hlubina.txt | cut -d' ' -f3.", "en": "echo 42 > odpoved.txt writes the number into the file. Smarter: grep 'Odpověď' hlubina.txt | cut -d' ' -f3." },
+    { "cs": "grep 'Odpověď' hlubina.txt | cut -d' ' -f3 > odpoved.txt", "en": "grep 'Odpověď' hlubina.txt | cut -d' ' -f3 > odpoved.txt" }
+  ],
+  "solution": ["echo 42 > odpoved.txt"],
+  "best": ["grep 'Odpověď' hlubina.txt | cut -d' ' -f3 > odpoved.txt"]
+}

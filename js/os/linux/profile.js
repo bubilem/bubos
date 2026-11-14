@@ -11,11 +11,12 @@ export const COMMANDS = [
   'id', 'groups', 'su', 'sudo', 'useradd', 'passwd', 'ps', 'kill', 'yes', 'seq', 'basename', 'dirname', 'lang', 'mission',
   'stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'umask', 'groupadd', 'groupdel', 'usermod', 'userdel', 'read',
   'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[[',
+  'cowsay', 'fortune', 'sl', 'factor',
 ];
 // Příkazy, které běží přímo v shellu (nemají soubor v /usr/bin)
 const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read', 'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[['];
 // Příkazy přidané po prvním vydání (starší uložené stroje pro ně nemají stub v /usr/bin)
-const ADDED_LATER = ['stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'groupadd', 'groupdel', 'usermod', 'userdel'];
+const ADDED_LATER = ['stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'groupadd', 'groupdel', 'usermod', 'userdel', 'cowsay', 'fortune', 'sl', 'factor'];
 // Jméno příkazu → soubor modulu (pokud se liší)
 const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit' };
 
@@ -57,6 +58,15 @@ export default {
     unalias: 'alias', unset: 'varname', export: 'varname', useradd: 'none', lang: 'none', history: 'none', mission: 'none',
     usermod: 'user', userdel: 'user', groupadd: 'none', groupdel: 'none', read: 'varname', cal: 'none', df: 'none', umask: 'none' },
   buildFs,
+  // Hlášky za "command not found" pro známé příkazy, které v simulátoru nejsou
+  hints: {
+    vim: { cs: 'Tip: zkus nano. A nezačínej svatou válku s Emacsem.', en: "Tip: try nano. And don't start a holy war with Emacs." },
+    vi: { cs: 'Tip: zkus nano. (Z vi se dá vystoupit, ale to je jiný příběh.)', en: 'Tip: try nano. (You can exit vi, but that is another story.)' },
+    emacs: { cs: 'Tip: Emacs tu není, ale je tu nano. Vim ani nezmiňujeme.', en: "Tip: there's no Emacs here, but there is nano. We won't mention Vim." },
+    please: { cs: 'Slušnost oceňujeme. Zkus sudo.', en: 'Politeness is appreciated. Try sudo.' },
+    make: { cs: 'Tady žádný make není. (Sendvič ale zkus přes sudo.)', en: 'There is no make here. (But try a sandwich with sudo.)' },
+    42: { cs: 'To je odpověď. Otázku hledej jinde.', en: 'That is the answer. Look elsewhere for the question.' },
+  },
 
   boot(m) {
     // Uložené stroje ze starší verze: doplní stuby nově přidaných příkazů (jednou; ručně smazané se nevracejí)
@@ -68,7 +78,7 @@ export default {
     m.settings.stubs = [...COMMANDS];
     m.procs.system([
       [1, 'root', '/sbin/init', 0], [2, 'root', '[kthreadd]', 0], [412, 'root', '/usr/sbin/cron -f'],
-      [533, 'root', '/usr/sbin/sshd -D'], [601, 'root', '/lib/systemd/systemd-journald'], [702, 'root', '/usr/sbin/rsyslogd -n'],
+      [42, 'root', '/usr/sbin/deep-thought --compute-answer'], [533, 'root', '/usr/sbin/sshd -D'], [601, 'root', '/lib/systemd/systemd-journald'], [702, 'root', '/usr/sbin/rsyslogd -n'],
     ]);
   },
 

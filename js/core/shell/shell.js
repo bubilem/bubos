@@ -134,6 +134,13 @@ export class Shell {
       stdout: this.ttyOut, stderr: this.ttyErr,
     };
     this.base = io;
+    // easter egg: klasická fork bomba se jen zdvořile zneškodní
+    if (/^\s*:\s*\(\s*\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:\s*$/.test(expanded)) {
+      this.addHistory(expanded);
+      for (let k = 0; k < 3; k++) await io.stderr.write('bash: fork: retry: Resource temporarily unavailable\n');
+      await io.stderr.write(getLang() === 'cs' ? 'BubOS: pěkný pokus, fork bomba byla zneškodněna. 💣\n' : 'BubOS: nice try, the fork bomb has been defused. 💣\n');
+      return (this.status = 254);
+    }
     // neúplný příkaz (if bez fi, otevřená uvozovka…): shell se jako bash ptá na další řádek
     let text = expanded, ast;
     for (;;) {
@@ -442,6 +449,8 @@ export class Shell {
     if (hit.error) {
       const msg = { notfound: t('sh.notfound'), nofile: t('err.ENOENT') }[hit.error] ?? t('err.' + hit.error);
       await io.stderr.write(`bash: ${name}: ${msg}\n`);
+      const joke = hit.error === 'notfound' ? this.os.hints?.[name]?.[getLang()] : null;
+      if (joke) await io.stderr.write(joke + '\n');
       return hit.error === 'notfound' || hit.error === 'nofile' ? 127 : 126;
     }
     if (hit.kind === 'script') return this._runScript(hit.data, argv, io, user, env);

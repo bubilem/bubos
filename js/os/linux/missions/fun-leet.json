@@ -1,0 +1,23 @@
+{
+  "id": "fun-leet", "rev": 1, "level": 2, "needs": ["factor", "seq"],
+  "title": { "cs": "Prvočísla a 1337", "en": "Primes and 1337" },
+  "brief": {
+    "cs": "Hackeři milují číslo 1337 („leet“). Zjisti, na jaké prvočinitele se rozkládá, a výpis příkazu factor 1337 ulož do souboru leet.txt. Do souboru sedmicka.txt pak zapiš největší prvočinitel čísla 42 (jen číslo).",
+    "en": "Hackers love the number 1337 (\"leet\"). Find out which prime factors it breaks into and save the output of factor 1337 into the file leet.txt. Then write the largest prime factor of 42 (the number only) into the file sedmicka.txt."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "leet", "text": { "cs": "leet.txt obsahuje rozklad čísla 1337", "en": "leet.txt contains the factorisation of 1337" }, "check": { "fileEquals": ["~/leet.txt", "1337: 7 191"] } },
+    { "id": "seven", "text": { "cs": "sedmicka.txt obsahuje číslo 7", "en": "sedmicka.txt contains the number 7" }, "check": { "fileEquals": ["~/sedmicka.txt", "7"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Největší činitel vyber automaticky: factor 42 | awk '{print $NF}'", "en": "Pick the largest factor automatically: factor 42 | awk '{print $NF}'" }, "check": { "line": "factor\\s+42\\s*\\|" } }
+  ],
+  "hints": [
+    { "cs": "factor 1337 vypíše: 1337: a pak jednotlivé prvočinitele. Výstup přesměruj do souboru.", "en": "factor 1337 prints: 1337: and then the individual prime factors. Redirect the output into a file." },
+    { "cs": "factor 42 dá 42: 2 3 7. Největší je poslední číslo na řádku. V awk je poslední sloupec $NF.", "en": "factor 42 gives 42: 2 3 7. The largest is the last number on the line. In awk the last column is $NF." },
+    { "cs": "factor 42 | awk '{print $NF}' > sedmicka.txt", "en": "factor 42 | awk '{print $NF}' > sedmicka.txt" }
+  ],
+  "solution": ["factor 1337 > leet.txt", "echo 7 > sedmicka.txt"],
+  "best": ["factor 1337 > leet.txt", "factor 42 | awk '{print $NF}' > sedmicka.txt"]
+}

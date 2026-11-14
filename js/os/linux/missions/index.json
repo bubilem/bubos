@@ -17,6 +17,8 @@
     { "id": "skupiny", "title": { "cs": "Skupiny a práva", "en": "Groups and permissions" },
       "missions": ["skup-umask", "skup-tym", "skup-sdileni"] },
     { "id": "skriptovani", "title": { "cs": "Skriptování", "en": "Scripting" },
-      "missions": ["skr-soucet", "skr-zalohy", "skr-pozdrav", "skr-zaloha", "skr-funkce"] }
+      "missions": ["skr-soucet", "skr-zalohy", "skr-pozdrav", "skr-zaloha", "skr-funkce"] },
+    { "id": "fun", "title": { "cs": "Bonus pro hackery", "en": "Bonus for hackers" },
+      "missions": ["fun-odpoved", "fun-turing", "fun-leet"] }
   ]
 }

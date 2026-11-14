@@ -77,8 +77,11 @@ export function buildFs(lang = 'cs') {
   file(H + '/Documents/' + S('pisen.txt', 'poem.txt'), S(
     'Byl pozdní večer – první máj –\nvečerní máj – byl lásky čas.\nHrdliččin zval ku lásce hlas,\nkde borový zaváněl háj.\nLákavě kvítí rozvité\nobjímal vlahý vánek.\n',
     'Shall I compare thee to a summer\'s day?\nThou art more lovely and more temperate:\nRough winds do shake the darling buds of May,\nAnd summer\'s lease hath all too short a date;\nSometime too hot the eye of heaven shines,\nAnd often is his gold complexion dimm\'d;\n'), 0o644, U, U);
-  file(H + '/Documents/studenti.csv', 'jmeno;trida;body\nAnna Nováková;2.A;87\nBoris Svoboda;2.B;64\nCyril Dvořák;2.A;92\nDana Černá;3.C;75\nEmil Procházka;2.B;58\nFilip Kučera;3.C;81\nGabriela Veselá;2.A;95\n', 0o644, U, U);
-  const lv = ['INFO  server started', 'INFO  user anna logged in', 'WARN  disk usage at 85%', 'ERROR database connection failed', 'INFO  user boris logged in', 'ERROR timeout while reading /data/in.csv', 'INFO  backup finished', 'WARN  slow response (2.4 s)', 'INFO  user cyril logged out', 'ERROR out of memory'];
+  file(H + '/Documents/studenti.csv', 'jmeno;trida;body\nAda Lovelace;2.A;95\nAlan Turing;2.A;42\nGrace Hopper;2.B;84\nLinus Torvalds;3.C;92\nDennis Ritchie;3.C;78\nMargaret Hamilton;2.B;99\nTim Berners-Lee;3.C;64\nJohn Doe;2.B;0\n', 0o644, U, U);
+  file(H + '/Documents/' + S('odpoved.txt', 'answer.txt'), S(
+    'Otázka: Jaká je odpověď na život, vesmír a vůbec?\nOdpověď: 42\n\n(Spočítal ji počítač Hlubina myšlení za 7,5 milionu let.\nBohužel nikdo neví, jaká byla vlastně otázka.)\n',
+    'Question: What is the answer to life, the universe and everything?\nAnswer: 42\n\n(Computed by the computer Deep Thought in 7.5 million years.\nUnfortunately nobody knows what the question actually was.)\n'), 0o644, U, U);
+  const lv = ['INFO  server started', 'INFO  user ada logged in', 'WARN  disk usage at 85%', 'ERROR database connection failed', 'INFO  user linus logged in', 'ERROR timeout while reading /data/in.csv', 'INFO  backup finished', 'WARN  slow response (2.4 s)', 'INFO  user alan logged out', 'ERROR out of memory'];
   file(H + '/Documents/log.txt', mk(24, i => `${day} ${String(8 + (i >> 2)).padStart(2, '0')}:${String((i * 17) % 60).padStart(2, '0')}:${String((i * 29) % 60).padStart(2, '0')} ${lv[(i * 7 + 3) % lv.length]}`), 0o644, U, U);
   dir(H + '/Documents/projekt/src', 0o755, U, U);
   dir(H + '/Documents/projekt/include', 0o755, U, U);

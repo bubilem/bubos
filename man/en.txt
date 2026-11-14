@@ -312,7 +312,7 @@ REGULAR EXPRESSIONS
     [[:digit:]] a digit           \< \>  word boundaries    \| alternation (-E: |)
 EXAMPLES
     grep -n ERROR log.txt
-    grep -E "^(Anna|Boris)" studenti.csv
+    grep -E "^(Ada|Alan)" studenti.csv
     grep -rl "main" projekt/
 SEE ALSO
     find, cut
@@ -1011,3 +1011,45 @@ EXAMPLES
     [[ $file == *.txt ]] && echo text
     [[ -f a.txt && -r a.txt ]] && echo readable
     [[ $x =~ ^[0-9]+$ ]] && echo number
+
+
+#### cowsay
+NAME
+    cowsay - a cow (or a penguin) says what you send it
+SYNOPSIS
+    cowsay [-f cow|tux] [-W WIDTH] [TEXT...]
+DESCRIPTION
+    Without text it reads standard input, so it works nicely in a pipe: fortune | cowsay.
+EXAMPLES
+    cowsay Hello, world!
+    cowsay -f tux Linux rulez
+
+#### fortune
+NAME
+    fortune - print a random bit of IT wisdom
+SYNOPSIS
+    fortune
+DESCRIPTION
+    Picks a different quote each time. Together with cowsay it forms a classic pair.
+EXAMPLES
+    fortune
+    fortune | cowsay
+
+#### sl
+NAME
+    sl - a train for those who mistype ls
+SYNOPSIS
+    sl
+DESCRIPTION
+    A deliberate pun: sl is ls with swapped letters. The correctly typed command is ls.
+
+#### factor
+NAME
+    factor - factor numbers into primes
+SYNOPSIS
+    factor [NUMBER...]
+DESCRIPTION
+    Without arguments it reads numbers from standard input. The output looks like NUMBER: factor factor ...
+EXAMPLES
+    factor 42
+    seq 10 | factor

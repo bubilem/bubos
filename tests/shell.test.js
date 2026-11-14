@@ -71,9 +71,9 @@ test('grep a regulární výrazy', async () => {
   const b = await boot();
   await b.run('cd ~/Documents');
   await eq(b, 'grep -c ERROR log.txt', String((await b.run('grep ERROR log.txt')).out.trim().split('\n').length) + '\n');
-  await eq(b, 'grep -E "^(Anna|Boris)" studenti.csv | cut -d";" -f1', 'Anna Nováková\nBoris Svoboda\n');
-  await eq(b, 'grep -i "anna" studenti.csv | wc -l', '1\n');
-  await eq(b, 'grep "9[0-9]$" studenti.csv | cut -d";" -f3', '92\n95\n');
+  await eq(b, 'grep -E "^(Ada|Alan)" studenti.csv | cut -d";" -f1', 'Ada Lovelace\nAlan Turing\n');
+  await eq(b, 'grep -i "turing" studenti.csv | wc -l', '1\n');
+  await eq(b, 'grep "9[0-9]$" studenti.csv | cut -d";" -f3', '95\n92\n99\n');
   await eq(b, 'grep -v ";" studenti.csv', '', 1);
   await eq(b, 'echo "a.b" | grep -F "."', 'a.b\n');
   await eq(b, 'echo abc | grep -o "[[:alpha:]]\\{2\\}"', 'ab\n');

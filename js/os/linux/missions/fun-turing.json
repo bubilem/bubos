@@ -1,0 +1,25 @@
+{
+  "id": "fun-turing", "rev": 1, "level": 2, "needs": ["grep", "cut", "sort"],
+  "title": { "cs": "Kde je Turing?", "en": "Where is Turing?" },
+  "brief": {
+    "cs": "V souboru hackeri.csv (sloupce jméno;rok narození;obor) hledáš legendy. Najdi řádek s Alanem Turingem a ulož ho do souboru turing.txt. Pak do souboru nejstarsi.txt zapiš jméno nejstaršího člověka v seznamu (jen jméno).",
+    "en": "The file hackeri.csv (columns name;year of birth;field) lists legends. Find the line with Alan Turing and save it into the file turing.txt. Then write the name of the oldest person in the list (the name only) into nejstarsi.txt."
+  },
+  "setup": {
+    "files": { "~/hackeri.csv": "Grace Hopper;1906;kompilátory\nAlan Turing;1912;teorie výpočtu\nAda Lovelace;1815;první program\nLinus Torvalds;1969;jádro Linuxu\nDennis Ritchie;1941;jazyk C a Unix\n" }
+  },
+  "goals": [
+    { "id": "turing", "text": { "cs": "turing.txt obsahuje řádek s Alanem Turingem", "en": "turing.txt contains the line with Alan Turing" }, "check": { "fileEquals": ["~/turing.txt", "Alan Turing;1912;teorie výpočtu"] } },
+    { "id": "oldest", "text": { "cs": "nejstarsi.txt obsahuje jméno Ada Lovelace", "en": "nejstarsi.txt contains the name Ada Lovelace" }, "check": { "fileEquals": ["~/nejstarsi.txt", "Ada Lovelace"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Nejstaršího najdi řazením: sort -t';' -k2 -n a pak cut", "en": "Find the oldest by sorting: sort -t';' -k2 -n and then cut" }, "check": { "line": "sort\\s+.*-k\\s*2" } }
+  ],
+  "hints": [
+    { "cs": "grep Turing hackeri.csv vypíše řádek se slovem Turing. Výstup uložíš přesměrováním >.", "en": "grep Turing hackeri.csv prints the line with the word Turing. Save the output with the redirection >." },
+    { "cs": "Nejstarší má nejmenší rok narození. sort umí řadit podle sloupce: sort -t';' -k2 -n řadí podle druhého sloupce číselně.", "en": "The oldest has the smallest year of birth. sort can sort by a column: sort -t';' -k2 -n sorts by the second column numerically." },
+    { "cs": "sort -t';' -k2 -n hackeri.csv | head -1 | cut -d';' -f1 > nejstarsi.txt", "en": "sort -t';' -k2 -n hackeri.csv | head -1 | cut -d';' -f1 > nejstarsi.txt" }
+  ],
+  "solution": ["grep Turing hackeri.csv > turing.txt", "echo 'Ada Lovelace' > nejstarsi.txt"],
+  "best": ["grep Turing hackeri.csv > turing.txt", "sort -t';' -k2 -n hackeri.csv | head -1 | cut -d';' -f1 > nejstarsi.txt"]
+}

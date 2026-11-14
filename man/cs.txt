@@ -312,7 +312,7 @@ REGULÁRNÍ VÝRAZY
     [[:digit:]] číslice            \< \>  hranice slova     \| alternativa (-E: |)
 PŘÍKLADY
     grep -n ERROR log.txt
-    grep -E "^(Anna|Boris)" studenti.csv
+    grep -E "^(Ada|Alan)" studenti.csv
     grep -rl "main" projekt/
 VIZ TÉŽ
     find, cut
@@ -1011,3 +1011,45 @@ PŘÍKLADY
     [[ $soubor == *.txt ]] && echo textovy
     [[ -f a.txt && -r a.txt ]] && echo ctu
     [[ $x =~ ^[0-9]+$ ]] && echo cislo
+
+
+#### cowsay
+JMÉNO
+    cowsay - kráva (nebo tučňák) řekne, co jí pošlete
+POUŽITÍ
+    cowsay [-f cow|tux] [-W ŠÍRKA] [TEXT...]
+POPIS
+    Bez textu čte standardní vstup, takže skvěle funguje v rouře: fortune | cowsay.
+PŘÍKLADY
+    cowsay Ahoj, světe!
+    cowsay -f tux Linux rulezzz
+
+#### fortune
+JMÉNO
+    fortune - vypíše náhodné moudro z IT světa
+POUŽITÍ
+    fortune
+POPIS
+    Pokaždé vybere jiný citát. Spolu s cowsay tvoří klasickou dvojici.
+PŘÍKLADY
+    fortune
+    fortune | cowsay
+
+#### sl
+JMÉNO
+    sl - vlak pro ty, kdo se překlepnou v ls
+POUŽITÍ
+    sl
+POPIS
+    Záměrná slovní hříčka: sl je ls s přehozenými písmeny. Správně zadaný příkaz je ls.
+
+#### factor
+JMÉNO
+    factor - rozloží číslo na prvočinitele
+POUŽITÍ
+    factor [ČÍSLO...]
+POPIS
+    Bez argumentů čte čísla ze standardního vstupu. Výstup má tvar ČÍSLO: činitel činitel ...
+PŘÍKLADY
+    factor 42
+    seq 10 | factor
