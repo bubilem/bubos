@@ -692,3 +692,16 @@ SYNOPSIS
     lang [cs|en]
 DESCRIPTION
     Changes the language of messages and manual pages (also available as the CS/EN button).
+
+#### mission
+NAME
+    mission - status and hints of the running campaign mission
+SYNOPSIS
+    mission [status|hint|restart|quit]
+DESCRIPTION
+    Works only inside a mission started from the Campaign (button above).
+    status    prints the briefing, goals and bonus (default)
+    hint      reveals the next hint (with a hint used you earn at most 1 star)
+    restart   starts the mission again from its initial state
+    quit      goes back to the campaign
+    The panel next to the terminal does the same.

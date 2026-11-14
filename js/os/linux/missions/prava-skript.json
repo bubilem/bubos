@@ -1,0 +1,25 @@
+{
+  "id": "prava-skript", "rev": 1, "level": 2, "needs": ["chmod", "ls"],
+  "title": { "cs": "Spustitelný skript", "en": "An executable script" },
+  "brief": {
+    "cs": "V domovském adresáři leží skript hello.sh, ale nejde spustit: příkaz ./hello.sh skončí chybou „Přístup odepřen“. Oprav práva souboru a skript spusť.",
+    "en": "Your home directory holds a script hello.sh but it cannot be run: ./hello.sh fails with \"Permission denied\". Fix the file's permissions and run the script."
+  },
+  "setup": {
+    "files": { "~/hello.sh": { "data": "echo Hotovo-$USER\n", "mode": "644" } }
+  },
+  "goals": [
+    { "id": "x", "text": { "cs": "hello.sh je spustitelný", "en": "hello.sh is executable" }, "check": { "executable": "~/hello.sh" } },
+    { "id": "run", "text": { "cs": "Skript byl spuštěn a vypsal Hotovo-student", "en": "The script was run and printed Hotovo-student" }, "check": { "output": "^Hotovo-student" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Použij symbolický zápis: chmod +x (místo čísla)", "en": "Use the symbolic form: chmod +x (instead of a number)" }, "check": { "line": "chmod\\s+(-\\w+\\s+)?[ugoa]*\\+x" } }
+  ],
+  "hints": [
+    { "cs": "Právo spuštění (x) se nastavuje příkazem chmod. ls -l ukáže současná práva.", "en": "The execute permission (x) is set with chmod. ls -l shows the current permissions." },
+    { "cs": "chmod 755 hello.sh a pak ./hello.sh", "en": "chmod 755 hello.sh and then ./hello.sh" },
+    { "cs": "Stačí chmod +x hello.sh – přidá právo x všem.", "en": "chmod +x hello.sh is enough – it adds x for everyone." }
+  ],
+  "solution": ["chmod 755 hello.sh", "./hello.sh"],
+  "best": ["chmod +x hello.sh", "./hello.sh"]
+}

@@ -9,17 +9,19 @@
 </head>
 <body>
   <header class="top">
-    <h1>Bub<span>OS</span></h1>
+    <h1>Bub<span>OS</span><small class="badge" id="mode-badge"></small></h1>
     <nav>
-      <a class="btn" href="docs.html" target="_blank" rel="noopener" data-i18n="ui.docs" data-i18n-title="ui.docs.title"></a>
-      <button id="btn-export" data-i18n="ui.export" data-i18n-title="ui.export.title"></button>
-      <button id="btn-import" data-i18n="ui.import" data-i18n-title="ui.import.title"></button>
-      <button id="btn-reset" data-i18n="ui.reset" data-i18n-title="ui.reset.title"></button>
+      <a class="btn only-sandbox" href="campaign.html" data-i18n="ui.campaign" data-i18n-title="ui.campaign.title"></a>
+      <a class="btn only-mission" href="index.html" data-i18n="ui.sandbox" data-i18n-title="ui.sandbox.title"></a>
+      <a class="btn" href="docs.html" data-i18n="ui.docs" data-i18n-title="ui.docs.title"></a>
+      <button id="btn-export" class="only-sandbox" data-i18n="ui.export" data-i18n-title="ui.export.title"></button>
+      <button id="btn-import" class="only-sandbox" data-i18n="ui.import" data-i18n-title="ui.import.title"></button>
+      <button id="btn-reset" class="only-sandbox" data-i18n="ui.reset" data-i18n-title="ui.reset.title"></button>
       <button id="btn-lang" data-i18n-title="ui.lang" class="icon"></button>
       <button id="btn-theme" data-i18n-title="ui.theme" class="icon"></button>
     </nav>
   </header>
-  <main><div id="term"></div></main>
+  <main><div id="term"></div><aside id="mission" hidden></aside></main>
   <footer data-i18n="ui.hint"></footer>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <script type="module" src="js/main.js"></script>

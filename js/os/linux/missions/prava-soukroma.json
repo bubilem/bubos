@@ -1,0 +1,26 @@
+{
+  "id": "prava-soukroma", "rev": 1, "level": 2, "needs": ["chmod", "mkdir", "ls"],
+  "title": { "cs": "Soukromí v systému", "en": "Privacy in the system" },
+  "brief": {
+    "cs": "Soubor tajne.txt může teď číst kdokoli. Nastav mu práva tak, aby ho mohl číst a měnit jen vlastník (600). Pak vytvoř složku sdilene, do které smí vstupovat vlastník i jeho skupina, ale ostatní vůbec (750).",
+    "en": "Anyone can read the file tajne.txt right now. Set its permissions so that only the owner can read and change it (600). Then create a folder sdilene which the owner and the group may enter but others may not (750)."
+  },
+  "setup": {
+    "files": { "~/tajne.txt": { "data": "Moje tajemství\n", "mode": "644" } }
+  },
+  "goals": [
+    { "id": "secret", "text": { "cs": "tajne.txt má práva 600", "en": "tajne.txt has mode 600" }, "check": { "mode": ["~/tajne.txt", "600"] } },
+    { "id": "dir", "text": { "cs": "Existuje složka ~/sdilene", "en": "The folder ~/sdilene exists" }, "check": { "dirExists": "~/sdilene" } },
+    { "id": "dirmode", "text": { "cs": "Složka sdilene má práva 750", "en": "The folder sdilene has mode 750" }, "check": { "mode": ["~/sdilene", "750"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Výsledek si zkontroluj příkazem ls -l", "en": "Check the result with ls -l" }, "check": { "line": "^\\s*ls\\s+(-\\w+\\s+)*-\\w*l" } }
+  ],
+  "hints": [
+    { "cs": "Práva mění chmod. Čísla jsou součty: čtení 4 + zápis 2 + spuštění 1, pro vlastníka, skupinu a ostatní.", "en": "chmod changes permissions. Numbers are sums: read 4 + write 2 + execute 1, for owner, group and others." },
+    { "cs": "600 = vlastník rw-, ostatní nic. 750 = vlastník rwx, skupina r-x, ostatní nic.", "en": "600 = owner rw-, nobody else. 750 = owner rwx, group r-x, others nothing." },
+    { "cs": "chmod 600 tajne.txt ; mkdir sdilene ; chmod 750 sdilene ; ls -l", "en": "chmod 600 tajne.txt ; mkdir sdilene ; chmod 750 sdilene ; ls -l" }
+  ],
+  "solution": ["chmod 600 tajne.txt", "mkdir sdilene", "chmod 750 sdilene"],
+  "best": ["chmod 600 tajne.txt", "mkdir sdilene", "chmod 750 sdilene", "ls -l"]
+}

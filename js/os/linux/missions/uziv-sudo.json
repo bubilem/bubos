@@ -1,0 +1,25 @@
+{
+  "id": "uziv-sudo", "rev": 1, "level": 2, "needs": ["sudo", "cat"],
+  "title": { "cs": "Správcem na chvíli", "en": "Administrator for a moment" },
+  "brief": {
+    "cs": "Soubor /srv/info.txt smí číst jen správce (root). Jako obyčejný student ho nepřečteš, ale smíš použít sudo (heslo je student). Ulož jeho obsah do souboru kod.txt ve svém domovském adresáři.",
+    "en": "The file /srv/info.txt can only be read by the administrator (root). As an ordinary student you cannot read it, but you may use sudo (the password is student). Save its contents into kod.txt in your home directory."
+  },
+  "setup": {
+    "files": { "/srv/info.txt": { "data": "Správcovský kód: 4821\n", "mode": "600", "user": "root", "group": "root" } }
+  },
+  "goals": [
+    { "id": "sudo", "text": { "cs": "Použij příkaz sudo", "en": "Use the sudo command" }, "check": { "ran": "sudo" } },
+    { "id": "code", "text": { "cs": "kod.txt obsahuje správcovský kód", "en": "kod.txt contains the administrator code" }, "check": { "fileContains": ["~/kod.txt", "4821"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Nejdřív si ověř, že soubor jako student přečíst nejde (cat /srv/info.txt)", "en": "First check that you cannot read the file as a student (cat /srv/info.txt)" }, "check": { "line": "^\\s*cat\\s+/srv/info\\.txt" } }
+  ],
+  "hints": [
+    { "cs": "ls -l /srv ukáže, komu soubor patří a kdo ho smí číst.", "en": "ls -l /srv shows who owns the file and who may read it." },
+    { "cs": "sudo před příkaz ho spustí jako správce: sudo cat /srv/info.txt", "en": "sudo before a command runs it as the administrator: sudo cat /srv/info.txt" },
+    { "cs": "sudo cat /srv/info.txt > kod.txt", "en": "sudo cat /srv/info.txt > kod.txt" }
+  ],
+  "solution": ["sudo cat /srv/info.txt > kod.txt"],
+  "best": ["cat /srv/info.txt", "sudo cat /srv/info.txt > kod.txt"]
+}

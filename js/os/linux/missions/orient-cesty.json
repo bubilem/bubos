@@ -1,0 +1,31 @@
+{
+  "id": "orient-cesty", "rev": 1, "level": 1, "needs": ["ls", "cd", "cat", "tree"],
+  "title": { "cs": "Hledání pokladu", "en": "Treasure hunt" },
+  "brief": {
+    "cs": "Ve složce hra je někde hluboko schovaný soubor poklad.txt. Najdi ho, přečti kód, který obsahuje, a nakonec se vrať do svého domovského adresáře.",
+    "en": "Somewhere deep inside the folder hra there is a hidden file poklad.txt. Find it, read the code it contains and finally return to your home directory."
+  },
+  "setup": {
+    "cwd": "~/hra",
+    "files": {
+      "~/hra/README.txt": "Poklad je schovaný hlouběji. / The treasure is hidden deeper.\n",
+      "~/hra/level1/mapa.txt": "Pokračuj dál. / Keep going.\n",
+      "~/hra/level1/level2/poklad.txt": "KOD-7391\n"
+    }
+  },
+  "goals": [
+    { "id": "kod", "text": { "cs": "Vypiš obsah souboru poklad.txt", "en": "Print the contents of poklad.txt" }, "check": { "output": "KOD-7391" } },
+    { "id": "home", "text": { "cs": "Vrať se do domovského adresáře (~)", "en": "Return to your home directory (~)" }, "check": { "cwd": "~" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Vypiš poklad jediným příkazem cat s cestou z domovského adresáře (~/hra/…)", "en": "Print the treasure with a single cat command using a path from your home (~/hra/…)" },
+      "check": { "line": "cat\\s+(~|/home/student)/hra/level1/level2/poklad\\.txt" } }
+  ],
+  "hints": [
+    { "cs": "Podívej se, co je ve složce: ls, případně strom složek příkazem tree.", "en": "Look at what is in the folder: ls, or the folder tree with tree." },
+    { "cs": "Můžeš chodit po složkách (cd level1/level2) a pak cat poklad.txt. Zpět domů stačí samotné cd.", "en": "You can walk through the folders (cd level1/level2) and then cat poklad.txt. A bare cd takes you home." },
+    { "cs": "Nemusíš nikam chodit: cat ~/hra/level1/level2/poklad.txt.", "en": "You do not have to walk anywhere: cat ~/hra/level1/level2/poklad.txt." }
+  ],
+  "solution": ["cd level1/level2", "cat poklad.txt", "cd"],
+  "best": ["cat ~/hra/level1/level2/poklad.txt", "cd"]
+}

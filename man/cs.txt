@@ -692,3 +692,16 @@ POUŽITÍ
     lang [cs|en]
 POPIS
     Změní jazyk hlášení a manuálových stránek (také tlačítko CS/EN nahoře).
+
+#### mission
+JMÉNO
+    mission - stav a nápověda právě běžícího úkolu z kampaně
+POUŽITÍ
+    mission [status|hint|restart|quit]
+POPIS
+    Funguje jen uvnitř úkolu spuštěného z Kampaně (tlačítko nahoře).
+    status    vypíše zadání, cíle a bonus (výchozí)
+    hint      odkryje další nápovědu (s použitou nápovědou získáš nejvýše 1 hvězdu)
+    restart   začne úkol znovu od výchozího stavu
+    quit      vrátí se do kampaně
+    Totéž umí panel vedle terminálu.

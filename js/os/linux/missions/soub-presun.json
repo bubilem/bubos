@@ -1,0 +1,33 @@
+{
+  "id": "soub-presun", "rev": 1, "level": 1, "needs": ["mkdir", "mv", "cp"],
+  "title": { "cs": "Úklid ve stažených souborech", "en": "Cleaning up Downloads" },
+  "brief": {
+    "cs": "Ve složce Downloads se ti nahromadily soubory. Vytvoř ve své domovské složce adresář Obrazky a přesuň do něj obě fotky (foto1.jpg a foto2.jpg). Referát referat.docx zkopíruj do složky Documents, ale originál ve Downloads nech.",
+    "en": "Your Downloads folder is cluttered. In your home directory create a folder Obrazky and move both photos (foto1.jpg and foto2.jpg) into it. Copy the report referat.docx into Documents, but keep the original in Downloads."
+  },
+  "setup": {
+    "files": {
+      "~/Downloads/foto1.jpg": "JPEG-1\n", "~/Downloads/foto2.jpg": "JPEG-2\n",
+      "~/Downloads/referat.docx": "Referát o Linuxu\n", "~/Downloads/notes.txt": "poznámky\n"
+    }
+  },
+  "goals": [
+    { "id": "dir", "text": { "cs": "Existuje složka ~/Obrazky", "en": "The folder ~/Obrazky exists" }, "check": { "dirExists": "~/Obrazky" } },
+    { "id": "moved", "text": { "cs": "Obě fotky jsou v ~/Obrazky", "en": "Both photos are in ~/Obrazky" },
+      "check": { "all": [{ "isFile": "~/Obrazky/foto1.jpg" }, { "isFile": "~/Obrazky/foto2.jpg" }] } },
+    { "id": "gone", "text": { "cs": "Fotky už nejsou ve Downloads (přesunuty, ne zkopírovány)", "en": "The photos are no longer in Downloads (moved, not copied)" },
+      "check": { "all": [{ "fileMissing": "~/Downloads/foto1.jpg" }, { "fileMissing": "~/Downloads/foto2.jpg" }] } },
+    { "id": "copy", "text": { "cs": "Referát je v Documents i ve Downloads", "en": "The report is in both Documents and Downloads" },
+      "check": { "all": [{ "isFile": "~/Documents/referat.docx" }, { "isFile": "~/Downloads/referat.docx" }] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Přesuň obě fotky jedním příkazem pomocí hvězdičky (foto*.jpg)", "en": "Move both photos with one command using a star (foto*.jpg)" }, "check": { "line": "mv\\s+.*\\*" } }
+  ],
+  "hints": [
+    { "cs": "Přesun dělá mv, kopírování cp, složku vytvoří mkdir.", "en": "mv moves, cp copies, mkdir creates a folder." },
+    { "cs": "mv Downloads/foto1.jpg Downloads/foto2.jpg Obrazky – více zdrojů a cíl na konci.", "en": "mv Downloads/foto1.jpg Downloads/foto2.jpg Obrazky – several sources and the target last." },
+    { "cs": "Hvězdička zastoupí libovolný text: mv Downloads/foto*.jpg Obrazky", "en": "A star stands for any text: mv Downloads/foto*.jpg Obrazky" }
+  ],
+  "solution": ["mkdir Obrazky", "mv Downloads/foto1.jpg Downloads/foto2.jpg Obrazky", "cp Downloads/referat.docx Documents"],
+  "best": ["mkdir Obrazky", "mv Downloads/foto*.jpg Obrazky", "cp Downloads/referat.docx Documents"]
+}

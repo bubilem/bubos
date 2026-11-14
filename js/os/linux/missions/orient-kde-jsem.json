@@ -1,0 +1,24 @@
+{
+  "id": "orient-kde-jsem", "rev": 1, "level": 1, "needs": ["pwd", "ls", "cd"],
+  "title": { "cs": "Kde to jsem?", "en": "Where am I?" },
+  "brief": {
+    "cs": "Právě ses přihlásil do cizího počítače a nevíš, kde jsi. Zjisti, v jaké složce se nacházíš, podívej se, co v ní je, a pak vstup do složky Documents.",
+    "en": "You have just logged in to an unfamiliar computer and do not know where you are. Find out which folder you are in, look at what it contains, and then enter the Documents folder."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "pwd", "text": { "cs": "Zjisti, kde jsi (příkaz pwd)", "en": "Find out where you are (command pwd)" }, "check": { "ran": "pwd" } },
+    { "id": "ls", "text": { "cs": "Vypiš obsah složky (příkaz ls)", "en": "List the folder contents (command ls)" }, "check": { "ran": "ls" } },
+    { "id": "cd", "text": { "cs": "Přejdi do složky Documents", "en": "Move into the Documents folder" }, "check": { "cwd": "~/Documents" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Zobraz i skryté soubory (ls -a)", "en": "Show hidden files too (ls -a)" }, "check": { "line": "^\\s*ls\\s+(-\\w+\\s+)*-\\w*a" } }
+  ],
+  "hints": [
+    { "cs": "Aktuální složku vypíše příkaz pwd.", "en": "The current folder is printed by pwd." },
+    { "cs": "Do podsložky se vstoupí příkazem cd jméno, tedy cd Documents.", "en": "You enter a subfolder with cd name, that is cd Documents." },
+    { "cs": "Skryté soubory začínají tečkou. Ukáže je ls -a.", "en": "Hidden files start with a dot. ls -a shows them." }
+  ],
+  "solution": ["pwd", "ls", "cd Documents"],
+  "best": ["pwd", "ls -a", "cd Documents"]
+}

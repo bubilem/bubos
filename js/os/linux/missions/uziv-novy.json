@@ -1,0 +1,24 @@
+{
+  "id": "uziv-novy", "rev": 1, "level": 3, "needs": ["sudo", "useradd", "passwd"],
+  "title": { "cs": "Nový uživatel", "en": "A new user" },
+  "brief": {
+    "cs": "Do počítače přichází nová kolegyně. Založ jí účet alice s vlastním domovským adresářem /home/alice a přidej ji do skupiny users. Vytvářet uživatele smí jen správce.",
+    "en": "A new colleague is joining. Create an account alice with its own home directory /home/alice and add her to the group users. Only the administrator may create users."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "user", "text": { "cs": "Existuje uživatel alice", "en": "The user alice exists" }, "check": { "userExists": "alice" } },
+    { "id": "home", "text": { "cs": "Existuje domovský adresář /home/alice", "en": "The home directory /home/alice exists" }, "check": { "dirExists": "/home/alice" } },
+    { "id": "group", "text": { "cs": "Alice je ve skupině users", "en": "alice is in the group users" }, "check": { "inGroup": ["alice", "users"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Nastav Alici heslo příkazem passwd", "en": "Set a password for alice with passwd" }, "check": { "line": "passwd\\s+alice" } }
+  ],
+  "hints": [
+    { "cs": "Příkaz useradd vytváří uživatele; potřebuje právo správce, tedy sudo.", "en": "useradd creates users; it needs administrator rights, so sudo." },
+    { "cs": "Přepínač -m vytvoří domovský adresář, -G přidá do skupin: sudo useradd -m -G users alice", "en": "The option -m creates the home directory, -G adds groups: sudo useradd -m -G users alice" },
+    { "cs": "Heslo nastaví sudo passwd alice (heslo si zvol sám).", "en": "sudo passwd alice sets the password (choose your own)." }
+  ],
+  "solution": ["sudo useradd -m -G users alice"],
+  "best": ["sudo useradd -m -G users alice", "sudo passwd alice"]
+}

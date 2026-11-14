@@ -31,7 +31,8 @@
         <li><a href="#ukladani">7. Ukládání, export a import</a></li>
         <li><a href="#struktura">8. Struktura projektu</a></li>
         <li><a href="#vyvoj">9. Pro vývojáře</a></li>
-        <li><a href="#prikazy">10. Referenční příručka příkazů</a>
+        <li><a href="#kampan">10. Kampaň (úkoly)</a></li>
+        <li><a href="#prikazy">11. Referenční příručka příkazů</a>
           <ul id="toc-cmds"></ul>
         </li>
       </ol>
@@ -72,7 +73,8 @@ Documents  Downloads  README.txt
         <h3>Horní lišta</h3>
         <table>
           <tr><th>Tlačítko</th><th>Co dělá</th></tr>
-          <tr><td><b>Dokumentace</b></td><td>otevře tuto stránku v nové záložce (terminál zůstane běžet)</td></tr>
+          <tr><td><b>Kampaň</b></td><td>otevře stránku s úkoly a hvězdičkami (kapitola 10)</td></tr>
+          <tr><td><b>Dokumentace</b></td><td>otevře tuto stránku (práce v terminálu se průběžně ukládá a po návratu pokračuje)</td></tr>
           <tr><td><b>Export</b></td><td>stáhne celý váš systém (soubory, uživatele, nastavení) jako soubor <code>bubos-RRRRMMDD-HHMM.json</code></td></tr>
           <tr><td><b>Import</b></td><td>načte dříve uložený soubor a <em>nahradí</em> jím aktuální systém (předtím se zeptá)</td></tr>
           <tr><td><b>Přeinstalovat</b></td><td>smaže vše a vytvoří čistý systém (předtím se zeptá)</td></tr>
@@ -348,6 +350,7 @@ Documents  Downloads  README.txt
   "os": "linux",                  // typ systému
   "savedAt": "2026-11-13T10:15:00.000Z",
   "settings": { "lang": "cs", "theme": "dark" },
+  "progress": { … },              // volitelné: postup v kampani (viz kapitola 10)
   "fs": { "type": "dir", "mode": 493, "uid": 0, "gid": 0, "mtime": 1763000000000,
           "children": { "etc": { … }, "home": { … } } }
 }</pre>
@@ -364,6 +367,7 @@ Documents  Downloads  README.txt
           <tr><th>Soubor</th><th>Účel</th></tr>
           <tr><td><code>index.html</code></td><td>hlavní stránka: horní lišta, plocha terminálu, patička; načítá <code>js/main.js</code></td></tr>
           <tr><td><code>docs.html</code></td><td>tato dokumentace</td></tr>
+          <tr><td><code>campaign.html</code></td><td>kampaň: dlaždice úkolů, filtry, detail, export/import postupu (<code>js/campaign.js</code>, <code>css/campaign.css</code>)</td></tr>
           <tr><td><code>favicon.svg</code></td><td>ikona stránky (cyan výzva <code>&gt;_</code> s oranžovým kurzorem v rámečku na černém podkladu)</td></tr>
           <tr><td><code>start.bat</code></td><td>spouštěč pro Windows: najde PHP, Node nebo Python, spustí místní server a otevře prohlížeč (<code>start.bat 9000</code> = jiný port)</td></tr>
           <tr><td><code>package.json</code></td><td>jen skripty <code>npm test</code> a <code>npm start</code>; žádné závislosti</td></tr>
@@ -374,7 +378,7 @@ Documents  Downloads  README.txt
 
         <h3><code>css/</code> – vzhled</h3>
         <table class="files">
-          <tr><td><code>css/bubos.css</code></td><td>barvy (tmavé / světlé téma jako proměnné, tlumená „flat“ paleta bez záře), rozložení, terminál, pager, editor, lišta kláves pro dotyk</td></tr>
+          <tr><td><code>css/bubos.css</code></td><td>barvy (tmavé / světlé téma jako proměnné; barvy terminálu mají standardní významy – zelená uživatel a programy, modrá složky, azurová odkazy, červená chyby; fialový akcent pro úkol a kampaň, modrý pro pískoviště), rozložení, terminál, pager, editor, lišta kláves pro dotyk</td></tr>
           <tr><td><code>css/docs.css</code></td><td>doplňky pro stránku dokumentace</td></tr>
         </table>
 
@@ -401,6 +405,7 @@ Documents  Downloads  README.txt
           <tr><td><code>ansi.js</code></td><td>převádí barevné escape sekvence (<code>\x1b[1;34m</code>) na zbarvené prvky stránky</td></tr>
           <tr><td><code>pager.js</code></td><td>celoobrazovkový prohlížeč textu pro <code>less</code> a <code>man</code></td></tr>
           <tr><td><code>editor.js</code></td><td>editor ve stylu <code>nano</code></td></tr>
+          <tr><td><code>missionpanel.js</code></td><td>panel úkolu vedle terminálu (zadání, cíle, nápovědy)</td></tr>
         </table>
 
         <h4><code>js/core/</code> – jádro (bez DOM, testovatelné v Node)</h4>
@@ -410,6 +415,7 @@ Documents  Downloads  README.txt
           <tr><td><code>machine.js</code></td><td>„počítač“ = profil OS + souborový systém + procesy + nastavení; tvorba čistého a obnova z exportu; <code>snapshot()</code></td></tr>
           <tr><td><code>process.js</code></td><td>tabulka simulovaných procesů (PID, přerušení)</td></tr>
           <tr><td><code>streams.js</code></td><td>roura s omezenou pamětí (<code>Pipe</code>), vstup (<code>Stdin</code>) a zapisovače do textu a souborů</td></tr>
+          <tr><td><code>mission.js</code></td><td>kampaň: kontroly cílů, hvězdičky, nápovědy, příprava stroje z <code>setup</code>, postup žáka (slučování, validace)</td></tr>
           <tr><td><code>storage.js</code></td><td>IndexedDB, export a import souboru, kontrola formátu</td></tr>
           <tr><td><code>i18n.js</code></td><td>funkce <code>t('klíč', {proměnné})</code> a načítání slovníků</td></tr>
           <tr><td><code>args.js</code></td><td>společný zpracovatel voleb příkazů (<code>-abc</code>, <code>-n 5</code>, <code>--long=hodnota</code>)</td></tr>
@@ -427,6 +433,7 @@ Documents  Downloads  README.txt
         <h4><code>js/os/linux/</code> – profil Linuxu</h4>
         <table class="files">
           <tr><td><code>profile.js</code></td><td>seznam příkazů (<code>COMMANDS</code>), <code>PATH</code>, vzhled promptu, načítání příkazů a manuálu, nastavení doplňování Tab pro jednotlivé příkazy</td></tr>
+          <tr><td><code>missions/</code></td><td>úkoly kampaně: <code>index.json</code> (kapitoly) + jeden JSON na úkol (kapitola 10)</td></tr>
           <tr><td><code>skeleton.js</code></td><td>výchozí obsah souborového systému (strom z kapitoly 5)</td></tr>
           <tr><td><code>lib.js</code></td><td>společné pomocné funkce příkazů (formát dat a velikostí, barvy v <code>ls</code>, čtení vstupu)</td></tr>
           <tr><td><code>commands/*.js</code></td><td>jeden soubor = jeden příkaz (seznam níže). Další OS (např. Windows) by měl vlastní složku <code>js/os/&lt;os&gt;/</code></td></tr>
@@ -437,6 +444,7 @@ Documents  Downloads  README.txt
         <h3><code>tests/</code> a <code>tools/</code></h3>
         <table class="files">
           <tr><td><code>tests/helpers.js</code></td><td>virtuální terminál bez prohlížeče: <code>boot()</code> vrací <code>{ run, sh, m, tty }</code></td></tr>
+          <tr><td><code>tests/mission.test.js</code></td><td>testy kampaně: definice a řešení všech úkolů, hvězdy, postup</td></tr>
           <tr><td><code>tests/shell.test.js</code></td><td>scénáře testů shellu a příkazů; spuštění <code>npm test</code></td></tr>
           <tr><td><code>tools/serve.mjs</code></td><td>nouzový statický server v Node (<code>node tools/serve.mjs 8080</code>), když není PHP ani Python</td></tr>
         </table>
@@ -471,8 +479,48 @@ Documents  Downloads  README.txt
       </section>
 
       <!-- ============================ 10 ============================ -->
+      <section id="kampan">
+        <h2>10. Kampaň (úkoly)</h2>
+        <p>Tlačítko <b>Kampaň</b> v horní liště otevře stránku <code>campaign.html</code> s dlaždicemi úkolů rozdělených do kapitol. Žák si úkol
+          vybere sám – nic se nezamyká a pořadí není povinné. Každý úkol má zadání, cíle, bonus a několik nápověd.</p>
+        <h3>Jak úkol probíhá</h3>
+        <ul>
+          <li>Úkol poznáte podle <b>fialového štítku</b> „Úkol · název“ v horní liště a fialového rámečku terminálu; pískoviště má modrý štítek „Pískoviště“.</li>
+          <li>Úkol běží ve <b>vlastním čistém systému</b> (z <code>setup</code> úkolu), takže nic nerozbijete a vaše pískoviště zůstane nedotčené. V horní liště je místo Export/Import odkaz <b>Pískoviště</b>.</li>
+          <li>Vedle terminálu je <b>panel</b>: zadání, cíle (odškrtávají se samy po každém příkazu), bonus a tlačítko Nápověda. Totéž umí příkaz <code>mission</code> (<code>status</code>, <code>hint</code>, <code>restart</code>, <code>quit</code>).</li>
+          <li>Hodnotí se jen vybraný úkol a jen výsledný <em>stav</em> systému – cíl lze splnit libovolným správným postupem.</li>
+          <li>Rozpracovaný úkol se ukládá zvlášť; po návratu se pokračuje, <b>Znovu</b> začne od výchozího stavu.</li>
+        </ul>
+        <h3>Hvězdičky</h3>
+        <table>
+          <tr><th>Hvězdy</th><th>Podmínka</th></tr>
+          <tr><td>⭐</td><td>všechny cíle splněny (s použitou nápovědou)</td></tr>
+          <tr><td>⭐⭐</td><td>cíle splněny bez jediné nápovědy</td></tr>
+          <tr><td>⭐⭐⭐</td><td>navíc splněn bonus (např. elegantnější řešení)</td></tr>
+        </table>
+        <h3>Postup a zálohování</h3>
+        <p>Hvězdičky jsou uložené <em>odděleně od pískoviště</em> (klíč <code>progress</code> v IndexedDB). Smazání nebo ztráta zálohy pískoviště tedy nevadí – úkoly se
+          staví od nuly; kdo téma umí, spustí úkol a splní ho bez nápovědy. Tlačítko <b>Export postupu</b> uloží malý soubor <code>bubos-postup-….json</code>,
+          <b>Import postupu</b> ho sloučí s existujícím (zůstanou lepší výsledky). Postup je také součástí běžného <b>Exportu</b> celého systému. Stránka po 14 dnech
+          připomene, že je čas na zálohu. V souborech nejsou žádná jména.</p>
+        <h3>Jak přidat úkol</h3>
+        <ol>
+          <li>Vytvořte <code>js/os/linux/missions/&lt;id&gt;.json</code> a přidejte <code>id</code> do kapitoly v <code>missions/index.json</code>.</li>
+          <li>Úkol obsahuje: <code>id</code>, <code>rev</code>, <code>level</code> (1–3), <code>needs</code>, <code>title</code> / <code>brief</code> (cs i en), <code>setup</code>
+            (<code>files</code>, <code>dirs</code>, <code>links</code>, <code>remove</code>, <code>users</code>, <code>cwd</code>), <code>goals</code>, <code>bonus</code>, <code>hints</code>
+            a pro test <code>solution</code> (splní cíle) a <code>best</code> (splní i bonus).</li>
+          <li>Kontroly (<code>check</code>, vždy jeden klíč): <code>fileExists</code>, <code>fileMissing</code>, <code>dirExists</code>, <code>isFile</code>, <code>fileContains</code>, <code>fileMatches</code>,
+            <code>fileEquals</code>, <code>fileLines</code>, <code>mode</code>, <code>executable</code>, <code>owner</code>, <code>symlink</code>, <code>userExists</code>, <code>inGroup</code>, <code>cwd</code>,
+            <code>ran</code>, <code>line</code>, <code>pipeline</code>, <code>redirect</code>, <code>output</code> a kombinace <code>all</code> / <code>any</code> / <code>not</code>.
+            Bonus se „pamatuje“, proto nesmí být splněný hned na začátku (hlídá to test; nepoužívejte v bonusu samotné <code>not</code>).</li>
+          <li>Spusťte <code>npm test</code> – test projde každý úkol: ověří definici, že na začátku nic není splněno, a přehraje <code>solution</code> a <code>best</code>.</li>
+        </ol>
+        <p class="note">Pozor: výchozí soubory systému se liší podle jazyka (např. <code>pisen.txt</code> / <code>poem.txt</code>), proto si úkoly vytvářejí vlastní soubory přes <code>setup</code>.</p>
+      </section>
+
+      <!-- ============================ 11 ============================ -->
       <section id="prikazy">
-        <h2>10. Referenční příručka příkazů</h2>
+        <h2>11. Referenční příručka příkazů</h2>
         <p>Tato část se načítá přímo z manuálových stránek (<code>man/cs.txt</code> nebo <code>man/en.txt</code>), takže je vždy shodná s tím, co ukáže příkaz <code>man</code>.
           Jazyk příručky přepnete tlačítkem <b>CS / EN</b> nahoře. <span id="count"></span></p>
         <p class="note">Příklad čtení: <code>[ ]</code> v zápisu použití znamená „nepovinné“, <code>...</code> „lze opakovat“, VELKÁ PÍSMENA jsou místa, která nahradíte vlastní hodnotou.</p>

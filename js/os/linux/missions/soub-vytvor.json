@@ -1,0 +1,24 @@
+{
+  "id": "soub-vytvor", "rev": 1, "level": 1, "needs": ["mkdir", "echo"],
+  "title": { "cs": "Moje první složka", "en": "My first folder" },
+  "brief": {
+    "cs": "Začínáš školní rok a chceš si udělat pořádek. Vytvoř ve svém domovském adresáři složku skola a v ní textový soubor poznamky.txt, který bude obsahovat slovo Linux.",
+    "en": "A new school year begins and you want to stay organised. In your home directory create a folder skola and inside it a text file poznamky.txt that contains the word Linux."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "dir", "text": { "cs": "Existuje složka ~/skola", "en": "The folder ~/skola exists" }, "check": { "dirExists": "~/skola" } },
+    { "id": "file", "text": { "cs": "Existuje soubor ~/skola/poznamky.txt", "en": "The file ~/skola/poznamky.txt exists" }, "check": { "isFile": "~/skola/poznamky.txt" } },
+    { "id": "text", "text": { "cs": "Soubor obsahuje slovo Linux", "en": "The file contains the word Linux" }, "check": { "fileContains": ["~/skola/poznamky.txt", "Linux"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Vytvoř jediným příkazem i vnořenou složku ~/skola/ict/linux", "en": "With a single command also create the nested folder ~/skola/ict/linux" }, "check": { "dirExists": "~/skola/ict/linux" } }
+  ],
+  "hints": [
+    { "cs": "Složku vytvoří příkaz mkdir.", "en": "A folder is created by mkdir." },
+    { "cs": "Soubor s textem vznikne přesměrováním: echo Linux > skola/poznamky.txt", "en": "A file with text is made by redirection: echo Linux > skola/poznamky.txt" },
+    { "cs": "Přepínač -p u mkdir vytvoří celou cestu najednou: mkdir -p skola/ict/linux", "en": "The -p option of mkdir creates a whole path at once: mkdir -p skola/ict/linux" }
+  ],
+  "solution": ["mkdir skola", "echo Linux > skola/poznamky.txt"],
+  "best": ["mkdir skola", "echo Linux > skola/poznamky.txt", "mkdir -p skola/ict/linux"]
+}

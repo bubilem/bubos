@@ -41,8 +41,23 @@ Příkaz = `export default { async run(ctx) { … return kód; } }`. Užitečné
 - Testy: `tests/helpers.js` (`boot()` vrací `{run, sh, m, tty}`; `run(řádek)` → `{out, st}`), scénáře v `tests/shell.test.js`.
   K nové funkci přidat test; man/i18n pokrytí kontrolovat (každý příkaz má stránku v obou jazycích, klíče `t('…')` existují v obou JSON).
 
+## Barvy a režimy (UX)
+- Barvy terminálu (`--c30…--c97` v `css/bubos.css`) mají **standardní významy**: zelená = uživatel@počítač a spustitelné soubory, modrá = složky a cesta,
+  azurová = odkazy, červená = chyby (a prompt roota), žlutá = varování. Nepřemapovávat (dříve byla „zelená“ modrá a slévala se se složkami).
+- Barva stránky (`--accent`) je oddělená od barev terminálu: modrá = pískoviště a dokumentace, **fialová = úkol a kampaň** (`body.mission-mode`, `body.camp`).
+  Jantarová (`--flame`) jen pro hvězdy, zelená (`--ok`) pro splněno. Režim je navíc vidět ze štítku v liště (`#mode-badge`) a z titulku záložky – barva nikdy nenese význam sama.
+- Kontrast textu proti pozadí v obou tématech je ≥ 4,5 : 1 (ověřeno výpočtem při změně palety).
+
+## Kampaň (výuková vrstva)
+- `core/mission.js` (bez DOM): `evalCheck` (kontroly stavu FS a historie), `MissionRun` (cíle, bonus, nápovědy, hvězdy, `toState`), `applySetup`, postup
+  (`sanitizeProgress`, `mergeProgress`, `recordResult`). Úkoly = JSON v `js/os/linux/missions/` (`index.json` + `<id>.json`), načítá `profile.loadMission`.
+- `main.js` v režimu `?mission=<id>` staví vlastní `Machine` (nikdy nesahá na klíč `main` v IndexedDB), po každém řádku volá `run.observe` + `run.update`
+  a při zisku hvězd zapíše postup (`storage.saveProgress`). Klíče úložiště: `main`, `progress`, `mission:<id>`.
+- `campaign.js` je samostatná stránka; jazyk a vzhled sdílí s pískovištěm přes `storage.patchSettings`.
+- Nový úkol = JSON + řádek v `index.json`; `npm test` přehraje `solution` i `best` každého úkolu.
+
 ## Formát exportu
 ```json
 { "format": 1, "app": "bubos", "os": "linux", "savedAt": "…", "settings": {"lang":"cs","theme":"dark"}, "fs": { "type":"dir", … } }
 ```
-Při změně formátu zvýšit `format` a přidat migraci v `Machine.fromState`.
+Volitelně i `"progress": {…}` (postup v kampani; při importu se sloučí s existujícím). Při změně formátu zvýšit `format` a přidat migraci v `Machine.fromState`.

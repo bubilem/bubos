@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="cs" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BubOS – kampaň</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/bubos.css">
+  <link rel="stylesheet" href="css/campaign.css">
+</head>
+<body class="camp">
+  <header class="top">
+    <h1>Bub<span>OS</span> <small class="badge" data-i18n="camp.heading"></small></h1>
+    <nav>
+      <a class="btn" href="index.html" data-i18n="camp.back"></a>
+      <button id="btn-export" data-i18n="camp.export" data-i18n-title="camp.export.title"></button>
+      <button id="btn-import" data-i18n="camp.import" data-i18n-title="camp.import.title"></button>
+      <button id="btn-lang" class="icon" data-i18n-title="ui.lang"></button>
+      <button id="btn-theme" class="icon" data-i18n-title="ui.theme"></button>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <p class="intro" data-i18n="camp.intro"></p>
+    <div id="summary" class="summary"></div>
+    <div id="backup" class="banner" hidden></div>
+    <div id="msg" class="banner ok" hidden role="status"></div>
+    <div class="filters">
+      <label><span data-i18n="camp.filter.chapter"></span> <select id="f-chapter"></select></label>
+      <label><span data-i18n="camp.filter.level"></span> <select id="f-level"></select></label>
+      <label><span data-i18n="camp.filter.status"></span> <select id="f-status"></select></label>
+    </div>
+    <div id="chapters"></div>
+  </main>
+
+  <dialog id="detail"></dialog>
+  <input type="file" id="file" accept=".json,application/json" hidden>
+  <script type="module" src="js/campaign.js"></script>
+</body>
+</html>

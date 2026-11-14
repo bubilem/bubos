@@ -8,7 +8,7 @@ export const COMMANDS = [
   'tree', 'find', 'chmod', 'chown', 'grep', 'cut', 'tr', 'echo', 'pwd', 'cd', 'export', 'unset', 'alias',
   'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'which', 'clear', 'help', 'man', 'less',
   'nano', 'env', 'printenv', 'true', 'false', 'test', '[', 'sleep', 'date', 'uname', 'hostname', 'whoami',
-  'id', 'groups', 'su', 'sudo', 'useradd', 'passwd', 'ps', 'kill', 'yes', 'seq', 'basename', 'dirname', 'lang',
+  'id', 'groups', 'su', 'sudo', 'useradd', 'passwd', 'ps', 'kill', 'yes', 'seq', 'basename', 'dirname', 'lang', 'mission',
 ];
 // Příkazy, které běží přímo v shellu (nemají soubor v /usr/bin)
 const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help'];
@@ -31,15 +31,26 @@ async function fetchMan(lang) {
   return (manCache[lang] = pages);
 }
 
+// Úkoly kampaně (js/os/linux/missions/): index.json + <id>.json
+export const missionSource = { fn: null }; // pro testy v Node
+const ID = /^[a-z0-9-]{1,64}$/;
+async function fetchMission(file) {
+  if (missionSource.fn) return missionSource.fn(file);
+  const r = await fetch(new URL(`./missions/${file}`, import.meta.url));
+  if (!r.ok) throw new Error('mission not found');
+  return r.json();
+}
+
 export default {
   id: 'linux',
   path: '/usr/local/bin:/usr/bin:/bin',
   commands: COMMANDS,
   shellOnly: SHELL_ONLY,
-  builtins: [...SHELL_ONLY, 'echo', 'pwd', 'test', '[', 'true', 'false', 'kill'],
+  // mission je vestavěný, aby fungoval i v dříve uloženém systému (bez souboru v /usr/bin)
+  builtins: [...SHELL_ONLY, 'echo', 'pwd', 'test', '[', 'true', 'false', 'kill', 'mission'],
   // jak doplňovat argumenty (Tab): cmd | dir | path | user | alias | varname | none
   completions: { cd: 'dir', rmdir: 'dir', man: 'cmd', help: 'cmd', which: 'cmd', type: 'cmd', su: 'user', passwd: 'user',
-    unalias: 'alias', unset: 'varname', export: 'varname', useradd: 'none', lang: 'none', history: 'none' },
+    unalias: 'alias', unset: 'varname', export: 'varname', useradd: 'none', lang: 'none', history: 'none', mission: 'none' },
   buildFs,
 
   boot(m) {
@@ -54,13 +65,17 @@ export default {
     let cwd = sh.cwd;
     if (cwd === u.home) cwd = '~';
     else if (u.home !== '/' && cwd.startsWith(u.home + '/')) cwd = '~' + cwd.slice(u.home.length);
-    return `\x1b[1;32m${u.name}@${sh.m.hostname}\x1b[0m:\x1b[1;34m${cwd}\x1b[0m${u.uid === 0 ? '#' : '$'} `;
+    // root má celý prompt červený (varování, že pracuje správce)
+    return `\x1b[1;${u.uid === 0 ? 31 : 32}m${u.name}@${sh.m.hostname}\x1b[0m:\x1b[1;34m${cwd}\x1b[0m${u.uid === 0 ? '#' : '$'} `;
   },
 
   loadCommand(name) {
     if (!COMMANDS.includes(name)) return Promise.reject(new Error('unknown command'));
     return import(`./commands/${FILE[name] ?? name}.js`);
   },
+
+  loadMissionIndex: () => fetchMission('index.json'),
+  loadMission: id => (ID.test(id) ? fetchMission(id + '.json') : Promise.reject(new Error('bad mission id'))),
 
   // Stránky manuálu v daném jazyce (chybějící se doplní z angličtiny)
   async loadMan(lang) {

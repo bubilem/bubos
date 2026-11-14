@@ -24,5 +24,8 @@ Přehled rozhodnutí a plán: `docs/PROJEKT.md`. Architektura a konvence: `docs/
 - Před commitem/přidáním příkazu spustit `npm test`; kontrola, že každý příkaz má stránku v `man/cs.txt` i `man/en.txt` a klíče v obou `i18n/*.json` (skript se dá snadno znovu napsat – viz `docs/ARCHITEKTURA.md`).
 - Složka zatím NENÍ git repozitář.
 
+- Kampaň: úkoly jsou JSON v `js/os/linux/missions/` (+ řádek v `index.json`), každý s `solution` a `best`, které přehrává `npm test`. Postup žáka je oddělený od pískoviště (viz `docs/ARCHITEKTURA.md`, sekce Kampaň).
+- Port 8080 bývá obsazený; preview_start pak přidělí 8081, ale python server běží jen na 8080 → v prohlížeči otevřít `http://localhost:8080`.
+
 ## Stav
-MVP hotové a ověřené (viz `docs/PROJEKT.md`, sekce Stav a Plán). Další krok: druhá iterace.
+MVP hotové a ověřené (viz `docs/PROJEKT.md`, sekce Stav a Plán). Kampaň: první řez hotový (10 úkolů). Další krok: více úkolů, pak druhá iterace příkazů.

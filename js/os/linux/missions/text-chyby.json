@@ -1,0 +1,28 @@
+{
+  "id": "text-chyby", "rev": 1, "level": 2, "needs": ["grep", "wc"],
+  "title": { "cs": "Chyby v logu", "en": "Errors in the log" },
+  "brief": {
+    "cs": "Server hlásí potíže. V domovském adresáři je soubor server.log. Vypiš všechny řádky s chybou (obsahují ERROR) do nového souboru chyby.txt a do souboru pocet.txt zapiš, kolik chyb je.",
+    "en": "The server reports trouble. Your home directory contains server.log. Save all lines with an error (those containing ERROR) into a new file chyby.txt and write how many errors there are into pocet.txt."
+  },
+  "setup": {
+    "files": {
+      "~/server.log": "08:01 INFO server started\n08:05 INFO user anna logged in\n08:12 ERROR database connection failed\n08:30 WARN disk usage at 85%\n08:41 ERROR timeout while reading data\n09:02 INFO backup finished\n09:15 ERROR out of memory\n09:20 INFO user anna logged out\n"
+    }
+  },
+  "goals": [
+    { "id": "lines", "text": { "cs": "chyby.txt obsahuje přesně řádky s ERROR", "en": "chyby.txt contains exactly the ERROR lines" },
+      "check": { "fileEquals": ["~/chyby.txt", "08:12 ERROR database connection failed\n08:41 ERROR timeout while reading data\n09:15 ERROR out of memory"] } },
+    { "id": "count", "text": { "cs": "pocet.txt obsahuje počet chyb (číslo)", "en": "pocet.txt contains the number of errors" }, "check": { "fileEquals": ["~/pocet.txt", "3"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Počet zjisti rourou: grep … | wc -l", "en": "Get the count with a pipe: grep … | wc -l" }, "check": { "line": "grep.*\\|\\s*wc" } }
+  ],
+  "hints": [
+    { "cs": "grep VZOR soubor vypíše řádky obsahující vzor. Výstup do souboru uložíš přesměrováním >.", "en": "grep PATTERN file prints the lines containing the pattern. Save the output to a file with >." },
+    { "cs": "grep -c vypíše jen počet řádků. Nebo výstup grep pošli rourou do wc -l.", "en": "grep -c prints only the number of lines. Or pipe the output of grep into wc -l." },
+    { "cs": "grep ERROR server.log | wc -l > pocet.txt", "en": "grep ERROR server.log | wc -l > pocet.txt" }
+  ],
+  "solution": ["grep ERROR server.log > chyby.txt", "grep -c ERROR server.log > pocet.txt"],
+  "best": ["grep ERROR server.log > chyby.txt", "grep ERROR server.log | wc -l > pocet.txt"]
+}

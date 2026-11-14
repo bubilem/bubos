@@ -10,7 +10,7 @@ const CATS = [
   ['Čtení a zpracování textu', ['cat', 'head', 'tail', 'less', 'nano', 'grep', 'cut', 'sort', 'uniq', 'wc', 'tr', 'tee', 'echo', 'seq', 'yes']],
   ['Uživatelé a práva', ['whoami', 'id', 'groups', 'su', 'sudo', 'useradd', 'passwd', 'chmod', 'chown']],
   ['Shell, proměnné a skripty', ['export', 'unset', 'env', 'printenv', 'alias', 'unalias', 'history', 'source', 'type', 'which', 'test', 'true', 'false', 'sleep', 'exit']],
-  ['Systém a nápověda', ['help', 'man', 'clear', 'date', 'uname', 'hostname', 'lang', 'ps', 'kill']],
+  ['Systém a nápověda', ['help', 'man', 'clear', 'date', 'uname', 'hostname', 'lang', 'mission', 'ps', 'kill']],
 ];
 // Jméno příkazu → soubor modulu (shodné s FILE v js/os/linux/profile.js)
 const FILE = { '.': 'source', '[': 'test', logout: 'exit' };
@@ -135,3 +135,8 @@ document.querySelectorAll('main > section').forEach(s => spy.observe(s));
   } catch { /* výchozí nastavení */ }
   refresh();
 })();
+
+// „Zpět do terminálu“ vrací tam, odkud žák přišel (pískoviště nebo rozpracovaný úkol); bez předchozí stránky vede na index.html
+document.querySelector('a[href="index.html"]')?.addEventListener('click', e => {
+  if (history.length > 1 && document.referrer && new URL(document.referrer).origin === location.origin) { e.preventDefault(); history.back(); }
+});

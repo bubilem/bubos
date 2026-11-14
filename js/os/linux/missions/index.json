@@ -1,0 +1,14 @@
+{
+  "chapters": [
+    { "id": "orientace", "title": { "cs": "Orientace", "en": "Orientation" },
+      "missions": ["orient-kde-jsem", "orient-cesty"] },
+    { "id": "soubory", "title": { "cs": "Soubory a složky", "en": "Files and folders" },
+      "missions": ["soub-vytvor", "soub-presun"] },
+    { "id": "text", "title": { "cs": "Práce s textem", "en": "Working with text" },
+      "missions": ["text-chyby", "text-tabulka"] },
+    { "id": "prava", "title": { "cs": "Přístupová práva", "en": "Permissions" },
+      "missions": ["prava-skript", "prava-soukroma"] },
+    { "id": "uzivatele", "title": { "cs": "Uživatelé a správce", "en": "Users and the administrator" },
+      "missions": ["uziv-sudo", "uziv-novy"] }
+  ]
+}
