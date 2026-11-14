@@ -14,7 +14,7 @@
   "sh.loadfail": "příkaz se nepodařilo načíst",
 
   "help.title": "BubOS – přehled příkazů",
-  "help.tips": "Tab doplňuje názvy, šipky ↑/↓ listují historií, Ctrl+C přeruší příkaz.",
+  "help.tips": "Tab doplňuje názvy, šipky ↑/↓ listují historií, Ctrl+R hledá v historii, Ctrl+C přeruší příkaz.",
   "help.more": "Podrobnosti: man <příkaz>   nebo   <příkaz> --help",
 
   "nano.noname": "Soubor nemá jméno – ukončete a spusťte: nano jmeno.txt",

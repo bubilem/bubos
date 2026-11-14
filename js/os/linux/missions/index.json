@@ -9,6 +9,12 @@
     { "id": "prava", "title": { "cs": "Přístupová práva", "en": "Permissions" },
       "missions": ["prava-skript", "prava-soukroma"] },
     { "id": "uzivatele", "title": { "cs": "Uživatelé a správce", "en": "Users and the administrator" },
-      "missions": ["uziv-sudo", "uziv-novy"] }
+      "missions": ["uziv-sudo", "uziv-novy"] },
+    { "id": "hledani", "title": { "cs": "Hledání a analýza", "en": "Searching and analysis" },
+      "missions": ["hled-misto", "hled-pripony", "hled-text"] },
+    { "id": "pokrocily-text", "title": { "cs": "Pokročilý text", "en": "Advanced text" },
+      "missions": ["sed-nahrad", "sed-konfig", "diff-zmeny", "awk-soucet"] },
+    { "id": "skupiny", "title": { "cs": "Skupiny a práva", "en": "Groups and permissions" },
+      "missions": ["skup-umask", "skup-tym", "skup-sdileni"] }
   ]
 }

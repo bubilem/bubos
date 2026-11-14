@@ -79,3 +79,57 @@ export function fmtDate(d, fmt) {
   };
   return fmt.replace(/%(.)/g, (m, c) => (c in map ? map[c] : m));
 }
+
+// printf-formát: %s %d %i %u %o %x %X %f %e %g %c %%, šířka, přesnost, příznaky - + 0 mezera #; vrací { text, used }
+export function sprintf(fmt, args, conv = {}) {
+  const num = conv.num ?? (v => parseFloat(v) || 0), str = conv.str ?? (v => (v === undefined ? '' : String(v)));
+  let ai = 0;
+  const text = fmt.replace(/%([-+ #0]*)(\*|\d+)?(?:\.(\*|\d*))?(?:hh|h|ll|l|L)?([a-zA-Z%])/g, (m, fl, w, p, c) => {
+    if (c === '%') return '%';
+    if (w === '*') w = String(Math.trunc(num(args[ai++])));
+    if (p === '*') p = String(Math.trunc(num(args[ai++])));
+    let width = w ? +w : 0;
+    if (width < 0) { fl += '-'; width = -width; }
+    const prec = p === undefined ? null : +p || 0, left = fl.includes('-'), raw = args[ai++];
+    let body, numeric = true, sign = '';
+    const signOf = n => (n < 0 || Object.is(n, -0) ? '-' : fl.includes('+') ? '+' : fl.includes(' ') ? ' ' : '');
+    switch (c) {
+      case 'd': case 'i': case 'u': {
+        const n = Math.trunc(num(raw)); sign = signOf(n); body = String(Math.abs(n));
+        if (prec !== null) body = body.padStart(prec, '0');
+        break;
+      }
+      case 'o': case 'x': case 'X': {
+        const n = Math.trunc(num(raw)) >>> 0;
+        body = n.toString(c === 'o' ? 8 : 16); if (c === 'X') body = body.toUpperCase();
+        if (prec !== null) body = body.padStart(prec, '0');
+        if (fl.includes('#') && n) body = (c === 'o' ? '0' : c === 'x' ? '0x' : '0X') + body;
+        break;
+      }
+      case 'f': case 'F': case 'e': case 'E': case 'g': case 'G': {
+        const n = num(raw); sign = signOf(n); const a = Math.abs(n), P = prec ?? 6;
+        if (!Number.isFinite(a)) body = Number.isNaN(a) ? 'nan' : 'inf';
+        else if (c === 'f' || c === 'F') body = a.toFixed(P);
+        else if (c === 'e' || c === 'E') body = a.toExponential(P).replace(/e([+-])(\d)$/, 'e$10$2');
+        else {
+          const Q = P || 1, ex = a === 0 ? 0 : Math.floor(Math.log10(a));
+          body = ex < -4 || ex >= Q ? a.toExponential(Q - 1).replace(/e([+-])(\d)$/, 'e$10$2') : a.toFixed(Math.max(0, Q - 1 - ex));
+          if (!fl.includes('#')) body = body.replace(/(\.\d*?)0+(e|$)/, '$1$2').replace(/\.(e|$)/, '$1');
+        }
+        if (/[EG]/.test(c)) body = body.toUpperCase();
+        break;
+      }
+      case 'c': numeric = false; body = typeof raw === 'number' ? String.fromCodePoint(raw) : str(raw).slice(0, 1); break;
+      case 's': numeric = false; body = str(raw); if (prec !== null) body = body.slice(0, prec); break;
+      default: return m;
+    }
+    let out = sign + body;
+    if (out.length < width) {
+      if (left) out = out.padEnd(width);
+      else if (fl.includes('0') && numeric && !(prec !== null && 'diuoxX'.includes(c))) out = sign + body.padStart(width - sign.length, '0');
+      else out = out.padStart(width);
+    }
+    return out;
+  });
+  return { text, used: ai };
+}

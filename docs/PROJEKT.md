@@ -27,8 +27,8 @@ Známé drobnosti: `chmod.js` obsahuje zbytečný řádek s `noWho` (no-op); `he
 hard linky (`ln` bez `-s`) nejsou podporované záměrně (export JSON by sdílení uzlů nezachoval).
 
 ## Plán / nápady (priorita přibližně shora dolů)
-1. **Druhá iterace příkazů:** `sed`, `awk`-lite, `xargs`, `printf`, `tail -f`, `stat`, `du`/`df`, `diff`, `cal`, `which`-úpravy, `groupadd`/`usermod`/`userdel`,
-   `chgrp`, `umask`, `read`, `Ctrl+R` (hledání v historii), `vi`.
+1. **Druhá iterace příkazů – blok A HOTOVÝ:** `sed`, `awk`-lite, `xargs`, `printf`, `stat`, `du`/`df`, `diff`, `cal`, `groupadd`/`groupdel`/`usermod`/`userdel`,
+   `chgrp`, `umask`, `read`, `Ctrl+R`. Zbývá: `tail -f`, `vi` (blok E). Starší uložené stroje dostanou stuby nových příkazů při startu (`boot` v `profile.js`).
 2. **Skriptování:** `if/for/while/case`, funkce, `$((…))`, `$@`/`$#`, `read`, `exit` kódy – rozšířit `parse.js` o víceřádkové konstrukty.
 3. **Procesy a služby:** `jobs/fg/bg`, `top`, falešný `systemctl`, `cron`, `/proc` dynamicky.
 4. **Síť a více strojů:** `ping`, `ip a`, `ssh` mezi virtuálními stroji, `curl` na falešné servery.
@@ -73,7 +73,7 @@ cíl lze splnit libovolným správným způsobem.
 Skriptování, procesy a síť přibudou s druhou iterací příkazů.
 
 **Stav implementace (první řez HOTOVÝ):** jádro `core/mission.js` + testy, úložiště postupu v `storage.js`, režim úkolu v `main.js`
-(`index.html?mission=<id>`, panel `ui/missionpanel.js`, příkaz `mission`), `campaign.html`, 10 úkolů v 5 kapitolách, kapitola Kampaň v `docs.html`.
+(`index.html?mission=<id>`, panel `ui/missionpanel.js`, příkaz `mission`), `campaign.html`, 20 úkolů v 8 kapitolách (po bloku A přibyly Hledání a analýza, Pokročilý text, Skupiny a práva), kapitola Kampaň v `docs.html`.
 Odchylky od původního návrhu: export celého systému zůstal `format` 1 (pole `progress` je volitelné, bez migrace); `mission` je vestavěný příkaz
 (funguje i ve starých uložených systémech); rozpracovaný úkol se ukládá pod klíčem `mission:<id>`; každý úkol musí mít v JSON `solution` a `best`
 (řešení, která přehrává `tests/mission.test.js`). Ověřeno v prohlížeči: stránka kampaně, spuštění úkolu, odškrtávání cílů, zápis hvězd.

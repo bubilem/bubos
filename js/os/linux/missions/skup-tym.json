@@ -1,0 +1,26 @@
+{
+  "id": "skup-tym", "rev": 1, "level": 3, "needs": ["sudo", "groupadd", "usermod"],
+  "title": { "cs": "Nový tým", "en": "A new team" },
+  "brief": {
+    "cs": "Ve škole vzniká projektový tým. Vytvoř skupinu tym a přidej do ní uživatele alice (ten už existuje) i sebe (student). Skupiny a členství spravuje jen správce, takže použij sudo (heslo je student).",
+    "en": "A project team is being formed at school. Create a group tym and add the user alice (who already exists) and yourself (student) to it. Only the administrator manages groups and memberships, so use sudo (the password is student)."
+  },
+  "setup": {
+    "users": [{ "name": "alice" }]
+  },
+  "goals": [
+    { "id": "alice", "text": { "cs": "Alice je ve skupině tym", "en": "alice is in the group tym" }, "check": { "inGroup": ["alice", "tym"] } },
+    { "id": "student", "text": { "cs": "Student je ve skupině tym", "en": "student is in the group tym" }, "check": { "inGroup": ["student", "tym"] } },
+    { "id": "keep", "text": { "cs": "Student zůstal i ve skupině sudo (nepřepsal jsi jeho skupiny)", "en": "student is still in the group sudo (you did not overwrite their groups)" }, "check": { "inGroup": ["student", "sudo"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Ověř výsledek příkazem groups alice", "en": "Check the result with the command groups alice" }, "check": { "line": "groups\\s+alice" } }
+  ],
+  "hints": [
+    { "cs": "sudo groupadd jmeno vytvoří novou skupinu.", "en": "sudo groupadd name creates a new group." },
+    { "cs": "usermod -aG skupina uživatel přidá uživatele do skupiny. Bez -a by se ostatní skupiny uživatele smazaly!", "en": "usermod -aG group user adds the user to a group. Without -a the user's other groups would be removed!" },
+    { "cs": "sudo groupadd tym; sudo usermod -aG tym alice; sudo usermod -aG tym student", "en": "sudo groupadd tym; sudo usermod -aG tym alice; sudo usermod -aG tym student" }
+  ],
+  "solution": ["sudo groupadd tym", "sudo usermod -aG tym alice", "sudo usermod -aG tym student"],
+  "best": ["sudo groupadd tym", "sudo usermod -aG tym alice", "sudo usermod -aG tym student", "groups alice"]
+}

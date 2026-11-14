@@ -1,0 +1,27 @@
+{
+  "id": "skup-sdileni", "rev": 1, "level": 3, "needs": ["sudo", "groupadd", "usermod", "chgrp", "chmod"],
+  "title": { "cs": "Sdílená složka", "en": "A shared folder" },
+  "brief": {
+    "cs": "Složka /srv/projekt patří správci a nikdo jiný do ní nesmí. Má v ní spolupracovat skupina tym (uživatel alice). Vytvoř skupinu tym, přidej do ní alici, nastav složce skupinu tym a práva 770 (vlastník a skupina vše, ostatní nic).",
+    "en": "The folder /srv/projekt belongs to the administrator and nobody else may enter it. The group tym (user alice) should work in it. Create the group tym, add alice to it, set the group of the folder to tym and the permissions to 770 (owner and group everything, others nothing)."
+  },
+  "setup": {
+    "users": [{ "name": "alice" }],
+    "dirs": ["/srv/projekt"]
+  },
+  "goals": [
+    { "id": "member", "text": { "cs": "Alice je ve skupině tym", "en": "alice is in the group tym" }, "check": { "inGroup": ["alice", "tym"] } },
+    { "id": "group", "text": { "cs": "/srv/projekt patří skupině tym", "en": "/srv/projekt belongs to the group tym" }, "check": { "owner": ["/srv/projekt", "root", "tym"] } },
+    { "id": "mode", "text": { "cs": "/srv/projekt má práva 770", "en": "/srv/projekt has the permissions 770" }, "check": { "mode": ["/srv/projekt", "770"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Zkontroluj výsledek pomocí ls -ld /srv/projekt nebo stat", "en": "Check the result with ls -ld /srv/projekt or stat" }, "check": { "line": "(ls\\s+.*-\\w*d|stat)\\s+/srv/projekt" } }
+  ],
+  "hints": [
+    { "cs": "Nejdřív skupina a člen: sudo groupadd tym a sudo usermod -aG tym alice.", "en": "First the group and its member: sudo groupadd tym and sudo usermod -aG tym alice." },
+    { "cs": "sudo chgrp tym /srv/projekt změní skupinu složky, sudo chmod 770 /srv/projekt práva.", "en": "sudo chgrp tym /srv/projekt changes the group of the folder, sudo chmod 770 /srv/projekt the permissions." },
+    { "cs": "ls -ld /srv/projekt ukáže vlastníka, skupinu i práva složky samotné (bez -d by vypsal její obsah).", "en": "ls -ld /srv/projekt shows the owner, group and permissions of the folder itself (without -d it would list its contents)." }
+  ],
+  "solution": ["sudo groupadd tym", "sudo usermod -aG tym alice", "sudo chgrp tym /srv/projekt", "sudo chmod 770 /srv/projekt"],
+  "best": ["sudo groupadd tym", "sudo usermod -aG tym alice", "sudo chgrp tym /srv/projekt", "sudo chmod 770 /srv/projekt", "ls -ld /srv/projekt"]
+}

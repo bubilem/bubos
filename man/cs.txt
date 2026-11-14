@@ -705,3 +705,230 @@ POPIS
     restart   začne úkol znovu od výchozího stavu
     quit      vrátí se do kampaně
     Totéž umí panel vedle terminálu.
+
+
+#### stat
+JMÉNO
+    stat - vypíše podrobné informace o souboru
+POUŽITÍ
+    stat [-L] [-c FORMÁT] SOUBOR...
+POPIS
+    Ukáže velikost, práva, vlastníka, skupinu a časy souboru nebo adresáře.
+VOLBY
+    -L   u odkazu ukáže cíl, ne odkaz samotný
+    -c   vlastní formát: %n jméno, %s velikost, %a práva (osmičkově), %A práva (rwx),
+         %U vlastník, %G skupina, %u %g čísla UID/GID, %F typ, %y čas změny, %h počet odkazů
+PŘÍKLADY
+    stat dopis.txt
+    stat -c '%a %U %n' *
+
+#### du
+JMÉNO
+    du - zjistí, kolik místa zabírají soubory a adresáře
+POUŽITÍ
+    du [-ahsc] [-d HLOUBKA] [SOUBOR]...
+VOLBY
+    -a   vypíše i jednotlivé soubory (ne jen adresáře)
+    -h   velikosti v čitelné podobě (K, M, G)
+    -s   jen celkový součet pro každý argument
+    -c   na konci vypíše celkový součet
+    -d   jak hluboko se vypisují podadresáře
+PŘÍKLADY
+    du -sh ~
+    du -h -d 1 /var
+
+#### df
+JMÉNO
+    df - ukáže volné a obsazené místo na discích
+POUŽITÍ
+    df [-hT]
+VOLBY
+    -h   velikosti v čitelné podobě
+    -T   přidá sloupec s typem souborového systému
+POPIS
+    V simulátoru jde o ukázková data; obsazené místo na / roste podle skutečného obsahu.
+
+#### diff
+JMÉNO
+    diff - porovná dva soubory řádek po řádku
+POUŽITÍ
+    diff [-uqi] [-U N] SOUBOR1 SOUBOR2
+VOLBY
+    -u   sjednocený formát (jako v gitu), s okolím 3 řádků
+    -U   sjednocený formát s N řádky okolí
+    -q   jen oznámí, že se soubory liší
+    -i   nerozlišuje velká a malá písmena
+POPIS
+    Výstup "2c2" znamená změnu (change), "a" přidání (add), "d" smazání (delete).
+    Řádky začínající < jsou z prvního souboru, > z druhého. Návratový kód: 0 shodné, 1 liší se.
+PŘÍKLADY
+    diff stary.txt novy.txt
+    diff -u a.conf b.conf
+
+#### cal
+JMÉNO
+    cal - vypíše kalendář
+POUŽITÍ
+    cal [-y] [[MĚSÍC] ROK]
+VOLBY
+    -y   celý rok
+POPIS
+    Bez argumentů ukáže aktuální měsíc, dnešní den je zvýrazněn.
+PŘÍKLADY
+    cal
+    cal 2 2024
+    cal -y 2025
+
+#### printf
+JMÉNO
+    printf - vypíše text podle formátu
+POUŽITÍ
+    printf FORMÁT [ARGUMENT]...
+POPIS
+    Formát obsahuje běžný text, escape sekvence (\n, \t) a zástupné znaky:
+    %s text, %d celé číslo, %f desetinné číslo, %x šestnáctkově, %o osmičkově, %c znak, %% procento.
+    Lze určit šířku a přesnost, např. %5.2f nebo %-10s. Zbývají-li argumenty, formát se použije znovu.
+    Na rozdíl od echo nepřidává na konec nový řádek.
+PŘÍKLADY
+    printf '%s je %d let\n' Anna 17
+    printf '%-10s %5.1f\n' pi 3.14159
+
+#### xargs
+JMÉNO
+    xargs - sestaví a spustí příkaz z položek čtených ze vstupu
+POUŽITÍ
+    xargs [-0rt] [-n POČET] [-I ZÁSTUPCE] [-d ODDĚLOVAČ] [PŘÍKAZ [ARGUMENT]...]
+VOLBY
+    -n   nejvýše tolik argumentů na jedno spuštění
+    -I   každou položku dosadí na místo ZÁSTUPCE (např. {})
+    -0   položky jsou oddělené znakem NUL
+    -d   vlastní oddělovač položek
+    -r   při prázdném vstupu příkaz nespouští
+    -t   vypíše každý příkaz před spuštěním
+POPIS
+    Bez příkazu se použije echo. Typicky se používá za rourou po find nebo grep.
+PŘÍKLADY
+    find . -name '*.tmp' | xargs rm
+    cat seznam.txt | xargs -n 1 -I{} cp {} /tmp
+
+#### sed
+JMÉNO
+    sed - proudový editor textu (nahrazování a úpravy řádků)
+POUŽITÍ
+    sed [-nEi] [-e SKRIPT]... SKRIPT [SOUBOR]...
+VOLBY
+    -n   nevypisuje automaticky (tiskne jen příkaz p)
+    -E   rozšířené regulární výrazy (také -r)
+    -i   změny zapíše přímo do souboru
+    -e   další část skriptu
+PŘÍKAZY
+    s/VZOR/NÁHRADA/[g][p][N]   nahradí; v náhradě & je celá shoda, \1..\9 jsou skupiny
+    p  vypíše řádek     d  smaže řádek     q  skončí     =  vypíše číslo řádku
+    y/abc/xyz/  zamění znaky     a TEXT  i TEXT  c TEXT  přidá za / vloží před / nahradí řádek
+    Před příkazem může být adresa: 3, 2,5, $ (poslední), /vzor/, /a/,/b/ a ! (negace).
+PŘÍKLADY
+    sed 's/kočka/pes/g' text.txt
+    sed -n '2,4p' text.txt
+    sed -i '/^#/d' konfigurace.conf
+
+#### awk
+JMÉNO
+    awk - jednoduchý jazyk pro zpracování tabulek a textu
+POUŽITÍ
+    awk [-F ODDĚLOVAČ] [-v PROMĚNNÁ=HODNOTA] 'PROGRAM' [SOUBOR]...
+POPIS
+    Program tvoří pravidla "vzor { akce }". Akce se provede pro každý řádek, který vzoru vyhovuje.
+    $1, $2 ... jsou sloupce, $0 celý řádek, NF počet sloupců, NR číslo řádku.
+    BEGIN { } proběhne před čtením, END { } po přečtení všeho.
+    Umí proměnné, pole, if/while/for, printf a funkce length, substr, index, split, sub, gsub,
+    toupper, tolower, int, sqrt.
+PŘÍKLADY
+    awk '{print $1}' studenti.txt
+    awk -F';' '$3 > 80 {print $1}' studenti.csv
+    awk '{s += $2} END {print s}' body.txt
+
+#### chgrp
+JMÉNO
+    chgrp - změní skupinu souboru
+POUŽITÍ
+    chgrp [-R] SKUPINA SOUBOR...
+POPIS
+    Změnit skupinu může vlastník souboru (do skupiny, jejímž je členem) nebo root.
+VOLBY
+    -R   i pro obsah adresářů
+PŘÍKLADY
+    chgrp tym projekt.txt
+    sudo chgrp -R www-data /var/www/html
+
+#### umask
+JMÉNO
+    umask - nastaví masku práv nově vytvářených souborů
+POUŽITÍ
+    umask [-S] [MASKA]
+POPIS
+    Maska říká, která práva se novým souborům odeberou: 022 odebere skupině a ostatním právo zápisu,
+    077 odebere všechna práva skupině a ostatním. Bez argumentu vypíše aktuální masku.
+VOLBY
+    -S   zobrazí masku symbolicky (u=rwx,g=rx,o=rx)
+PŘÍKLADY
+    umask 077
+    umask -S
+
+#### groupadd
+JMÉNO
+    groupadd - vytvoří novou skupinu
+POUŽITÍ
+    sudo groupadd [-g GID] SKUPINA
+PŘÍKLADY
+    sudo groupadd tym
+
+#### groupdel
+JMÉNO
+    groupdel - smaže skupinu
+POUŽITÍ
+    sudo groupdel SKUPINA
+POPIS
+    Nelze smazat skupinu, která je něčí primární skupinou.
+
+#### usermod
+JMÉNO
+    usermod - změní vlastnosti uživatele
+POUŽITÍ
+    sudo usermod [VOLBY] UŽIVATEL
+VOLBY
+    -aG SKUPINY   přidá uživatele do skupin (čárkou oddělených), původní ponechá
+    -G SKUPINY    nastaví přesně tyto doplňkové skupiny (ostatní odebere)
+    -s SHELL      změní přihlašovací shell
+    -d ADRESÁŘ    změní domovský adresář
+    -l JMÉNO      změní přihlašovací jméno
+    -c POZNÁMKA   změní komentář (celé jméno)
+    -L, -U        zamkne / odemkne účet
+PŘÍKLADY
+    sudo usermod -aG sudo jana
+    sudo usermod -s /bin/sh jana
+
+#### userdel
+JMÉNO
+    userdel - smaže uživatele
+POUŽITÍ
+    sudo userdel [-r] UŽIVATEL
+VOLBY
+    -r   smaže i domovský adresář
+PŘÍKLADY
+    sudo userdel -r jana
+
+#### read
+JMÉNO
+    read - přečte řádek ze vstupu do proměnných
+POUŽITÍ
+    read [-rs] [-p VÝZVA] PROMĚNNÁ...
+POPIS
+    Řádek rozdělí na slova a přiřadí je proměnným; poslední proměnná dostane zbytek řádku.
+    Bez jména proměnné se použije REPLY. Na konci vstupu vrací 1.
+VOLBY
+    -p   vypíše výzvu
+    -s   nevypisuje zadávaný text (hesla)
+    -r   zpětné lomítko nemá zvláštní význam
+PŘÍKLADY
+    read -p 'Jméno: ' jmeno
+    read a b < soubor.txt

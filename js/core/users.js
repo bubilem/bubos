@@ -100,3 +100,80 @@ export function addUser(fs, { name, shell = '/bin/bash', home = '/home/' + name,
   }
   return { uid, gid };
 }
+
+// --- správa skupin a uživatelů (groupadd, groupdel, usermod, userdel) ---
+const lines = (fs, p) => rd(fs, p).split('\n').filter(Boolean);
+const store = (fs, p, ls) => fs.write(p, ls.length ? ls.join('\n') + '\n' : '', null);
+const NAME = /^[a-z_][a-z0-9_-]{0,31}$/;
+
+export function addGroup(fs, name, gid) {
+  if (!NAME.test(name)) throw new Error('invalid group name');
+  const grp = getGroups(fs);
+  if (grp.some(g => g.name === name)) throw new Error('group exists');
+  if (gid == null) gid = Math.max(999, ...grp.filter(g => g.gid < 60000).map(g => g.gid)) + 1;
+  else if (grp.some(g => g.gid === gid)) throw new Error('gid exists');
+  append(fs, GROUP, `${name}:x:${gid}:\n`);
+  return gid;
+}
+export function delGroup(fs, name) {
+  const g = getGroups(fs).find(x => x.name === name);
+  if (!g) throw new Error('group does not exist');
+  const owner = getUsers(fs).find(u => u.gid === g.gid);
+  if (owner) throw new Error('primary group of ' + owner.name);
+  store(fs, GROUP, lines(fs, GROUP).filter(l => l.split(':')[0] !== name));
+}
+export function delUser(fs, name) {
+  const u = findUser(fs, name);
+  if (!u) throw new Error('user does not exist');
+  store(fs, PASSWD, lines(fs, PASSWD).filter(l => l.split(':')[0] !== name));
+  store(fs, SHADOW, lines(fs, SHADOW).filter(l => l.split(':')[0] !== name));
+  store(fs, GROUP, lines(fs, GROUP).map(l => {
+    const p = l.split(':');
+    p[3] = (p[3] ? p[3].split(',') : []).filter(x => x !== name).join(',');
+    return p.join(':');
+  }).filter(l => { const p = l.split(':'); return !(p[0] === name && +p[2] === u.gid && !p[3]); })); // soukromá skupina zaniká s uživatelem
+  return u;
+}
+// patch: { shell, home, gecos, name, groups: [...], append, lock: true|false }
+export function modUser(fs, name, patch) {
+  const u = findUser(fs, name);
+  if (!u) throw new Error('user does not exist');
+  const newName = patch.name ?? name;
+  if (patch.name) {
+    if (!NAME.test(newName)) throw new Error('invalid user name');
+    if (findUser(fs, newName)) throw new Error('user exists');
+  }
+  if (patch.groups) {
+    const all = getGroups(fs);
+    for (const g of patch.groups) if (!all.some(x => x.name === g)) throw new Error('group does not exist: ' + g);
+  }
+  store(fs, PASSWD, lines(fs, PASSWD).map(l => {
+    const p = l.split(':');
+    if (p[0] !== name) return l;
+    p[0] = newName;
+    if (patch.gecos !== undefined) p[4] = patch.gecos;
+    if (patch.home !== undefined) p[5] = patch.home;
+    if (patch.shell !== undefined) p[6] = patch.shell;
+    return p.join(':');
+  }));
+  store(fs, SHADOW, lines(fs, SHADOW).map(l => {
+    const p = l.split(':');
+    if (p[0] !== name) return l;
+    p[0] = newName;
+    if (patch.lock === true && !p[1].startsWith('!')) p[1] = '!' + p[1];
+    if (patch.lock === false) p[1] = p[1].replace(/^!/, '');
+    return p.join(':');
+  }));
+  store(fs, GROUP, lines(fs, GROUP).map(l => {
+    const p = l.split(':');
+    let m = p[3] ? p[3].split(',') : [];
+    if (patch.name) m = m.map(x => (x === name ? newName : x));
+    if (patch.groups) {
+      const was = m.includes(newName);
+      m = m.filter(x => x !== newName);
+      if (patch.groups.includes(p[0]) || (patch.append && was)) m.push(newName);
+    }
+    p[3] = [...new Set(m)].join(',');
+    return p.join(':');
+  }));
+}

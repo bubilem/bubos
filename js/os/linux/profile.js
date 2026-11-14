@@ -9,9 +9,12 @@ export const COMMANDS = [
   'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'which', 'clear', 'help', 'man', 'less',
   'nano', 'env', 'printenv', 'true', 'false', 'test', '[', 'sleep', 'date', 'uname', 'hostname', 'whoami',
   'id', 'groups', 'su', 'sudo', 'useradd', 'passwd', 'ps', 'kill', 'yes', 'seq', 'basename', 'dirname', 'lang', 'mission',
+  'stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'umask', 'groupadd', 'groupdel', 'usermod', 'userdel', 'read',
 ];
 // Příkazy, které běží přímo v shellu (nemají soubor v /usr/bin)
-const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help'];
+const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read'];
+// Příkazy přidané po prvním vydání (starší uložené stroje pro ně nemají stub v /usr/bin)
+const ADDED_LATER = ['stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'groupadd', 'groupdel', 'usermod', 'userdel'];
 // Jméno příkazu → soubor modulu (pokud se liší)
 const FILE = { '.': 'source', '[': 'test', logout: 'exit' };
 
@@ -50,10 +53,18 @@ export default {
   builtins: [...SHELL_ONLY, 'echo', 'pwd', 'test', '[', 'true', 'false', 'kill', 'mission'],
   // jak doplňovat argumenty (Tab): cmd | dir | path | user | alias | varname | none
   completions: { cd: 'dir', rmdir: 'dir', man: 'cmd', help: 'cmd', which: 'cmd', type: 'cmd', su: 'user', passwd: 'user',
-    unalias: 'alias', unset: 'varname', export: 'varname', useradd: 'none', lang: 'none', history: 'none', mission: 'none' },
+    unalias: 'alias', unset: 'varname', export: 'varname', useradd: 'none', lang: 'none', history: 'none', mission: 'none',
+    usermod: 'user', userdel: 'user', groupadd: 'none', groupdel: 'none', read: 'varname', cal: 'none', df: 'none', umask: 'none' },
   buildFs,
 
   boot(m) {
+    // Uložené stroje ze starší verze: doplní stuby nově přidaných příkazů (jednou; ručně smazané se nevracejí)
+    const known = new Set(m.settings.stubs ?? COMMANDS.filter(c => !ADDED_LATER.includes(c)));
+    for (const c of COMMANDS) {
+      if (known.has(c) || SHELL_ONLY.includes(c)) continue;
+      try { m.fs.stat('/usr/bin/' + c); } catch { m.fs.put('/usr/bin/' + c, `#!bubos:${c}\n`, { mode: 0o755 }); }
+    }
+    m.settings.stubs = [...COMMANDS];
     m.procs.system([
       [1, 'root', '/sbin/init', 0], [2, 'root', '[kthreadd]', 0], [412, 'root', '/usr/sbin/cron -f'],
       [533, 'root', '/usr/sbin/sshd -D'], [601, 'root', '/lib/systemd/systemd-journald'], [702, 'root', '/usr/sbin/rsyslogd -n'],

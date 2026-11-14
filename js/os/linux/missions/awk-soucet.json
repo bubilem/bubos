@@ -1,0 +1,24 @@
+{
+  "id": "awk-soucet", "rev": 1, "level": 3, "needs": ["awk"],
+  "title": { "cs": "Body a součty", "en": "Points and totals" },
+  "brief": {
+    "cs": "V souboru body.txt je na každém řádku jméno žáka a počet bodů. Spočítej součet všech bodů a zapiš ho do souboru soucet.txt (jen číslo).",
+    "en": "The file body.txt has a pupil's name and number of points on every line. Compute the sum of all points and write it into the file soucet.txt (just the number)."
+  },
+  "setup": {
+    "files": { "~/body.txt": "Anna 45\nBoris 62\nCyril 38\nDana 71\nEvzen 54\n" }
+  },
+  "goals": [
+    { "id": "sum", "text": { "cs": "soucet.txt obsahuje číslo 270", "en": "soucet.txt contains the number 270" }, "check": { "fileEquals": ["~/soucet.txt", "270"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Do souboru dobri.txt ulož jména žáků s více než 50 body", "en": "Save the names of pupils with more than 50 points into dobri.txt" }, "check": { "fileEquals": ["~/dobri.txt", "Boris\nDana\nEvzen"] } }
+  ],
+  "hints": [
+    { "cs": "awk '{print $2}' vypíše druhý sloupec. Sloupce jsou $1, $2 …, celý řádek je $0.", "en": "awk '{print $2}' prints the second column. Columns are $1, $2 …, the whole line is $0." },
+    { "cs": "Do proměnné můžeš průběžně přičítat: {s += $2}. Blok END { } proběhne po přečtení všech řádků.", "en": "You can keep adding to a variable: {s += $2}. The END { } block runs after all lines have been read." },
+    { "cs": "awk '{s += $2} END {print s}' body.txt > soucet.txt     a     awk '$2 > 50 {print $1}' body.txt > dobri.txt", "en": "awk '{s += $2} END {print s}' body.txt > soucet.txt     and     awk '$2 > 50 {print $1}' body.txt > dobri.txt" }
+  ],
+  "solution": ["awk '{s += $2} END {print s}' body.txt > soucet.txt"],
+  "best": ["awk '{s += $2} END {print s}' body.txt > soucet.txt", "awk '$2 > 50 {print $1}' body.txt > dobri.txt"]
+}

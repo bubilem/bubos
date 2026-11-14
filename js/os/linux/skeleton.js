@@ -3,7 +3,7 @@ import { VFS } from '../../core/vfs.js';
 import { hashPw } from '../../core/users.js';
 import { COMMANDS, } from './profile.js';
 
-const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help'];
+const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read'];
 
 export function buildFs(lang = 'cs') {
   const fs = new VFS();

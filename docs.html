@@ -94,6 +94,7 @@ Documents  Downloads  README.txt
           <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>listuje historií příkazů</td></tr>
           <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>přeruší rozepsaný řádek nebo běžící příkaz (výpis <code>^C</code>); když je označený text, kopíruje</td></tr>
           <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>na prázdném řádku = konec vstupu / odhlášení (jako <code>exit</code>)</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>R</kbd></td><td>zpětné hledání v historii: pište část dříve zadaného příkazu, další <kbd>Ctrl+R</kbd> hledá starší shodu, <kbd>Enter</kbd> příkaz provede, <kbd>Esc</kbd> hledání zruší, jiná klávesa nalezený příkaz upraví</td></tr>
           <tr><td><kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>vymaže obrazovku (jako <code>clear</code>)</td></tr>
           <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd> / <kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>kurzor na začátek / konec řádku</td></tr>
           <tr><td><kbd>Ctrl</kbd>+<kbd>U</kbd> / <kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>smaže text před / za kurzorem</td></tr>
@@ -309,7 +310,7 @@ Documents  Downloads  README.txt
           U adresáře znamená <code>r</code> vypsat obsah, <code>w</code> vytvářet a mazat v něm, <code>x</code> do něj vstoupit. Správce <code>root</code> obchází čtení a zápis; spustit smí jen soubory s nějakým <code>x</code>.
           Měnit práva smí vlastník (<code>chmod</code>) nebo root, vlastníka mění (<code>chown</code>) jen root.</p>
         <p><b>Sticky bit</b> (<code>t</code> na konci práv, např. u <code>/tmp</code>): mazat nebo přejmenovávat soubory v adresáři smí jen jejich vlastník, vlastník adresáře a root.</p>
-        <p>Nové soubory dostanou práva <code>644</code> a adresáře <code>755</code> (umask 022).</p>
+        <p>Nové soubory dostanou práva <code>644</code> a adresáře <code>755</code> (umask 022); masku změníte příkazem <code>umask</code>, skupinu souboru <code>chgrp</code>. Informace o souboru ukáže <code>stat</code>, místo na disku <code>du</code> a <code>df</code>.</p>
       </section>
 
       <!-- ============================ 6 ============================ -->
@@ -328,6 +329,8 @@ Documents  Downloads  README.txt
           <li><code>su uživatel</code> – přepne uživatele (zeptá se na jeho heslo); <code>su -</code> navíc nahraje jeho prostředí. <code>exit</code> vrací zpět.</li>
           <li><code>sudo příkaz</code> – provede příkaz jako root. Smí jen členové skupiny <code>sudo</code>, zeptá se na <em>vaše</em> heslo a 5 minut si ho pamatuje (<code>sudo -k</code> zapomene).</li>
           <li><code>sudo useradd -m alice</code> – vytvoří uživatele (s <code>-m</code> i domovský adresář podle <code>/etc/skel</code>); <code>sudo passwd alice</code> nastaví heslo.</li>
+          <li><code>sudo usermod -aG skupina alice</code> – přidá uživatele do skupiny; <code>usermod</code> umí také změnit shell (<code>-s</code>), domovský adresář nebo jméno. <code>sudo userdel -r alice</code> uživatele smaže.</li>
+          <li><code>sudo groupadd tym</code>, <code>sudo groupdel tym</code> – vytvoří a smaže skupinu.</li>
         </ul>
         <p><b>Co zkusit:</b> jako student vypište <code>cat /etc/shadow</code> (nepovede se: <em>Permission denied</em>), pak <code>sudo cat /etc/shadow</code> (povede).</p>
       </section>
@@ -475,7 +478,7 @@ Documents  Downloads  README.txt
           <li>Přidejte překlady hlášení do <code>i18n/cs.json</code> i <code>i18n/en.json</code> a test do <code>tests/shell.test.js</code>.</li>
         </ol>
         <p>Chyby se hlásí výjimkou <code>throw new CmdError('text', kód)</code> ve formátu GNU (<code>program: operand: zpráva</code>). Dlouhé smyčky mají volat <code>ctx.check()</code>, aby šly přerušit <kbd>Ctrl+C</kbd>.</p>
-        <p>Podrobnosti viz <code>docs/ARCHITEKTURA.md</code> a <code>docs/PROJEKT.md</code> (plán: <code>sed</code>, <code>awk</code>, <code>if/for/while</code>, síť, lekce, profil Windows).</p>
+        <p>Podrobnosti viz <code>docs/ARCHITEKTURA.md</code> a <code>docs/PROJEKT.md</code> (plán: <code>if/for/while</code>, procesy a služby, síť, <code>vi</code>, profil Windows).</p>
       </section>
 
       <!-- ============================ 10 ============================ -->

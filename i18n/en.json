@@ -14,7 +14,7 @@
   "sh.loadfail": "could not load command",
 
   "help.title": "BubOS – command overview",
-  "help.tips": "Tab completes names, ↑/↓ browse the history, Ctrl+C interrupts a command.",
+  "help.tips": "Tab completes names, ↑/↓ browse the history, Ctrl+R searches it, Ctrl+C interrupts a command.",
   "help.more": "Details: man <command>   or   <command> --help",
 
   "nano.noname": "No file name – exit and run: nano name.txt",
@@ -93,7 +93,7 @@
 
   "ui.theme": "Theme",
   "ui.lang": "Language",
-  "ui.hint": "Tip: Tab completes, ↑/↓ browse the history, Ctrl+C interrupts a command. Your work is stored in this browser – use Export to move it.",
+  "ui.hint": "Tip: Tab completes, ↑/↓ browse the history, Ctrl+R searches it, Ctrl+C interrupts a command. Your work is stored in this browser – use Export to move it.",
 
   "camp.title": "BubOS – campaign",
   "camp.heading": "campaign",

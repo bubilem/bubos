@@ -1,0 +1,29 @@
+{
+  "id": "diff-zmeny", "rev": 1, "level": 2, "needs": ["diff"],
+  "title": { "cs": "Co se změnilo?", "en": "What has changed?" },
+  "brief": {
+    "cs": "Máš dvě verze konfigurace: verze1.conf a verze2.conf. Někdo v té druhé něco přepsal. Příkazem diff zjisti rozdíly a ulož je do souboru zmeny.txt.",
+    "en": "You have two versions of a configuration: verze1.conf and verze2.conf. Somebody changed something in the second one. Use diff to find the differences and save them into zmeny.txt."
+  },
+  "setup": {
+    "files": {
+      "~/verze1.conf": "host=localhost\nport=8080\ndebug=false\nlang=cs\n",
+      "~/verze2.conf": "host=localhost\nport=9090\ndebug=false\nlang=cs\n"
+    }
+  },
+  "goals": [
+    { "id": "old", "text": { "cs": "zmeny.txt obsahuje starou hodnotu port=8080", "en": "zmeny.txt contains the old value port=8080" }, "check": { "fileMatches": ["~/zmeny.txt", "port=8080"] } },
+    { "id": "new", "text": { "cs": "zmeny.txt obsahuje novou hodnotu port=9090", "en": "zmeny.txt contains the new value port=9090" }, "check": { "fileMatches": ["~/zmeny.txt", "port=9090"] } },
+    { "id": "only", "text": { "cs": "zmeny.txt neobsahuje nezměněné řádky (jen rozdíly)", "en": "zmeny.txt does not contain unchanged lines (differences only)" }, "check": { "not": { "fileContains": ["~/zmeny.txt", "host=localhost"] } } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Ulož do souboru zmeny-u.txt rozdíly ve sjednoceném formátu (diff -u)", "en": "Save the differences in unified format (diff -u) into zmeny-u.txt" }, "check": { "fileContains": ["~/zmeny-u.txt", "@@"] } }
+  ],
+  "hints": [
+    { "cs": "diff soubor1 soubor2 vypíše jen řádky, které se liší. Řádky s < jsou z prvního souboru, s > z druhého.", "en": "diff file1 file2 prints only the lines that differ. Lines with < come from the first file, with > from the second." },
+    { "cs": "Výstup uložíš přesměrováním >. Pozor: diff vrací kód 1, když se soubory liší – to není chyba.", "en": "Save the output with the redirection >. Note: diff returns code 1 when the files differ – that is not an error." },
+    { "cs": "diff verze1.conf verze2.conf > zmeny.txt     a     diff -u verze1.conf verze2.conf > zmeny-u.txt", "en": "diff verze1.conf verze2.conf > zmeny.txt     and     diff -u verze1.conf verze2.conf > zmeny-u.txt" }
+  ],
+  "solution": ["diff verze1.conf verze2.conf > zmeny.txt"],
+  "best": ["diff verze1.conf verze2.conf > zmeny.txt", "diff -u verze1.conf verze2.conf > zmeny-u.txt"]
+}

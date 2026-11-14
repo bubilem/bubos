@@ -705,3 +705,230 @@ DESCRIPTION
     restart   starts the mission again from its initial state
     quit      goes back to the campaign
     The panel next to the terminal does the same.
+
+
+#### stat
+NAME
+    stat - display detailed file information
+SYNOPSIS
+    stat [-L] [-c FORMAT] FILE...
+DESCRIPTION
+    Shows size, permissions, owner, group and times of a file or directory.
+OPTIONS
+    -L   follow links: show the target, not the link itself
+    -c   custom format: %n name, %s size, %a permissions (octal), %A permissions (rwx),
+         %U owner, %G group, %u %g numeric UID/GID, %F type, %y modification time, %h link count
+EXAMPLES
+    stat letter.txt
+    stat -c '%a %U %n' *
+
+#### du
+NAME
+    du - estimate file and directory space usage
+SYNOPSIS
+    du [-ahsc] [-d DEPTH] [FILE]...
+OPTIONS
+    -a   list files too (not only directories)
+    -h   human-readable sizes (K, M, G)
+    -s   only a total for each argument
+    -c   print a grand total at the end
+    -d   how deep to list subdirectories
+EXAMPLES
+    du -sh ~
+    du -h -d 1 /var
+
+#### df
+NAME
+    df - report free and used disk space
+SYNOPSIS
+    df [-hT]
+OPTIONS
+    -h   human-readable sizes
+    -T   add a file system type column
+DESCRIPTION
+    Values are sample data in the simulator; used space on / grows with the real contents.
+
+#### diff
+NAME
+    diff - compare two files line by line
+SYNOPSIS
+    diff [-uqi] [-U N] FILE1 FILE2
+OPTIONS
+    -u   unified format (like git), 3 lines of context
+    -U   unified format with N lines of context
+    -q   only report whether the files differ
+    -i   ignore case
+DESCRIPTION
+    "2c2" means a change, "a" an addition, "d" a deletion.
+    Lines starting with < come from the first file, > from the second. Exit status: 0 same, 1 different.
+EXAMPLES
+    diff old.txt new.txt
+    diff -u a.conf b.conf
+
+#### cal
+NAME
+    cal - display a calendar
+SYNOPSIS
+    cal [-y] [[MONTH] YEAR]
+OPTIONS
+    -y   show the whole year
+DESCRIPTION
+    Without arguments shows the current month with today highlighted.
+EXAMPLES
+    cal
+    cal 2 2024
+    cal -y 2025
+
+#### printf
+NAME
+    printf - format and print text
+SYNOPSIS
+    printf FORMAT [ARGUMENT]...
+DESCRIPTION
+    The format contains plain text, escape sequences (\n, \t) and conversions:
+    %s string, %d integer, %f decimal, %x hexadecimal, %o octal, %c character, %% percent sign.
+    Width and precision are supported, e.g. %5.2f or %-10s. While arguments remain, the format is reused.
+    Unlike echo, it does not append a newline.
+EXAMPLES
+    printf '%s is %d years old\n' Anna 17
+    printf '%-10s %5.1f\n' pi 3.14159
+
+#### xargs
+NAME
+    xargs - build and run commands from standard input
+SYNOPSIS
+    xargs [-0rt] [-n NUM] [-I REPLSTR] [-d DELIM] [COMMAND [ARGUMENT]...]
+OPTIONS
+    -n   at most this many arguments per command run
+    -I   substitute each item for REPLSTR (e.g. {})
+    -0   items are separated by NUL
+    -d   custom item delimiter
+    -r   do not run the command if the input is empty
+    -t   print each command before running it
+DESCRIPTION
+    Without a command, echo is used. Typically used after a pipe from find or grep.
+EXAMPLES
+    find . -name '*.tmp' | xargs rm
+    cat list.txt | xargs -n 1 -I{} cp {} /tmp
+
+#### sed
+NAME
+    sed - stream editor (substitute and edit lines)
+SYNOPSIS
+    sed [-nEi] [-e SCRIPT]... SCRIPT [FILE]...
+OPTIONS
+    -n   no automatic printing (only the p command prints)
+    -E   extended regular expressions (also -r)
+    -i   write changes directly into the file
+    -e   another part of the script
+COMMANDS
+    s/PATTERN/REPLACEMENT/[g][p][N]   substitute; in the replacement & is the whole match, \1..\9 are groups
+    p  print line     d  delete line     q  quit     =  print line number
+    y/abc/xyz/  translate characters     a TEXT  i TEXT  c TEXT  append after / insert before / replace line
+    A command may be preceded by an address: 3, 2,5, $ (last), /re/, /a/,/b/ and ! (negation).
+EXAMPLES
+    sed 's/cat/dog/g' text.txt
+    sed -n '2,4p' text.txt
+    sed -i '/^#/d' settings.conf
+
+#### awk
+NAME
+    awk - simple language for processing tables and text
+SYNOPSIS
+    awk [-F SEP] [-v VAR=VALUE] 'PROGRAM' [FILE]...
+DESCRIPTION
+    A program consists of rules "pattern { action }". The action runs for every line matching the pattern.
+    $1, $2 ... are columns, $0 the whole line, NF the number of columns, NR the line number.
+    BEGIN { } runs before reading, END { } after everything has been read.
+    Supports variables, arrays, if/while/for, printf and the functions length, substr, index, split,
+    sub, gsub, toupper, tolower, int, sqrt.
+EXAMPLES
+    awk '{print $1}' students.txt
+    awk -F';' '$3 > 80 {print $1}' students.csv
+    awk '{s += $2} END {print s}' points.txt
+
+#### chgrp
+NAME
+    chgrp - change the group of a file
+SYNOPSIS
+    chgrp [-R] GROUP FILE...
+DESCRIPTION
+    The file owner (to a group they belong to) or root can change the group.
+OPTIONS
+    -R   also the contents of directories
+EXAMPLES
+    chgrp team project.txt
+    sudo chgrp -R www-data /var/www/html
+
+#### umask
+NAME
+    umask - set the permission mask for newly created files
+SYNOPSIS
+    umask [-S] [MASK]
+DESCRIPTION
+    The mask says which permissions are removed from new files: 022 removes write from group and others,
+    077 removes everything from group and others. Without an argument it prints the current mask.
+OPTIONS
+    -S   show the mask symbolically (u=rwx,g=rx,o=rx)
+EXAMPLES
+    umask 077
+    umask -S
+
+#### groupadd
+NAME
+    groupadd - create a new group
+SYNOPSIS
+    sudo groupadd [-g GID] GROUP
+EXAMPLES
+    sudo groupadd team
+
+#### groupdel
+NAME
+    groupdel - delete a group
+SYNOPSIS
+    sudo groupdel GROUP
+DESCRIPTION
+    A group that is somebody's primary group cannot be deleted.
+
+#### usermod
+NAME
+    usermod - modify a user account
+SYNOPSIS
+    sudo usermod [OPTIONS] USER
+OPTIONS
+    -aG GROUPS   add the user to groups (comma separated), keeping the existing ones
+    -G GROUPS    set exactly these supplementary groups (others are removed)
+    -s SHELL     change the login shell
+    -d DIR       change the home directory
+    -l NAME      change the login name
+    -c COMMENT   change the comment (full name)
+    -L, -U       lock / unlock the account
+EXAMPLES
+    sudo usermod -aG sudo jana
+    sudo usermod -s /bin/sh jana
+
+#### userdel
+NAME
+    userdel - delete a user account
+SYNOPSIS
+    sudo userdel [-r] USER
+OPTIONS
+    -r   also remove the home directory
+EXAMPLES
+    sudo userdel -r jana
+
+#### read
+NAME
+    read - read a line from input into variables
+SYNOPSIS
+    read [-rs] [-p PROMPT] VARIABLE...
+DESCRIPTION
+    Splits the line into words and assigns them to the variables; the last variable gets the rest of the line.
+    Without a variable name REPLY is used. Returns 1 at end of input.
+OPTIONS
+    -p   print a prompt
+    -s   do not echo the typed text (passwords)
+    -r   backslash is not special
+EXAMPLES
+    read -p 'Name: ' name
+    read a b < file.txt

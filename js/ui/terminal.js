@@ -142,6 +142,37 @@ export class Terminal {
     this.inp.focus({ preventScroll: true });
   }
 
+  // Ctrl+R: zpětné hledání v historii (reverse-i-search)
+  _rsShow() {
+    const r = this._read, s = r.rs;
+    this.promptEl.replaceChildren(`(${s.found ? '' : 'failed '}reverse-i-search)'${s.q}': `);
+    if (s.found) this._setValue(r.history[s.idx]);
+  }
+  _rsFind(from) {
+    const s = this._read.rs, h = this._read.history;
+    for (let i = from; i >= 0; i--) if (s.q && h[i].includes(s.q)) { s.idx = i; s.found = true; return; }
+    s.found = false;
+  }
+  _rsEnd(keep) {
+    const r = this._read, s = r.rs;
+    r.rs = null;
+    this.promptEl.replaceChildren();
+    renderAnsi(r.prompt, this.promptEl);
+    if (!keep) this._setValue(s.draft);
+  }
+  // Vrací true, když klávesu spotřebovalo hledání
+  _rsKey(e) {
+    const r = this._read, s = r.rs, k = e.key, ctrl = e.ctrlKey && !e.altKey && !e.metaKey;
+    const eat = fn => { e.preventDefault(); fn(); return true; };
+    if (ctrl && k.toLowerCase() === 'r') return eat(() => { this._rsFind(s.found ? s.idx - 1 : r.history.length - 1); this._rsShow(); });
+    if (k === 'Backspace') return eat(() => { s.q = s.q.slice(0, -1); this._rsFind(r.history.length - 1); this._rsShow(); });
+    if (k === 'Escape' || (ctrl && ['g', 'c'].includes(k.toLowerCase()))) return eat(() => this._rsEnd(false));
+    if (k === 'Enter') return eat(() => { const v = s.found ? r.history[s.idx] : s.draft; this._rsEnd(true); this._finish(v); });
+    if (k.length === 1 && !ctrl && !e.altKey && !e.metaKey) return eat(() => { s.q += k; this._rsFind(r.history.length - 1); this._rsShow(); });
+    this._rsEnd(s.found); // ostatní klávesy hledání ukončí a pak se provedou jako obvykle
+    return false;
+  }
+
   _onKey(e) {
     const r = this._read;
     if (!r || e.isComposing) return;
@@ -149,6 +180,7 @@ export class Terminal {
     if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock'].includes(k)) return;
     const ctrl = e.ctrlKey && !e.altKey && !e.metaKey;
     const inp = this.inp;
+    if (r.rs && this._rsKey(e)) return;
     if (k === 'Enter') { e.preventDefault(); this._finish(inp.value); return; }
     if (k === 'Tab') { e.preventDefault(); this._tab(); return; }
     r.tab = 0;
@@ -164,6 +196,7 @@ export class Terminal {
         case 'e': e.preventDefault(); inp.setSelectionRange(inp.value.length, inp.value.length); break;
         case 'u': e.preventDefault(); inp.value = inp.value.slice(pos); inp.setSelectionRange(0, 0); break;
         case 'k': e.preventDefault(); inp.value = inp.value.slice(0, pos); break;
+        case 'r': if (r.password) break; e.preventDefault(); r.rs = { q: '', idx: r.history.length, found: false, draft: inp.value }; this._rsShow(); break;
         default: break;
       }
     }

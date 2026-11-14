@@ -6,11 +6,11 @@ const $ = s => document.querySelector(s);
 
 // Kategorie příkazů (příkaz mimo seznam spadne do "Ostatní")
 const CATS = [
-  ['Soubory a adresáře', ['ls', 'cd', 'pwd', 'touch', 'mkdir', 'rmdir', 'rm', 'cp', 'mv', 'ln', 'tree', 'find', 'basename', 'dirname']],
-  ['Čtení a zpracování textu', ['cat', 'head', 'tail', 'less', 'nano', 'grep', 'cut', 'sort', 'uniq', 'wc', 'tr', 'tee', 'echo', 'seq', 'yes']],
-  ['Uživatelé a práva', ['whoami', 'id', 'groups', 'su', 'sudo', 'useradd', 'passwd', 'chmod', 'chown']],
-  ['Shell, proměnné a skripty', ['export', 'unset', 'env', 'printenv', 'alias', 'unalias', 'history', 'source', 'type', 'which', 'test', 'true', 'false', 'sleep', 'exit']],
-  ['Systém a nápověda', ['help', 'man', 'clear', 'date', 'uname', 'hostname', 'lang', 'mission', 'ps', 'kill']],
+  ['Soubory a adresáře', ['ls', 'cd', 'pwd', 'touch', 'mkdir', 'rmdir', 'rm', 'cp', 'mv', 'ln', 'tree', 'find', 'basename', 'dirname', 'stat', 'du', 'df']],
+  ['Čtení a zpracování textu', ['cat', 'head', 'tail', 'less', 'nano', 'grep', 'cut', 'sort', 'uniq', 'wc', 'tr', 'tee', 'echo', 'printf', 'seq', 'yes', 'sed', 'awk', 'diff', 'xargs']],
+  ['Uživatelé a práva', ['whoami', 'id', 'groups', 'su', 'sudo', 'useradd', 'usermod', 'userdel', 'groupadd', 'groupdel', 'passwd', 'chmod', 'chown', 'chgrp', 'umask']],
+  ['Shell, proměnné a skripty', ['export', 'unset', 'env', 'printenv', 'alias', 'unalias', 'history', 'source', 'type', 'which', 'test', 'true', 'false', 'sleep', 'read', 'exit']],
+  ['Systém a nápověda', ['help', 'man', 'clear', 'date', 'uname', 'hostname', 'cal', 'lang', 'mission', 'ps', 'kill']],
 ];
 // Jméno příkazu → soubor modulu (shodné s FILE v js/os/linux/profile.js)
 const FILE = { '.': 'source', '[': 'test', logout: 'exit' };

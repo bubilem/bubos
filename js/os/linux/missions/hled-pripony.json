@@ -1,0 +1,35 @@
+{
+  "id": "hled-pripony", "rev": 1, "level": 2, "needs": ["find", "xargs", "rm"],
+  "title": { "cs": "Úklid dočasných souborů", "en": "Cleaning up temporary files" },
+  "brief": {
+    "cs": "Ve složce projekt se po editoru nahromadily dočasné soubory s příponou .tmp, a to i v podsložkách. Smaž všechny, ale ostatní soubory nech být.",
+    "en": "The folder projekt has collected temporary files with the .tmp extension, also in subfolders. Delete all of them, but leave the other files alone."
+  },
+  "setup": {
+    "files": {
+      "~/projekt/index.html": "<h1>Web</h1>\n",
+      "~/projekt/a.tmp": "x\n",
+      "~/projekt/poznamky.txt": "udelat uvod\n",
+      "~/projekt/css/styl.css": "body { color: black; }\n",
+      "~/projekt/css/b.tmp": "x\n",
+      "~/projekt/js/c.tmp": "x\n"
+    }
+  },
+  "goals": [
+    { "id": "a", "text": { "cs": "projekt/a.tmp je smazán", "en": "projekt/a.tmp is deleted" }, "check": { "fileMissing": "~/projekt/a.tmp" } },
+    { "id": "b", "text": { "cs": "projekt/css/b.tmp je smazán", "en": "projekt/css/b.tmp is deleted" }, "check": { "fileMissing": "~/projekt/css/b.tmp" } },
+    { "id": "c", "text": { "cs": "projekt/js/c.tmp je smazán", "en": "projekt/js/c.tmp is deleted" }, "check": { "fileMissing": "~/projekt/js/c.tmp" } },
+    { "id": "keep", "text": { "cs": "Ostatní soubory zůstaly", "en": "The other files are still there" },
+      "check": { "all": [{ "fileExists": "~/projekt/index.html" }, { "fileExists": "~/projekt/poznamky.txt" }, { "fileExists": "~/projekt/css/styl.css" }] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Použij find a xargs: find … | xargs rm", "en": "Use find and xargs: find … | xargs rm" }, "check": { "line": "find.*\\|\\s*xargs" } }
+  ],
+  "hints": [
+    { "cs": "find projekt -name \"*.tmp\" vypíše všechny dočasné soubory včetně těch v podsložkách.", "en": "find projekt -name \"*.tmp\" lists all temporary files, including those in subfolders." },
+    { "cs": "Můžeš je smazat jeden po druhém příkazem rm, nebo seznam z findu poslat rourou do xargs.", "en": "You can delete them one by one with rm, or pipe the list from find into xargs." },
+    { "cs": "find projekt -name \"*.tmp\" | xargs rm", "en": "find projekt -name \"*.tmp\" | xargs rm" }
+  ],
+  "solution": ["rm ~/projekt/a.tmp ~/projekt/css/b.tmp ~/projekt/js/c.tmp"],
+  "best": ["find ~/projekt -name \"*.tmp\" | xargs rm"]
+}

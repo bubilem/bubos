@@ -1,0 +1,26 @@
+{
+  "id": "sed-nahrad", "rev": 1, "level": 2, "needs": ["sed"],
+  "title": { "cs": "Hromadná oprava", "en": "A bulk fix" },
+  "brief": {
+    "cs": "V souboru dopis.txt je kamarád pojmenovaný Honza, ale on se ve skutečnosti jmenuje Jan. Jméno je v textu na několika místech. Nahraď všechna „Honza“ za „Jan“ přímo v souboru dopis.txt.",
+    "en": "In the file dopis.txt a friend is called Honza, but his real name is Jan. The name appears in several places. Replace every \"Honza\" with \"Jan\" directly in the file dopis.txt."
+  },
+  "setup": {
+    "files": { "~/dopis.txt": "Ahoj,\nHonza mi psal, ze Honza prijede v patek.\nHonza je vzdy vcas, takze Honza uvidi i skolu.\n" }
+  },
+  "goals": [
+    { "id": "fixed", "text": { "cs": "V dopis.txt už není žádný „Honza“", "en": "dopis.txt no longer contains \"Honza\"" }, "check": { "not": { "fileContains": ["~/dopis.txt", "Honza"] } } },
+    { "id": "kept", "text": { "cs": "Zbytek textu zůstal beze změny", "en": "The rest of the text is unchanged" },
+      "check": { "fileEquals": ["~/dopis.txt", "Ahoj,\nJan mi psal, ze Jan prijede v patek.\nJan je vzdy vcas, takze Jan uvidi i skolu."] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Oprav soubor na místě přepínačem sed -i", "en": "Fix the file in place with sed -i" }, "check": { "line": "sed\\s+(-\\w+\\s+)*-i" } }
+  ],
+  "hints": [
+    { "cs": "sed 's/co/čím/g' soubor nahradí všechny výskyty na každém řádku (g = globálně).", "en": "sed 's/old/new/g' file replaces all occurrences on every line (g = globally)." },
+    { "cs": "sed výsledek jen vypíše, soubor nemění. Buď výstup přesměruj do nového souboru a přejmenuj ho, nebo použij -i.", "en": "sed only prints the result and does not change the file. Either redirect the output to a new file and rename it, or use -i." },
+    { "cs": "sed -i 's/Honza/Jan/g' dopis.txt", "en": "sed -i 's/Honza/Jan/g' dopis.txt" }
+  ],
+  "solution": ["sed 's/Honza/Jan/g' dopis.txt > novy.txt", "mv novy.txt dopis.txt"],
+  "best": ["sed -i 's/Honza/Jan/g' dopis.txt"]
+}

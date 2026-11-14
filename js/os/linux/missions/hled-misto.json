@@ -1,0 +1,30 @@
+{
+  "id": "hled-misto", "rev": 1, "level": 1, "needs": ["du"],
+  "title": { "cs": "Kolik to zabírá?", "en": "How much space is it?" },
+  "brief": {
+    "cs": "Chceš vědět, kolik místa zabírá složka archiv. Ulož výpis příkazu du s celkovým součtem pro složku archiv do souboru misto.txt.",
+    "en": "You want to know how much space the folder archiv takes. Save the output of du with a single total for the folder archiv into misto.txt."
+  },
+  "setup": {
+    "files": {
+      "~/archiv/2023/faktury.txt": "faktura 1\nfaktura 2\n",
+      "~/archiv/2024/faktury.txt": "faktura 3\n",
+      "~/archiv/fotky/seznam.txt": "dovolena\nnarozeniny\n"
+    }
+  },
+  "goals": [
+    { "id": "du", "text": { "cs": "misto.txt obsahuje velikost a cestu k složce archiv", "en": "misto.txt contains the size and the path of the folder archiv" },
+      "check": { "fileMatches": ["~/misto.txt", "^\\S+\\s+(/home/student/)?archiv/?\\s*$"] } },
+    { "id": "one", "text": { "cs": "Jen jeden řádek (součet, ne každá podsložka zvlášť)", "en": "Only one line (a total, not every subfolder)" }, "check": { "fileLines": ["~/misto.txt", 1] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Zobraz velikost čitelně: du -sh (K, M, G)", "en": "Show the size in a readable way: du -sh (K, M, G)" }, "check": { "line": "du\\s+-\\w*h" } }
+  ],
+  "hints": [
+    { "cs": "du vypíše velikost složky i všech podsložek. Přepínač -s dá jen jeden součet.", "en": "du prints the size of the folder and of every subfolder. The option -s gives just one total." },
+    { "cs": "du -s archiv vypíše velikost v kilobajtech; výstup uložíš přesměrováním >.", "en": "du -s archiv prints the size in kilobytes; save the output with the redirection >." },
+    { "cs": "du -sh archiv > misto.txt", "en": "du -sh archiv > misto.txt" }
+  ],
+  "solution": ["du -s archiv > misto.txt"],
+  "best": ["du -sh archiv > misto.txt"]
+}

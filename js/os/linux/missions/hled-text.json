@@ -1,0 +1,30 @@
+{
+  "id": "hled-text", "rev": 1, "level": 2, "needs": ["grep", "find", "xargs"],
+  "title": { "cs": "Kde jsem to napsal?", "en": "Where did I write that?" },
+  "brief": {
+    "cs": "Někde ve složce poznamky je zapsané heslo k wifi (hledej slovo wifi). Ulož do souboru kde.txt cestu k souboru, který ho obsahuje.",
+    "en": "Somewhere in the folder poznamky the wifi password is written down (search for the word wifi). Save the path of the file that contains it into kde.txt."
+  },
+  "setup": {
+    "files": {
+      "~/poznamky/nakup.txt": "mleko\nchleb\nmaslo\n",
+      "~/poznamky/skola/ukoly.txt": "matematika: cv. 12\nfyzika: referat\n",
+      "~/poznamky/domov/sit.txt": "router: 192.168.1.1\nwifi heslo: modra-zebra-42\n",
+      "~/poznamky/domov/narozeniny.txt": "babicka 3. 5.\n"
+    }
+  },
+  "goals": [
+    { "id": "where", "text": { "cs": "kde.txt obsahuje cestu k souboru sit.txt", "en": "kde.txt contains the path of sit.txt" }, "check": { "fileMatches": ["~/kde.txt", "poznamky/domov/sit\\.txt\\s*$"] } },
+    { "id": "only", "text": { "cs": "kde.txt obsahuje jen tuto jednu cestu", "en": "kde.txt contains only that one path" }, "check": { "fileLines": ["~/kde.txt", 1] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Prohledej všechny podsložky najednou přepínačem -r (grep -r)", "en": "Search all subfolders at once with the option -r (grep -r)" }, "check": { "line": "grep\\s+-\\w*[rR]\\w*\\s" } }
+  ],
+  "hints": [
+    { "cs": "grep hledá text v souborech. Přepínač -l vypíše jen jména souborů, ve kterých se text našel.", "en": "grep searches for text in files. The option -l prints only the names of the files where the text was found." },
+    { "cs": "Přepínač -r prohledá i všechny podsložky: grep -rl wifi poznamky", "en": "The option -r searches all subfolders too: grep -rl wifi poznamky" },
+    { "cs": "grep -rl wifi poznamky > kde.txt", "en": "grep -rl wifi poznamky > kde.txt" }
+  ],
+  "solution": ["find poznamky -type f | xargs grep -l wifi > kde.txt"],
+  "best": ["grep -rl wifi poznamky > kde.txt"]
+}

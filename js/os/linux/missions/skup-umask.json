@@ -1,0 +1,24 @@
+{
+  "id": "skup-umask", "rev": 1, "level": 2, "needs": ["umask", "touch"],
+  "title": { "cs": "Soukromé od začátku", "en": "Private from the start" },
+  "brief": {
+    "cs": "Nové soubory dostávají běžně práva 644, takže je smějí číst i ostatní. Ty chceš, aby každý nový soubor byl od začátku soukromý (600). Nastav umask a pak vytvoř prázdný soubor tajne.txt, který bude mít práva 600 – bez použití chmod.",
+    "en": "New files normally get permissions 644, so others can read them too. You want every new file to be private from the start (600). Set the umask and then create an empty file tajne.txt with permissions 600 – without using chmod."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "file", "text": { "cs": "Existuje soubor tajne.txt", "en": "The file tajne.txt exists" }, "check": { "fileExists": "~/tajne.txt" } },
+    { "id": "mode", "text": { "cs": "tajne.txt má práva 600", "en": "tajne.txt has permissions 600" }, "check": { "mode": ["~/tajne.txt", "600"] } },
+    { "id": "nochmod", "text": { "cs": "Právům jsi nepomáhal příkazem chmod", "en": "You did not use chmod" }, "check": { "not": { "ran": "chmod" } } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Vytvoř i složku sejf, která bude mít díky umask práva 700", "en": "Also create a folder sejf, which gets the permissions 700 thanks to the umask" }, "check": { "mode": ["~/sejf", "700"] } }
+  ],
+  "hints": [
+    { "cs": "umask říká, která práva se novým souborům ODEBEREME. Běžná maska 022 odebere zápis skupině a ostatním.", "en": "umask says which permissions are REMOVED from new files. The usual mask 022 removes write from group and others." },
+    { "cs": "Chceš odebrat všechno skupině i ostatním: maska 077. Pak teprve soubor vytvoř (touch).", "en": "You want to remove everything from group and others: mask 077. Only then create the file (touch)." },
+    { "cs": "umask 077 a pak touch tajne.txt; složku vytvoř příkazem mkdir sejf.", "en": "umask 077 and then touch tajne.txt; create the folder with mkdir sejf." }
+  ],
+  "solution": ["umask 077", "touch tajne.txt"],
+  "best": ["umask 077", "touch tajne.txt", "mkdir sejf"]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "sed-konfig", "rev": 1, "level": 2, "needs": ["sed", "grep"],
+  "title": { "cs": "Čistá konfigurace", "en": "A clean configuration" },
+  "brief": {
+    "cs": "Soubor app.conf je plný komentářů (řádky začínající #) a prázdných řádků. Vytvoř soubor cisty.conf, který bude obsahovat jen skutečná nastavení. Původní app.conf nech být.",
+    "en": "The file app.conf is full of comments (lines starting with #) and empty lines. Create a file cisty.conf containing only the real settings. Leave the original app.conf alone."
+  },
+  "setup": {
+    "files": { "~/app.conf": "# Konfigurace aplikace\n\nport=8080\n# adresa serveru\nhost=localhost\n\n# zapnout ladeni?\ndebug=false\n" }
+  },
+  "goals": [
+    { "id": "clean", "text": { "cs": "cisty.conf obsahuje jen tři nastavení", "en": "cisty.conf contains just the three settings" }, "check": { "fileEquals": ["~/cisty.conf", "port=8080\nhost=localhost\ndebug=false"] } },
+    { "id": "orig", "text": { "cs": "app.conf zůstal nedotčený", "en": "app.conf is untouched" }, "check": { "fileContains": ["~/app.conf", "# Konfigurace aplikace"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Použij jediný příkaz sed s oběma pravidly (např. '/^#/d;/^$/d')", "en": "Use a single sed command with both rules (e.g. '/^#/d;/^$/d')" }, "check": { "line": "sed\\s+.*(\\^#.*\\^\\$|\\^\\$.*\\^#)" } }
+  ],
+  "hints": [
+    { "cs": "grep -v vypíše řádky, které vzor NEobsahují. Regulární výraz ^# je řádek začínající #, ^$ je prázdný řádek.", "en": "grep -v prints the lines that do NOT contain the pattern. The regular expression ^# is a line starting with #, ^$ is an empty line." },
+    { "cs": "sed '/vzor/d' smaže řádky odpovídající vzoru. Více pravidel oddělíš středníkem.", "en": "sed '/pattern/d' deletes the lines matching the pattern. Separate several rules with a semicolon." },
+    { "cs": "sed '/^#/d;/^$/d' app.conf > cisty.conf", "en": "sed '/^#/d;/^$/d' app.conf > cisty.conf" }
+  ],
+  "solution": ["grep -v '^#' app.conf | grep -v '^$' > cisty.conf"],
+  "best": ["sed '/^#/d;/^$/d' app.conf > cisty.conf"]
+}
