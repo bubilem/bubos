@@ -932,3 +932,82 @@ VOLBY
 PŘÍKLADY
     read -p 'Jméno: ' jmeno
     read a b < soubor.txt
+
+
+#### break continue
+JMÉNO
+    break, continue - přeruší smyčku / přeskočí na další průchod
+POUŽITÍ
+    break [N]
+    continue [N]
+POPIS
+    Použijí se uvnitř for, while a until. break smyčku ukončí, continue přeskočí zbytek těla a pokračuje
+    dalším průchodem. Číslo N znamená, kolik vnořených smyček se týká (break 2 ukončí i vnější smyčku).
+PŘÍKLADY
+    for i in 1 2 3 4; do [ $i -eq 3 ] && break; echo $i; done
+
+#### return
+JMÉNO
+    return - ukončí funkci s návratovým kódem
+POUŽITÍ
+    return [N]
+POPIS
+    Bez čísla vrací kód posledního příkazu. Nula znamená úspěch, cokoli jiného chybu;
+    kód funkce pak najdete v $? a můžete ho použít v if nebo &&.
+PŘÍKLADY
+    existuje() { [ -e "$1" ] || return 1; echo "ano"; }
+
+#### shift
+JMÉNO
+    shift - posune poziční parametry skriptu nebo funkce
+POUŽITÍ
+    shift [N]
+POPIS
+    Zahodí první parametr: z $2 se stane $1, z $3 se stane $2 a tak dále; $# se zmenší.
+    Hodí se pro zpracování všech argumentů ve smyčce while [ $# -gt 0 ].
+PŘÍKLADY
+    while [ $# -gt 0 ]; do echo "$1"; shift; done
+
+#### local
+JMÉNO
+    local - proměnná platná jen uvnitř funkce
+POUŽITÍ
+    local JMÉNO[=HODNOTA]...
+POPIS
+    Po skončení funkce se proměnná vrátí na původní hodnotu, takže funkce nepřepisuje proměnné skriptu.
+PŘÍKLADY
+    soucet() { local s=0; for n in "$@"; do s=$((s + n)); done; echo $s; }
+
+#### :
+JMÉNO
+    : - nedělá nic a skončí úspěšně
+POUŽITÍ
+    :
+POPIS
+    Prázdný příkaz. Hodí se jako tělo větve, která nemá nic dělat, nebo jako nekonečná podmínka: while :; do ...; done.
+
+#### let
+JMÉNO
+    let - spočítá aritmetický výraz
+POUŽITÍ
+    let VÝRAZ...
+POPIS
+    Celočíselná aritmetika s proměnnými: + - * / % ** a závorky, porovnání, && ||, přiřazení (=, +=) a ++/--.
+    Stejně funguje $(( … )) a ((…)). Návratový kód je 0, je-li výsledek nenulový.
+PŘÍKLADY
+    let "x = 2 * 3"; echo $x
+    echo $((x + 1))
+    ((i++))
+
+#### [[
+JMÉNO
+    [[ - rozšířená podmínka
+POUŽITÍ
+    [[ VÝRAZ ]]
+POPIS
+    Jako test a [, ale pohodlnější: proměnné nemusí být v uvozovkách, vpravo od == je vzor se zástupnými znaky,
+    =~ porovnává s regulárním výrazem a && a || lze psát přímo uvnitř.
+PŘÍKLADY
+    [[ $soubor == *.txt ]] && echo textovy
+    [[ -f a.txt && -r a.txt ]] && echo ctu
+    [[ $x =~ ^[0-9]+$ ]] && echo cislo

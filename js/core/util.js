@@ -7,6 +7,9 @@ export class Interrupt extends Error { constructor() { super('interrupt'); } }
 export class BrokenPipe extends Error { constructor() { super('broken pipe'); } }
 export class Logout extends Error { constructor() { super('logout'); } }
 export class ScriptExit extends Error { constructor(code = 0) { super('exit'); this.code = code; } }
+// řízení toku skriptů: break/continue (n = počet smyček) a return z funkce
+export class LoopCtl extends Error { constructor(kind, n = 1) { super(kind); this.kind = kind; this.n = n; } }
+export class FuncReturn extends Error { constructor(code = 0) { super('return'); this.code = code; } }
 export class Restart extends Error { constructor() { super('restart'); } }
 
 export const tick = () => new Promise(r => setTimeout(r, 0));

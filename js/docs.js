@@ -9,11 +9,11 @@ const CATS = [
   ['Soubory a adresáře', ['ls', 'cd', 'pwd', 'touch', 'mkdir', 'rmdir', 'rm', 'cp', 'mv', 'ln', 'tree', 'find', 'basename', 'dirname', 'stat', 'du', 'df']],
   ['Čtení a zpracování textu', ['cat', 'head', 'tail', 'less', 'nano', 'grep', 'cut', 'sort', 'uniq', 'wc', 'tr', 'tee', 'echo', 'printf', 'seq', 'yes', 'sed', 'awk', 'diff', 'xargs']],
   ['Uživatelé a práva', ['whoami', 'id', 'groups', 'su', 'sudo', 'useradd', 'usermod', 'userdel', 'groupadd', 'groupdel', 'passwd', 'chmod', 'chown', 'chgrp', 'umask']],
-  ['Shell, proměnné a skripty', ['export', 'unset', 'env', 'printenv', 'alias', 'unalias', 'history', 'source', 'type', 'which', 'test', 'true', 'false', 'sleep', 'read', 'exit']],
+  ['Shell, proměnné a skripty', ['export', 'unset', 'env', 'printenv', 'alias', 'unalias', 'history', 'source', 'type', 'which', 'test', '[[', 'true', 'false', 'sleep', 'read', 'let', 'break', 'return', 'shift', 'local', ':', 'exit']],
   ['Systém a nápověda', ['help', 'man', 'clear', 'date', 'uname', 'hostname', 'cal', 'lang', 'mission', 'ps', 'kill']],
 ];
 // Jméno příkazu → soubor modulu (shodné s FILE v js/os/linux/profile.js)
-const FILE = { '.': 'source', '[': 'test', logout: 'exit' };
+const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit' };
 
 const state = { lang: 'cs', theme: 'dark', pages: [] };
 

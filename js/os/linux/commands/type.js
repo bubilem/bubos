@@ -6,6 +6,8 @@ export default {
     let st = 0;
     for (const a of ctx.args) {
       if (Object.hasOwn(sh.aliases, a)) await ctx.stdout.write(`${a} is aliased to \`${sh.aliases[a]}'\n`);
+      else if (Object.hasOwn(sh.funcs, a)) await ctx.stdout.write(`${a} is a function
+`);
       else if (ctx.os.shellOnly.includes(a)) await ctx.stdout.write(`${a} is a shell builtin\n`);
       else {
         const p = whichPath(sh, a);

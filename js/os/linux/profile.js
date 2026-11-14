@@ -10,13 +10,14 @@ export const COMMANDS = [
   'nano', 'env', 'printenv', 'true', 'false', 'test', '[', 'sleep', 'date', 'uname', 'hostname', 'whoami',
   'id', 'groups', 'su', 'sudo', 'useradd', 'passwd', 'ps', 'kill', 'yes', 'seq', 'basename', 'dirname', 'lang', 'mission',
   'stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'umask', 'groupadd', 'groupdel', 'usermod', 'userdel', 'read',
+  'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[[',
 ];
 // Příkazy, které běží přímo v shellu (nemají soubor v /usr/bin)
-const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read'];
+const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read', 'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[['];
 // Příkazy přidané po prvním vydání (starší uložené stroje pro ně nemají stub v /usr/bin)
 const ADDED_LATER = ['stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'groupadd', 'groupdel', 'usermod', 'userdel'];
 // Jméno příkazu → soubor modulu (pokud se liší)
-const FILE = { '.': 'source', '[': 'test', logout: 'exit' };
+const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit' };
 
 export const manSource = { fn: null }; // pro testy v Node
 const manCache = {};

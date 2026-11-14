@@ -29,7 +29,7 @@ hard linky (`ln` bez `-s`) nejsou podporované záměrně (export JSON by sdíle
 ## Plán / nápady (priorita přibližně shora dolů)
 1. **Druhá iterace příkazů – blok A HOTOVÝ:** `sed`, `awk`-lite, `xargs`, `printf`, `stat`, `du`/`df`, `diff`, `cal`, `groupadd`/`groupdel`/`usermod`/`userdel`,
    `chgrp`, `umask`, `read`, `Ctrl+R`. Zbývá: `tail -f`, `vi` (blok E). Starší uložené stroje dostanou stuby nových příkazů při startu (`boot` v `profile.js`).
-2. **Skriptování:** `if/for/while/case`, funkce, `$((…))`, `$@`/`$#`, `read`, `exit` kódy – rozšířit `parse.js` o víceřádkové konstrukty.
+2. **Skriptování – blok B HOTOVÝ:** `if/elif/else`, `for` (i `for ((…))`), `while`, `until`, `case`, funkce (`local`, `return`), `{ }`, `( )`, `$((…))`, `((…))`, `let`, `[[ ]]`, `$@ $# shift`, úpravy `${x%…}`, víceřádkový vstup s výzvou `>`. Parser: `core/shell/parse.js`, aritmetika `core/shell/arith.js`. Chybí: here-dokumenty, pole, `trap`.
 3. **Procesy a služby:** `jobs/fg/bg`, `top`, falešný `systemctl`, `cron`, `/proc` dynamicky.
 4. **Síť a více strojů:** `ping`, `ip a`, `ssh` mezi virtuálními stroji, `curl` na falešné servery.
 5. **Výuková vrstva = Kampaň** – rozhodnutá, viz sekce „Kampaň“ níže (děláme ji jako první). Zbytek nápadů: příkaz `explain`,

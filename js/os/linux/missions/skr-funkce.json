@@ -1,0 +1,24 @@
+{
+  "id": "skr-funkce", "rev": 1, "level": 3, "needs": ["mkdir", "cd", "source"],
+  "title": { "cs": "Vlastní příkaz mkcd", "en": "Your own command mkcd" },
+  "brief": {
+    "cs": "Často vytváříš složku a hned do ní vstupuješ. Vytvoř si vlastní příkaz mkcd: funkci, která složku (i s nadřazenými) vytvoří a přejde do ní. Definici ulož do ~/.bashrc, aby ti zůstala i po novém přihlášení, načti ji a vyzkoušej: mkcd ~/projekty/nove.",
+    "en": "You often create a folder and enter it right away. Make your own command mkcd: a function that creates the folder (with its parents) and goes into it. Save the definition in ~/.bashrc so that it stays after the next login, load it and try it: mkcd ~/projekty/nove."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "def", "text": { "cs": "~/.bashrc obsahuje funkci mkcd", "en": "~/.bashrc contains the function mkcd" }, "check": { "fileMatches": ["~/.bashrc", "mkcd\\s*\\(\\)"] } },
+    { "id": "dir", "text": { "cs": "Existuje složka ~/projekty/nove", "en": "The folder ~/projekty/nove exists" }, "check": { "dirExists": "~/projekty/nove" } },
+    { "id": "cwd", "text": { "cs": "Aktuální složka je ~/projekty/nove", "en": "The current folder is ~/projekty/nove" }, "check": { "cwd": "~/projekty/nove" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Ověř, že mkcd je funkce: type mkcd", "en": "Check that mkcd is a function: type mkcd" }, "check": { "line": "type\\s+mkcd" } }
+  ],
+  "hints": [
+    { "cs": "Funkce se zapisuje jmeno() { příkazy; }. Parametr funkce je $1.", "en": "A function is written name() { commands; }. The parameter of the function is $1." },
+    { "cs": "mkdir -p vytvoří i chybějící nadřazené složky. Spojíš je přes &&: mkdir -p \"$1\" && cd \"$1\". Řádek přidej do ~/.bashrc příkazem echo '…' >> ~/.bashrc a načti ho příkazem source ~/.bashrc.", "en": "mkdir -p also creates missing parent folders. Join them with &&: mkdir -p \"$1\" && cd \"$1\". Add the line to ~/.bashrc with echo '…' >> ~/.bashrc and load it with source ~/.bashrc." },
+    { "cs": "echo 'mkcd() { mkdir -p \"$1\" && cd \"$1\"; }' >> ~/.bashrc; source ~/.bashrc; mkcd ~/projekty/nove", "en": "echo 'mkcd() { mkdir -p \"$1\" && cd \"$1\"; }' >> ~/.bashrc; source ~/.bashrc; mkcd ~/projekty/nove" }
+  ],
+  "solution": ["echo 'mkcd() { mkdir -p \"$1\" && cd \"$1\"; }' >> ~/.bashrc", "source ~/.bashrc", "mkcd ~/projekty/nove"],
+  "best": ["echo 'mkcd() { mkdir -p \"$1\" && cd \"$1\"; }' >> ~/.bashrc", "source ~/.bashrc", "mkcd ~/projekty/nove", "type mkcd"]
+}

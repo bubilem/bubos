@@ -1,0 +1,24 @@
+{
+  "id": "skr-pozdrav", "rev": 1, "level": 2, "needs": ["echo", "chmod"],
+  "title": { "cs": "Skript s parametrem", "en": "A script with a parameter" },
+  "brief": {
+    "cs": "Vytvoř spustitelný skript pozdrav.sh, který pozdraví jménem zadaným při spuštění: ./pozdrav.sh Jano vypíše Ahoj, Jano! Jméno je v skriptu v proměnné $1.",
+    "en": "Create an executable script pozdrav.sh that greets the name given when it is started: ./pozdrav.sh Jano prints Ahoj, Jano! Inside the script the name is in the variable $1."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "file", "text": { "cs": "Existuje soubor pozdrav.sh a používá $1", "en": "The file pozdrav.sh exists and uses $1" }, "check": { "fileMatches": ["~/pozdrav.sh", "\\$\\{?1"] } },
+    { "id": "exec", "text": { "cs": "pozdrav.sh je spustitelný", "en": "pozdrav.sh is executable" }, "check": { "executable": "~/pozdrav.sh" } },
+    { "id": "run", "text": { "cs": "Spustil jsi ho a vypsal pozdrav „Ahoj, Jano!“", "en": "You ran it and it printed the greeting \"Ahoj, Jano!\"" }, "check": { "output": "Ahoj, Jano!" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Když jméno chybí, skript řekne „Ahoj, světe!“ (výchozí hodnota ${1:-světe})", "en": "When the name is missing the script says \"Ahoj, světe!\" (default value ${1:-světe})" }, "check": { "fileMatches": ["~/pozdrav.sh", ":-"] } }
+  ],
+  "hints": [
+    { "cs": "Skript je textový soubor s příkazy. Vytvoř ho třeba příkazem echo s přesměrováním > nebo editorem nano.", "en": "A script is a text file with commands. Create it with echo and the redirection >, or with the nano editor." },
+    { "cs": "Spustitelným se stane příkazem chmod +x pozdrav.sh a spustí se jako ./pozdrav.sh Jano.", "en": "chmod +x pozdrav.sh makes it executable and ./pozdrav.sh Jano runs it." },
+    { "cs": "echo 'echo \"Ahoj, ${1:-světe}!\"' > pozdrav.sh; chmod +x pozdrav.sh; ./pozdrav.sh Jano", "en": "echo 'echo \"Ahoj, ${1:-světe}!\"' > pozdrav.sh; chmod +x pozdrav.sh; ./pozdrav.sh Jano" }
+  ],
+  "solution": ["echo 'echo \"Ahoj, $1!\"' > pozdrav.sh", "chmod +x pozdrav.sh", "./pozdrav.sh Jano"],
+  "best": ["echo 'echo \"Ahoj, ${1:-světe}!\"' > pozdrav.sh", "chmod +x pozdrav.sh", "./pozdrav.sh Jano"]
+}

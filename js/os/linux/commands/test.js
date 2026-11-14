@@ -1,5 +1,7 @@
 import { CmdError } from '../../../core/util.js';
 import { can, R, W, X } from '../../../core/vfs.js';
+import { segToRegex } from '../../../core/shell/expand.js';
+import { posixToJs } from '../../../core/regex.js';
 
 function evaluate(a, ctx) {
   const o = a.indexOf('-o');
@@ -31,16 +33,18 @@ function evaluate(a, ctx) {
     const nx = +x, ny = +y;
     const num = () => { if (!Number.isFinite(nx) || !Number.isFinite(ny) || x === '' || y === '') throw new CmdError('integer expression expected', 2); };
     switch (op) {
-      case '=': case '==': return x === y;
-      case '!=': return x !== y;
+      case '=': case '==': return ctx.argv[0] === '[[' ? segToRegex(y).test(x) : x === y; // v [[ ]] je vpravo vzor
+      case '!=': return ctx.argv[0] === '[[' ? !segToRegex(y).test(x) : x !== y;
+      case '=~': if (ctx.argv[0] !== '[[') break; try { return posixToJs(y, { ere: true }).test(x); } catch (e) { throw new CmdError(e.message, 2); }
       case '-eq': num(); return nx === ny;
       case '-ne': num(); return nx !== ny;
       case '-lt': num(); return nx < ny;
       case '-le': num(); return nx <= ny;
       case '-gt': num(); return nx > ny;
       case '-ge': num(); return nx >= ny;
-      default: throw new CmdError(`${op}: binary operator expected`, 2);
+      default: break;
     }
+    throw new CmdError(`${op}: binary operator expected`, 2);
   }
   throw new CmdError('too many arguments', 2);
 }
@@ -50,6 +54,10 @@ export default {
     let args = ctx.args;
     if (ctx.argv[0] === '[') {
       if (args.at(-1) !== ']') throw new CmdError("missing `]'", 2);
+      args = args.slice(0, -1);
+    }
+    if (ctx.argv[0] === '[[') {
+      if (args.at(-1) !== ']]') throw new CmdError("missing `]]'", 2);
       args = args.slice(0, -1);
     }
     return evaluate(args, ctx) ? 0 : 1;

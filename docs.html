@@ -224,8 +224,28 @@ Documents  Downloads  README.txt
           spuštění <code>chmod +x skript.sh</code> a zavolat <code>./skript.sh</code> (ve vlastním podřízeném shellu, s argumenty v <code>$1</code>, <code>$2</code>…).
           Při každém přihlášení se automaticky provede <code>~/.bashrc</code> – tam jsou aliasy a <code>export EDITOR=nano</code>.</p>
 
+        <h3>Programování v shellu</h3>
+        <p>Skript i příkazový řádek umí podmínky, cykly a funkce. Víceřádkový příkaz můžete psát přímo do terminálu: když není hotový
+          (chybí <code>fi</code>, <code>done</code>…), shell se zeptá na další řádek výzvou <code>&gt;</code>.</p>
+        <table>
+          <tr><th>Konstrukce</th><th>Příklad</th></tr>
+          <tr><td>podmínka</td><td><code>if [ -f a.txt ]; then echo je; elif [ -d a.txt ]; then echo složka; else echo není; fi</code></td></tr>
+          <tr><td>cyklus přes seznam</td><td><code>for f in *.txt; do echo "$f"; done</code></td></tr>
+          <tr><td>číselný cyklus</td><td><code>for ((i = 1; i &lt;= 3; i++)); do echo $i; done</code></td></tr>
+          <tr><td>cyklus s podmínkou</td><td><code>while [ $n -lt 5 ]; do n=$((n + 1)); done</code> (<code>until</code> je opak)</td></tr>
+          <tr><td>čtení po řádcích</td><td><code>while read jmeno body; do echo "$jmeno"; done &lt; body.txt</code></td></tr>
+          <tr><td>výběr podle vzoru</td><td><code>case "$1" in start|go) echo jedeme ;; *.txt) echo text ;; *) echo ? ;; esac</code></td></tr>
+          <tr><td>funkce</td><td><code>pozdrav() { local kdo=${1:-světe}; echo "Ahoj $kdo"; }</code></td></tr>
+          <tr><td>aritmetika</td><td><code>echo $((2 + 3 * 4))</code>, <code>((i++))</code>, <code>let x=5</code></td></tr>
+          <tr><td>skupina a podshell</td><td><code>{ echo a; echo b; } &gt; out.txt</code>, <code>(cd /tmp; ls)</code> (podshell změny nevrátí)</td></tr>
+        </table>
+        <p><b>Parametry:</b> <code>$1</code>, <code>$2</code>…, <code>$#</code> (počet), <code>"$@"</code> (všechny, každý zvlášť), <code>$?</code> (návratový kód), <code>shift</code>.
+          <b>Úpravy hodnot:</b> <code>${x:-výchozí}</code>, <code>${#x}</code> (délka), <code>${x%.txt}</code> / <code>${x#*/}</code> (odříznutí konce / začátku),
+          <code>${x/co/čím}</code>, <code>${x:2:3}</code> (podřetězec). <b>Řízení:</b> <code>break</code>, <code>continue</code>, <code>return</code>, negace <code>!</code>.
+          Podmínku <code>[[ … ]]</code> lze psát s <code>&amp;&amp;</code>, vzory (<code>== *.txt</code>) i regulárním výrazem (<code>=~</code>).</p>
+
         <h3>Co zatím neumí</h3>
-        <p>Podmínky a cykly (<code>if</code>, <code>for</code>, <code>while</code>), funkce, aritmetiku <code>$((…))</code>, <code>jobs</code>/<code>fg</code>/<code>bg</code>
+        <p>Here-dokumenty (<code>&lt;&lt;</code>), pole, <code>$RANDOM</code>, <code>trap</code>, <code>jobs</code>/<code>fg</code>/<code>bg</code>
           a tvrdé odkazy (<code>ln</code> bez <code>-s</code>). Jsou v plánu další iterace (viz <code>docs/PROJEKT.md</code>).</p>
       </section>
 

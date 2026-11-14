@@ -28,4 +28,4 @@ Přehled rozhodnutí a plán: `docs/PROJEKT.md`. Architektura a konvence: `docs/
 - Port 8080 bývá obsazený; preview_start pak přidělí 8081, ale python server běží jen na 8080 → v prohlížeči otevřít `http://localhost:8080`.
 
 ## Stav
-MVP hotové a ověřené (viz `docs/PROJEKT.md`, sekce Stav a Plán). Kampaň: 20 úkolů v 8 kapitolách. Druhá iterace příkazů: blok A (sed, awk, diff, xargs, printf, stat, du, df, cal, chgrp, umask, groupadd/del, usermod, userdel, read, Ctrl+R) hotový; testy `tests/block-a.test.js`, `tests/consistency.test.js`. Další: blok B skriptování (if/for/while/case, funkce, `$((…))`).
+MVP hotové a ověřené (viz `docs/PROJEKT.md`, sekce Stav a Plán). Kampaň: 25 úkolů v 9 kapitolách. Druhá iterace příkazů: blok A (sed, awk, diff, xargs, printf, stat, du, df, cal, chgrp, umask, groupadd/del, usermod, userdel, read, Ctrl+R) hotový; testy `tests/block-a.test.js`, `tests/consistency.test.js`. Blok B skriptování (if/for/while/case, funkce, `$((…))`, `[[ ]]`) hotový, testy `tests/block-b.test.js`. Další: blok C procesy a služby.

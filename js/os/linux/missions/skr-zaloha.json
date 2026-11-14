@@ -1,0 +1,31 @@
+{
+  "id": "skr-zaloha", "rev": 1, "level": 3, "needs": ["cp", "mkdir", "chmod"],
+  "title": { "cs": "Záloha jedním skriptem", "en": "A backup with one script" },
+  "brief": {
+    "cs": "Chceš zálohovat složku data jedním příkazem. Napiš spustitelný skript zalohuj.sh, který vytvoří složku zaloha (když ještě není) a zkopíruje do ní všechny soubory ze složky data. Pak skript spusť.",
+    "en": "You want to back up the folder data with one command. Write an executable script zalohuj.sh that creates the folder zaloha (if it does not exist yet) and copies all files from the folder data into it. Then run the script."
+  },
+  "setup": {
+    "files": {
+      "~/data/jedna.txt": "prvni soubor\n",
+      "~/data/dva.txt": "druhy soubor\n",
+      "~/data/tri.csv": "a;b\n1;2\n"
+    }
+  },
+  "goals": [
+    { "id": "one", "text": { "cs": "zaloha/jedna.txt je zkopírovaný", "en": "zaloha/jedna.txt is copied" }, "check": { "fileEquals": ["~/zaloha/jedna.txt", "prvni soubor"] } },
+    { "id": "two", "text": { "cs": "zaloha/dva.txt je zkopírovaný", "en": "zaloha/dva.txt is copied" }, "check": { "fileEquals": ["~/zaloha/dva.txt", "druhy soubor"] } },
+    { "id": "three", "text": { "cs": "zaloha/tri.csv je zkopírovaný", "en": "zaloha/tri.csv is copied" }, "check": { "fileEquals": ["~/zaloha/tri.csv", "a;b\n1;2"] } },
+    { "id": "script", "text": { "cs": "Existuje spustitelný skript zalohuj.sh", "en": "There is an executable script zalohuj.sh" }, "check": { "all": [{ "isFile": "~/zalohuj.sh" }, { "executable": "~/zalohuj.sh" }] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Skript používá cyklus for a funguje i při opakovaném spuštění (mkdir -p)", "en": "The script uses a for loop and also works when run repeatedly (mkdir -p)" }, "check": { "fileMatches": ["~/zalohuj.sh", "(?=[\\s\\S]*\\bfor\\b)(?=[\\s\\S]*mkdir\\s+-p)"] } }
+  ],
+  "hints": [
+    { "cs": "Skript je textový soubor s příkazy (jeden na řádek). Vytvoř ho nano zalohuj.sh nebo pomocí echo a printf s přesměrováním.", "en": "A script is a text file with commands (one per line). Create it with nano zalohuj.sh or with echo and printf and a redirection." },
+    { "cs": "mkdir -p zaloha nehlásí chybu, když složka už existuje. Kopírování: cp data/* zaloha/ nebo cyklus for f in data/*; do cp \"$f\" zaloha/; done", "en": "mkdir -p zaloha does not complain when the folder already exists. Copying: cp data/* zaloha/ or the loop for f in data/*; do cp \"$f\" zaloha/; done" },
+    { "cs": "chmod +x zalohuj.sh a pak ./zalohuj.sh", "en": "chmod +x zalohuj.sh and then ./zalohuj.sh" }
+  ],
+  "solution": ["printf 'mkdir zaloha\\ncp data/* zaloha/\\n' > zalohuj.sh", "chmod +x zalohuj.sh", "./zalohuj.sh"],
+  "best": ["printf 'mkdir -p zaloha\\nfor f in data/*; do\\n  cp \"$f\" zaloha/\\ndone\\n' > zalohuj.sh", "chmod +x zalohuj.sh", "./zalohuj.sh"]
+}

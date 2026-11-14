@@ -932,3 +932,82 @@ OPTIONS
 EXAMPLES
     read -p 'Name: ' name
     read a b < file.txt
+
+
+#### break continue
+NAME
+    break, continue - leave a loop / skip to the next iteration
+SYNOPSIS
+    break [N]
+    continue [N]
+DESCRIPTION
+    Used inside for, while and until. break ends the loop, continue skips the rest of the body and goes on
+    with the next iteration. The number N says how many nested loops are affected (break 2 also ends the outer loop).
+EXAMPLES
+    for i in 1 2 3 4; do [ $i -eq 3 ] && break; echo $i; done
+
+#### return
+NAME
+    return - leave a function with an exit status
+SYNOPSIS
+    return [N]
+DESCRIPTION
+    Without a number it returns the status of the last command. Zero means success, anything else an error;
+    the status of the function is then in $? and can be used in if or &&.
+EXAMPLES
+    exists() { [ -e "$1" ] || return 1; echo "yes"; }
+
+#### shift
+NAME
+    shift - shift the positional parameters of a script or function
+SYNOPSIS
+    shift [N]
+DESCRIPTION
+    Drops the first parameter: $2 becomes $1, $3 becomes $2 and so on; $# gets smaller.
+    Useful for processing all arguments in a loop while [ $# -gt 0 ].
+EXAMPLES
+    while [ $# -gt 0 ]; do echo "$1"; shift; done
+
+#### local
+NAME
+    local - a variable valid only inside a function
+SYNOPSIS
+    local NAME[=VALUE]...
+DESCRIPTION
+    When the function ends the variable gets its previous value back, so the function does not overwrite variables of the script.
+EXAMPLES
+    sum() { local s=0; for n in "$@"; do s=$((s + n)); done; echo $s; }
+
+#### :
+NAME
+    : - do nothing, successfully
+SYNOPSIS
+    :
+DESCRIPTION
+    The empty command. Useful as the body of a branch that should do nothing, or as an endless condition: while :; do ...; done.
+
+#### let
+NAME
+    let - evaluate an arithmetic expression
+SYNOPSIS
+    let EXPRESSION...
+DESCRIPTION
+    Integer arithmetic with variables: + - * / % ** and parentheses, comparisons, && ||, assignment (=, +=) and ++/--.
+    $(( … )) and ((…)) work the same way. The exit status is 0 if the result is non-zero.
+EXAMPLES
+    let "x = 2 * 3"; echo $x
+    echo $((x + 1))
+    ((i++))
+
+#### [[
+NAME
+    [[ - extended conditional expression
+SYNOPSIS
+    [[ EXPRESSION ]]
+DESCRIPTION
+    Like test and [, but more convenient: variables need no quotes, the right side of == is a pattern with wildcards,
+    =~ matches a regular expression and && and || can be written directly inside.
+EXAMPLES
+    [[ $file == *.txt ]] && echo text
+    [[ -f a.txt && -r a.txt ]] && echo readable
+    [[ $x =~ ^[0-9]+$ ]] && echo number

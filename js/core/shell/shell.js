@@ -1,9 +1,9 @@
 // Shell: stav relace (uživatel, cwd, proměnné, aliasy, historie) a spouštění příkazů.
-import { parse, SyntaxErr } from './parse.js';
-import { expandWord, expandString } from './expand.js';
+import { parse, SyntaxErr, IncompleteErr } from './parse.js';
+import { expandWord, expandString, expandPattern, arith, segToRegex } from './expand.js';
 import { complete } from './complete.js';
 import { Pipe, Stdin, StringWriter, FileWriter } from '../streams.js';
-import { CmdError, Interrupt, BrokenPipe, Logout, ScriptExit, Restart, tick } from '../util.js';
+import { CmdError, Interrupt, BrokenPipe, Logout, ScriptExit, Restart, LoopCtl, FuncReturn, tick } from '../util.js';
 import { FsError, resolvePath, can, R, X } from '../vfs.js';
 import { t, getLang } from '../i18n.js';
 
@@ -15,6 +15,8 @@ export class Shell {
     this.stack = []; this.fg = new Set();
     this.status = 0; this.jobN = 0; this.args = []; this.scriptName = 'bash';
     this.history = [];
+    this.funcs = Object.create(null); // funkce definované v relaci
+    this.frames = [];                 // zásobník volání funkcí (kvůli local)
     this._w = 0;
     const isTTY = tty?.isTTY ?? true;
     this.ttyOut = { isTTY, write: async s => { tty.write(s); if ((++this._w & 255) === 0) await tick(); }, end() {} };
@@ -73,7 +75,9 @@ export class Shell {
   getVar(name) {
     if (name === '?') return String(this.status);
     if (name === '$') return String(this.proc.pid);
-    if (/^\d$/.test(name)) return name === '0' ? this.scriptName : this.args[+name - 1];
+    if (name === '#') return String(this.args.length);
+    if (name === '@' || name === '*') return this.args.join(' ');
+    if (/^\d+$/.test(name)) return name === '0' ? this.scriptName : this.args[+name - 1];
     return this.vars[name];
   }
   setVar(k, v) { this.vars[k] = v; }
@@ -122,7 +126,6 @@ export class Shell {
     catch (e) { if (e instanceof CmdError) { await this.ttyErr.write(`bash: ${e.message}\n`); return (this.status = 1); } throw e; }
     if (expanded !== line) await this.ttyOut.write(expanded + '\n');
     if (!expanded.trim()) return this.status;
-    this.addHistory(expanded);
     const io = {
       stdin: new Stdin(async () => {
         const l = await this.tty.readLine({ prompt: '' });
@@ -131,7 +134,47 @@ export class Shell {
       stdout: this.ttyOut, stderr: this.ttyErr,
     };
     this.base = io;
-    return this.runLine(expanded, io);
+    // neúplný příkaz (if bez fi, otevřená uvozovka…): shell se jako bash ptá na další řádek
+    let text = expanded, ast;
+    for (;;) {
+      try { ast = parse(text, { aliases: this.aliases }); break; }
+      catch (e) {
+        if (e instanceof IncompleteErr && this.tty?.readLine) {
+          let more;
+          try { more = await this.tty.readLine({ prompt: '> ' }); }
+          catch (e2) { if (e2 instanceof Interrupt) { this.addHistory(this._oneLine(text)); return (this.status = 130); } throw e2; }
+          if (more !== null) { text += '\n' + more; continue; }
+          e = new SyntaxErr('syntax error: unexpected end of file');
+        }
+        this.addHistory(this._oneLine(text));
+        if (e instanceof SyntaxErr) { await io.stderr.write(`bash: ${e.message}\n`); return (this.status = 2); }
+        throw e;
+      }
+    }
+    this.addHistory(this._oneLine(text));
+    return (this.status = await this._exec(ast, io));
+  }
+
+  // Víceřádkový příkaz do historie jako jeden řádek (středníky, kde je to přípustné)
+  _oneLine(text) {
+    const ls = text.split('\n');
+    let out = ls[0];
+    for (let k = 1; k < ls.length; k++) {
+      const prev = ls[k - 1];
+      const join = /(\bthen|\bdo|\belse|\bin|[;{|&(]|\\)\s*$/.test(prev) || /^\s*\(?[^()\s]+(\|[^()\s]+)*\)\s*$/.test(prev);
+      out += (join ? ' ' : '; ') + ls[k].trim();
+    }
+    return out;
+  }
+
+  // Spustí strom; break/continue/return mimo smyčku či funkci jen ukončí řádek
+  async _exec(ast, io) {
+    try { return await this.runAst(ast, io); }
+    catch (e) {
+      if (e instanceof FuncReturn) return e.code;
+      if (e instanceof LoopCtl) return 0;
+      throw e;
+    }
   }
 
   async runLine(line, io) {
@@ -141,19 +184,13 @@ export class Shell {
       if (e instanceof SyntaxErr) { await io.stderr.write(`bash: ${e.message}\n`); return (this.status = 2); }
       throw e;
     }
-    return (this.status = await this.runAst(ast, io));
+    return (this.status = await this._exec(ast, io));
   }
 
+  // Skript: celý text se zpracuje najednou (kvůli víceřádkovým konstrukcím)
   async runLines(text, io) {
-    let st = this.status;
-    try {
-      for (const line of text.split('\n')) {
-        if (!line.trim() || line.trim().startsWith('#')) continue;
-        st = await this.runLine(line, io);
-        if (st === 130) break;
-      }
-    } catch (e) { if (e instanceof ScriptExit) return e.code; throw e; }
-    return st;
+    try { return await this.runLine(text, io); }
+    catch (e) { if (e instanceof ScriptExit) return e.code; throw e; }
   }
 
   async source(path, io = this.base) {
@@ -166,7 +203,10 @@ export class Shell {
       if (it.op === '&&' && st !== 0) continue;
       if (it.op === '||' && st === 0) continue;
       if (it.bg) { this._background(it, io); st = 0; }
-      else st = await this._startPipeline(it.pipe, io).promise;
+      else {
+        st = await this._startPipeline(it.pipe, io).promise;
+        if (it.pipe.neg && st !== 130) st = st === 0 ? 1 : 0; // ! negace
+      }
       this.status = st;
       if (st === 130) break;
     }
@@ -208,7 +248,127 @@ export class Shell {
     return { procs, promise: Promise.all(stages).then(r => r[n - 1]) };
   }
 
+  // --- složené příkazy: if, for, while, until, case, { }, ( ), ((…)), definice funkce ---
+  async _runCompound(cmd, io, proc) {
+    try {
+      io = await this._redirect(cmd.redirs ?? [], io);
+      proc.cmd = cmd.kind === 'funcdef' ? `function ${cmd.name}` : cmd.kind;
+      return await this._execCompound(cmd, io, proc);
+    } catch (e) {
+      return this._report(e, 'bash', io.stderr);
+    }
+  }
+
+  async _body(list, io) {
+    const st = await this.runAst(list, io);
+    this.status = st;
+    return st;
+  }
+
+  async _execCompound(c, io, proc) {
+    // v nekonečné smyčce musí jít přerušit Ctrl+C a prohlížeč nesmí zamrznout
+    const guard = async n => {
+      if (proc.ac.signal.aborted) throw new Interrupt();
+      if ((n & 63) === 63) await tick();
+    };
+    // tělo smyčky: vrací 'break' / 'continue' / undefined (break 2 se předává výš)
+    const loopBody = async list => {
+      try { await this._body(list, io); }
+      catch (e) {
+        if (!(e instanceof LoopCtl)) throw e;
+        if (e.n > 1) { e.n--; throw e; }
+        return e.kind;
+      }
+      return undefined;
+    };
+    switch (c.kind) {
+      case 'group': return this._body(c.body, io);
+      case 'subshell': {
+        const child = new Shell(this.m, this.user, { tty: this.tty, parent: this });
+        Object.assign(child, { funcs: { ...this.funcs }, args: [...this.args], scriptName: this.scriptName, status: this.status, base: io });
+        try { return await child.runAst(c.body, io); }
+        catch (e) { if (e instanceof ScriptExit) return e.code; throw e; }
+      }
+      case 'if': {
+        for (const cl of c.clauses) {
+          const st = await this._body(cl.cond, io);
+          if (st === 130) return 130;
+          if (st === 0) return this._body(cl.body, io);
+        }
+        return c.orelse ? this._body(c.orelse, io) : 0;
+      }
+      case 'while': {
+        let st = 0, n = 0;
+        for (;;) {
+          await guard(n++);
+          const cs = await this._body(c.cond, io);
+          if (cs === 130) return 130;
+          if ((cs === 0) === c.until) break;
+          const r = await loopBody(c.body);
+          st = this.status;
+          if (r === 'break') break;
+        }
+        return st;
+      }
+      case 'for': {
+        const items = [];
+        if (c.words) for (const w of c.words) items.push(...await expandWord(w, this));
+        else items.push(...this.args);
+        let st = 0, n = 0;
+        for (const v of items) {
+          await guard(n++);
+          this.setVar(c.name, v);
+          const r = await loopBody(c.body);
+          st = this.status;
+          if (r === 'break') break;
+        }
+        return st;
+      }
+      case 'cfor': {
+        if (c.init.trim()) arith(c.init, this);
+        let st = 0, n = 0;
+        while (!c.cond.trim() || arith(c.cond, this)) {
+          await guard(n++);
+          const r = await loopBody(c.body);
+          st = this.status;
+          if (r === 'break') break;
+          if (c.step.trim()) arith(c.step, this);
+        }
+        return st;
+      }
+      case 'case': {
+        const subject = await expandString(c.subject, this);
+        for (const cl of c.clauses) {
+          for (const pat of cl.pats) {
+            if (segToRegex(await expandPattern(pat, this)).test(subject)) return this._body(cl.body, io);
+          }
+        }
+        return 0;
+      }
+      case 'arith': return arith(c.src, this) ? 0 : 1;
+      case 'funcdef':
+        this.funcs[c.name] = { items: [{ pipe: { cmds: [c.body], neg: false }, op: ';', bg: false }] };
+        return 0;
+      default: throw new CmdError('internal error: ' + c.kind);
+    }
+  }
+
+  async _callFunc(name, argv, io) {
+    if (this.frames.length >= 200) throw new CmdError(`${name}: maximum function nesting level exceeded (200)`);
+    const saved = this.args, frame = { locals: new Map() };
+    this.args = argv.slice(1);
+    this.frames.push(frame);
+    try { return await this.runAst(this.funcs[name], io); }
+    catch (e) { if (e instanceof FuncReturn) return e.code; throw e; }
+    finally {
+      this.frames.pop();
+      this.args = saved;
+      for (const [k, v] of frame.locals) { if (v === undefined) delete this.vars[k]; else this.vars[k] = v; }
+    }
+  }
+
   async _runCommand(cmd, io, proc) {
+    if (cmd.kind) return this._runCompound(cmd, io, proc);
     try {
       const assigns = [];
       for (const a of cmd.assigns) assigns.push([a.name, await expandString(a.parts, this)]);
@@ -277,6 +437,7 @@ export class Shell {
 
   async _invoke(argv, io, proc, { user = this.user, env = this.envObject() } = {}) {
     const name = argv[0];
+    if (user === this.user && Object.hasOwn(this.funcs, name)) return this._callFunc(name, argv, io);
     const hit = this.lookup(name, user);
     if (hit.error) {
       const msg = { notfound: t('sh.notfound'), nofile: t('err.ENOENT') }[hit.error] ?? t('err.' + hit.error);
@@ -343,7 +504,7 @@ export class Shell {
   }
 
   async _report(e, prog, stderr) {
-    if (e instanceof Logout || e instanceof ScriptExit || e instanceof Restart) throw e;
+    if (e instanceof Logout || e instanceof ScriptExit || e instanceof Restart || e instanceof LoopCtl || e instanceof FuncReturn) throw e;
     if (e instanceof Interrupt) return 130;
     if (e instanceof BrokenPipe) return 141;
     const w = async s => { try { await stderr.write(s + '\n'); } catch { /* nic */ } };

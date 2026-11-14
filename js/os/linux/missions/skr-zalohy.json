@@ -1,0 +1,31 @@
+{
+  "id": "skr-zalohy", "rev": 1, "level": 2, "needs": ["cp"],
+  "title": { "cs": "Záloha každého souboru", "en": "A backup of every file" },
+  "brief": {
+    "cs": "Ve složce texty jsou tři soubory .txt. Ke každému z nich vytvoř zálohu se stejným jménem a příponou .bak (například a.txt → a.txt.bak) a původní soubory nech být. Napsat to třikrát je nuda – použij cyklus.",
+    "en": "The folder texty contains three .txt files. For each of them create a backup with the same name and the extension .bak (for example a.txt → a.txt.bak) and leave the originals alone. Typing it three times is boring – use a loop."
+  },
+  "setup": {
+    "files": {
+      "~/texty/a.txt": "prvni\n",
+      "~/texty/b.txt": "druhy\n",
+      "~/texty/c.txt": "treti\n"
+    }
+  },
+  "goals": [
+    { "id": "a", "text": { "cs": "Existuje texty/a.txt.bak se stejným obsahem", "en": "texty/a.txt.bak exists with the same contents" }, "check": { "fileEquals": ["~/texty/a.txt.bak", "prvni"] } },
+    { "id": "b", "text": { "cs": "Existuje texty/b.txt.bak se stejným obsahem", "en": "texty/b.txt.bak exists with the same contents" }, "check": { "fileEquals": ["~/texty/b.txt.bak", "druhy"] } },
+    { "id": "c", "text": { "cs": "Existuje texty/c.txt.bak se stejným obsahem", "en": "texty/c.txt.bak exists with the same contents" }, "check": { "fileEquals": ["~/texty/c.txt.bak", "treti"] } },
+    { "id": "orig", "text": { "cs": "Původní soubory zůstaly", "en": "The original files are still there" }, "check": { "all": [{ "fileExists": "~/texty/a.txt" }, { "fileExists": "~/texty/b.txt" }, { "fileExists": "~/texty/c.txt" }] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Použij cyklus for přes zástupný znak *.txt", "en": "Use a for loop over the wildcard *.txt" }, "check": { "line": "for\\s+\\w+\\s+in\\s+\\S*\\*\\.txt" } }
+  ],
+  "hints": [
+    { "cs": "cp texty/a.txt texty/a.txt.bak zkopíruje jeden soubor. Jak to zopakovat pro všechny?", "en": "cp texty/a.txt texty/a.txt.bak copies one file. How do you repeat that for all of them?" },
+    { "cs": "for f in texty/*.txt; do …; done projde všechny soubory .txt; v těle cyklu je jméno souboru v $f.", "en": "for f in texty/*.txt; do …; done goes through all .txt files; inside the loop the file name is in $f." },
+    { "cs": "for f in texty/*.txt; do cp \"$f\" \"$f.bak\"; done", "en": "for f in texty/*.txt; do cp \"$f\" \"$f.bak\"; done" }
+  ],
+  "solution": ["cp texty/a.txt texty/a.txt.bak", "cp texty/b.txt texty/b.txt.bak", "cp texty/c.txt texty/c.txt.bak"],
+  "best": ["for f in texty/*.txt; do cp \"$f\" \"$f.bak\"; done"]
+}

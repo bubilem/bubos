@@ -23,7 +23,7 @@ export async function complete(sh, line, cursor) {
   }
   const word = pre.slice(wordStart);
   let real = cmdWords.filter((w, k, a) => !(/^\w+=/.test(w) && a.slice(0, k).every(x => /^\w+=/.test(x))));
-  while (real[0] === 'sudo') real = real.slice(1);
+  while (['sudo', 'then', 'do', 'else', 'elif', 'if', 'while', 'until', '{', '!'].includes(real[0])) real = real.slice(1);
 
   let kind;
   if (word.startsWith('$') && !word.startsWith('$(')) kind = 'var';
@@ -46,8 +46,9 @@ export async function complete(sh, line, cursor) {
   return { start: wordStart, cands };
 }
 
+const KEYWORDS = ['if', 'then', 'elif', 'else', 'fi', 'for', 'while', 'until', 'do', 'done', 'case', 'esac', 'function'];
 function cmdCands(sh, word) {
-  const names = new Set([...Object.keys(sh.aliases), ...sh.os.builtins]);
+  const names = new Set([...Object.keys(sh.aliases), ...Object.keys(sh.funcs), ...sh.os.builtins, ...KEYWORDS]);
   for (const d of (sh.vars.PATH || '').split(':').filter(Boolean)) {
     try { for (const nm of sh.fs.readdir(resolvePath(sh.cwd, d), sh.user)) names.add(nm); } catch { /* nic */ }
   }
