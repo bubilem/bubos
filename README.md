@@ -1,5 +1,7 @@
 # BubOS
 
+**▶ Vyzkoušet online: https://bubilem.github.io/bubos/**
+
 Výukový simulátor Linuxu běžící celý v prohlížeči (bez serverové části, bez instalace).
 
 ## Spuštění
