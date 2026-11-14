@@ -99,6 +99,7 @@ main { gap: 12px; }
   flex: 1 1 12ch; min-width: 12ch; background: transparent; border: 0; outline: 0; padding: 0; margin: 0;
   color: inherit; font: inherit; caret-color: var(--accent);
 }
+.in.pw { -webkit-text-security: disc; text-security: disc; }
 .probe { position: absolute; visibility: hidden; white-space: pre; pointer-events: none; }
 .err { color: var(--err); }
 .b { font-weight: 700; } .dim { opacity: .6; } .u { text-decoration: underline; }

@@ -77,7 +77,8 @@ export class Terminal {
   readLine({ prompt = '', history = [], complete = null, password = false } = {}) {
     return new Promise((resolve, reject) => {
       this._read?.reject(new Interrupt());
-      this.inp.type = password ? 'password' : 'text';
+      // heslo: obyčejné textové pole zakryté stylem (type=password by spouštěl správce hesel prohlížeče)
+      this.inp.classList.toggle('pw', password);
       this.inp.value = '';
       this.promptEl.replaceChildren();
       renderAnsi(prompt, this.promptEl);
