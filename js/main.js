@@ -179,7 +179,11 @@ $('#file').addEventListener('change', async e => {
   } catch (err) { alert(t('ui.import.bad', { msg: err.message })); }
 });
 $('#btn-reset').addEventListener('click', async () => {
-  if (!confirm(t('ui.reset.confirm'))) return;
+  // přeinstalace maže všechno, proto se musí opsat potvrzovací slovo (ne jen kliknout na OK)
+  const word = t('ui.reset.word');
+  const typed = prompt(t('ui.reset.confirm') + '\n\n' + t('ui.reset.type', { word }));
+  if (typed === null) return;
+  if (typed.trim().toLowerCase() !== word.toLowerCase()) { alert(t('ui.reset.cancelled')); return; }
   await storage.wipe();
   restart(Machine.fresh(linux, { ...machine.settings }));
 });
