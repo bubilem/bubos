@@ -20,7 +20,7 @@ const state = { lang: 'cs', theme: 'dark', pages: [] };
 async function loadMan(lang) {
   try {
     const r = await fetch(`man/${lang}.txt`);
-    return r.ok ? await r.text() : '';
+    return r.ok ? (await r.text()).replace(/\r\n/g, '\n') : ''; // soubor může mít konce řádků CRLF
   } catch { return ''; }
 }
 

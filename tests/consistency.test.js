@@ -18,3 +18,13 @@ test('slovníky cs a en mají stejné klíče', () => {
   assert.deepEqual(cs.filter(k => !en.has(k)), []);
   assert.deepEqual([...en].filter(k => !cs.includes(k)), []);
 });
+
+test('každá manuálová stránka má v prvním řádku krátký popisek (jmeno - popis)', () => {
+  for (const lang of ['cs', 'en']) {
+    const parts = read(`man/${lang}.txt`).replace(/\r\n/g, '\n').split(/^#### (.+)$/m);
+    for (let i = 1; i < parts.length; i += 2) {
+      const lines = parts[i + 1].replace(/^\n+/, '').split('\n');
+      assert.match(lines[1] ?? '', /^\s+\S.*? - .+$/, `${lang}: ${parts[i]}`);
+    }
+  }
+});
