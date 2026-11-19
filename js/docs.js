@@ -137,6 +137,18 @@ document.querySelectorAll('main > section').forEach(s => spy.observe(s));
   refresh();
 })();
 
+// Odkazy na kotvy (menu, obsah) nepřidávají záznamy do historie, ať Zpět nemusí couvat po jednom
+document.addEventListener('click', e => {
+  const a = e.target.closest?.('a[href^="#"]');
+  if (!a || a.getAttribute('href') === '#' || e.ctrlKey || e.metaKey || e.shiftKey || e.button) return;
+  const target = document.getElementById(decodeURIComponent(a.hash.slice(1)));
+  if (!target) return;
+  e.preventDefault();
+  history.replaceState(null, '', a.hash);
+  openFromHash();
+  target.scrollIntoView();
+});
+
 // „Zpět do terminálu“ vrací tam, odkud žák přišel (pískoviště nebo rozpracovaný úkol); bez předchozí stránky vede na index.html
 document.querySelector('a[href="index.html"]')?.addEventListener('click', e => {
   if (history.length > 1 && document.referrer && new URL(document.referrer).origin === location.origin) { e.preventDefault(); history.back(); }

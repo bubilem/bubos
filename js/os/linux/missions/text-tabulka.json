@@ -2,14 +2,14 @@
   "id": "text-tabulka", "rev": 1, "level": 2, "needs": ["cut", "sort", "uniq", "wc"],
   "title": { "cs": "Tabulka žáků", "en": "The pupil table" },
   "brief": {
-    "cs": "Soubor zaci.csv má na každém řádku jméno, třídu a body odděleně středníkem. Do souboru tridy.txt ulož seznam tříd (každá jen jednou, seřazené) a do souboru zaku.txt počet žáků.",
-    "en": "The file zaci.csv has a name, a class and points on every line, separated by semicolons. Save the list of classes (each only once, sorted) into tridy.txt and the number of pupils into zaku.txt."
+    "cs": "Soubor zaci.csv má na každém řádku jméno, třídu a body odděleně středníkem. Do souboru tridy.txt ulož seznam tříd (každá jen jednou, seřazené, každá na vlastním řádku, tedy pod sebou) a do souboru zaku.txt počet žáků.",
+    "en": "The file zaci.csv has a name, a class and points on every line, separated by semicolons. Save the list of classes (each only once, sorted, one class per line, i.e. one below another) into tridy.txt and the number of pupils into zaku.txt."
   },
   "setup": {
     "files": { "~/zaci.csv": "Anna;2.A;87\nBoris;2.B;64\nCyril;2.A;92\nDana;3.C;75\nEmil;2.B;58\nFilip;3.C;81\nGabriela;2.A;95\n" }
   },
   "goals": [
-    { "id": "classes", "text": { "cs": "tridy.txt obsahuje 2.A, 2.B a 3.C (každou jednou, seřazené)", "en": "tridy.txt contains 2.A, 2.B and 3.C (each once, sorted)" },
+    { "id": "classes", "text": { "cs": "tridy.txt obsahuje 2.A, 2.B a 3.C, každou jednou, seřazené, každá na samostatném řádku (pod sebou)", "en": "tridy.txt contains 2.A, 2.B and 3.C, each once, sorted, each on its own line (one below another)" },
       "check": { "fileEquals": ["~/tridy.txt", "2.A\n2.B\n3.C"] } },
     { "id": "count", "text": { "cs": "zaku.txt obsahuje počet žáků", "en": "zaku.txt contains the number of pupils" }, "check": { "fileEquals": ["~/zaku.txt", "7"] } }
   ],
