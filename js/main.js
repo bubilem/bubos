@@ -183,10 +183,16 @@ $('#file').addEventListener('change', async e => {
   e.target.value = '';
   if (!f) return;
   try {
-    const st = await storage.readImportFile(f);
+    const json = await storage.readJson(f);
+    const { system, progress } = storage.parseImport(json);
+    if (!system) { // soubor jen s postupem v kampani: pískoviště se nemění
+      await storage.mergeProgressFrom(json);
+      alert(t('ui.import.progressonly'));
+      return;
+    }
     if (!confirm(t('ui.import.confirm'))) return;
-    await storage.mergeProgressFrom(st); // postup v kampani (je-li v souboru) se přidá k existujícímu
-    restart(await withSolutions(Machine.fromState(linux, st)));
+    if (progress) await storage.mergeProgressFrom(json); // postup v kampani se přidá k existujícímu
+    restart(await withSolutions(Machine.fromState(linux, system)));
   } catch (err) { alert(t('ui.import.bad', { msg: err.message })); }
 });
 $('#btn-reset').addEventListener('click', async () => {

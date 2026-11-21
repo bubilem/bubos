@@ -84,11 +84,29 @@ export async function exportAll(snapshot) {
   await saveProgress(p);
   exportFile({ ...snapshot, progress: p });
 }
-export async function exportProgress() {
+// Export z kampaně: uložené pískoviště + postup (nemá-li uživatel pískoviště, jen postup)
+export async function exportEverything() {
+  const main = await load();
   const p = await loadProgress();
   p.exportedAt = Date.now();
   await saveProgress(p);
-  exportFile(p, 'bubos-postup');
+  if (main) exportFile({ ...main, progress: p });
+  else exportFile(p, 'bubos-postup');
+}
+
+// Rozpozná načtený JSON: { system: platný stav pískoviště | null, progress: bool }. Cokoli jiného vyhodí chybu.
+export function parseImport(json) {
+  if (json?.kind === 'progress') { sanitizeProgress(json); return { system: null, progress: true }; }
+  const system = validateState(json);
+  let progress = false;
+  try { extractProgress(json); progress = true; } catch { /* starší export bez postupu */ }
+  return { system, progress };
+}
+
+// Smaže postup v kampani i rozpracované úkoly (pískoviště zůstane)
+export async function wipeCampaign(ids) {
+  await wipe('progress');
+  for (const id of ids) await wipe('mission:' + id);
 }
 
 export function exportFile(state, prefix = 'bubos') {

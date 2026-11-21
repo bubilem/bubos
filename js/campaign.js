@@ -124,18 +124,36 @@ $('#btn-theme').addEventListener('click', () => {
   storage.patchSettings({ theme: S.theme });
   applyLang();
 });
-$('#btn-export').addEventListener('click', async () => { await storage.exportProgress(); S.progress = await storage.loadProgress(); renderSummary(); });
+$('#btn-export').addEventListener('click', async () => { await storage.exportEverything(); S.progress = await storage.loadProgress(); renderSummary(); });
 $('#btn-import').addEventListener('click', () => $('#file').click());
 $('#file').addEventListener('change', async e => {
   const f = e.target.files[0];
   e.target.value = '';
   if (!f) return;
   try {
-    if (!(await storage.mergeProgressFrom(await storage.readJson(f)))) throw new Error('not a progress file');
+    const json = await storage.readJson(f);
+    const { system, progress } = storage.parseImport(json);
+    // soubor s celým systémem nahradí i pískoviště (jen po potvrzení); postup se vždy sloučí
+    const withSystem = !!system && confirm(t('camp.import.confirm'));
+    if (system && !withSystem) return;
+    if (progress) await storage.mergeProgressFrom(json);
+    if (withSystem) { const { progress: _p, ...sys } = system; await storage.save(sys); }
     S.progress = await storage.loadProgress();
     render();
-    say(t('camp.import.ok'));
+    say(t(withSystem ? 'camp.import.ok.all' : 'camp.import.ok'));
   } catch { say(t('camp.import.bad')); }
+});
+// Reset kampaně: smaže postup i rozpracované úkoly; pískoviště se nedotkne. Je nutné opsat slovo.
+$('#btn-reset').addEventListener('click', async () => {
+  const word = t('ui.reset.word');
+  const typed = prompt(t('camp.reset.confirm') + '\n\n' + t('ui.reset.type', { word }));
+  if (typed === null) return;
+  if (typed.trim().toLowerCase() !== word.toLowerCase()) { say(t('ui.reset.cancelled')); return; }
+  await storage.wipeCampaign(S.index.chapters.flatMap(c => c.missions));
+  S.progress = await storage.loadProgress();
+  S.saved = {};
+  render();
+  say(t('camp.reset.done'));
 });
 
 // --- start ---

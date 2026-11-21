@@ -52,7 +52,7 @@ sám vybere a systém mu hlásí postup jen u něj; ztráta zálohy nesmí žák
 - **Postup je oddělený od stroje** (vlastní klíč v IndexedDB: `{id: {stars, hints, done, at}}`). Díky tomu: ztracený záloha pískoviště nic
   nerozbije (úkoly se stavějí z `setup`), a ztracený postup se dá snadno získat zpět – úkol lze kdykoli spustit rovnou a bez nápověd dostat
   3 ⭐ („Už to umím“). Žádné odemykání, takže nic nečeká na dřívější úkoly.
-- **Přenositelnost na měsíce:** „Export postupu“ (malý JSON `{format, app, kind:"progress", missions:{…}}`) a Import se slučuje (bere lepší hvězdy);
+- **Přenositelnost na měsíce:** Export na stránce kampaně i v pískovišti ukládá pískoviště i postup do jednoho souboru (samotný postup: malý JSON `{format, app, kind:"progress", missions:{…}}`) a Import se slučuje (bere lepší hvězdy);
   celý export počítače (`format` 2, migrace) obsahuje `progress` také. Připomínka „naposledy zálohováno před N dny“. Soubor se validuje jako
   jakýkoli jiný import (jen data). Verze úkolů: stabilní `id`, úkol má `rev`; změněný úkol postup nemaže.
 - **Hvězdy:** ⭐ splněno; ⭐⭐ bez použité nápovědy; ⭐⭐⭐ navíc splněn bonus (elegantní řešení – např. jednou rourou, bez zbytečného `sudo`).

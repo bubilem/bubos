@@ -409,7 +409,7 @@ Documents  Downloads  README.txt
           <tr><th>Soubor</th><th>Účel</th></tr>
           <tr><td><code>index.html</code></td><td>hlavní stránka: horní lišta, plocha terminálu, patička; načítá <code>js/main.js</code></td></tr>
           <tr><td><code>docs.html</code></td><td>tato dokumentace</td></tr>
-          <tr><td><code>campaign.html</code></td><td>kampaň: dlaždice úkolů, filtry, detail, export/import postupu (<code>js/campaign.js</code>, <code>css/campaign.css</code>)</td></tr>
+          <tr><td><code>campaign.html</code></td><td>kampaň: dlaždice úkolů, filtry, detail, export/import a reset kampaně (<code>js/campaign.js</code>, <code>css/campaign.css</code>)</td></tr>
           <tr><td><code>favicon.svg</code></td><td>ikona stránky (cyan výzva <code>&gt;_</code> s oranžovým kurzorem v rámečku na černém podkladu)</td></tr>
           <tr><td><code>start.bat</code></td><td>spouštěč pro Windows: najde PHP, Node nebo Python, spustí místní server a otevře prohlížeč (<code>start.bat 9000</code> = jiný port)</td></tr>
           <tr><td><code>package.json</code></td><td>jen skripty <code>npm test</code> a <code>npm start</code>; žádné závislosti</td></tr>
@@ -544,9 +544,12 @@ Documents  Downloads  README.txt
         </table>
         <h3>Postup a zálohování</h3>
         <p>Hvězdičky jsou uložené <em>odděleně od pískoviště</em> (klíč <code>progress</code> v IndexedDB). Smazání nebo ztráta zálohy pískoviště tedy nevadí – úkoly se
-          staví od nuly; kdo téma umí, spustí úkol a splní ho bez nápovědy. Tlačítko <b>Export postupu</b> uloží malý soubor <code>bubos-postup-….json</code>,
-          <b>Import postupu</b> ho sloučí s existujícím (zůstanou lepší výsledky). Postup je také součástí běžného <b>Exportu</b> celého systému. Stránka po 14 dnech
-          připomene, že je čas na zálohu. V souborech nejsou žádná jména.</p>
+          staví od nuly; kdo téma umí, spustí úkol a splní ho bez nápovědy. Tlačítko <b>Export</b> (na stránce kampaně i v pískovišti) uloží do jednoho souboru
+          <code>bubos-….json</code> <em>rozpracované pískoviště i postup v kampani</em> – hodí se pro přenos na jiné zařízení nebo pro kamaráda. <b>Import</b> ho načte:
+          postup se sloučí s existujícím (zůstanou lepší výsledky), pískoviště se nahradí jen po potvrzení. Soubor, který obsahuje jen postup (starší záloha
+          <code>bubos-postup-….json</code>), pískoviště nemění. Stránka po 14 dnech připomene, že je čas na zálohu. V souborech nejsou žádná jména.</p>
+        <p>Tlačítko <b>Resetovat kampaň</b> (jen na stránce kampaně, vyžaduje opsat slovo SMAZAT) smaže hvězdičky i rozpracované úkoly a pískoviště nechá. Naopak
+          <b>Přeinstalovat</b> v pískovišti smaže pískoviště a postup v kampani nechá.</p>
         <h3>Jak přidat úkol</h3>
         <ol>
           <li>Vytvořte <code>js/os/linux/missions/&lt;id&gt;.json</code> a přidejte <code>id</code> do kapitoly v <code>missions/index.json</code>.</li>
