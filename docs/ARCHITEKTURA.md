@@ -54,6 +54,8 @@ Příkaz = `export default { async run(ctx) { … return kód; } }`. Užitečné
 - `main.js` v režimu `?mission=<id>` staví vlastní `Machine` (nikdy nesahá na klíč `main` v IndexedDB), po každém řádku volá `run.observe` + `run.update`
   a při zisku hvězd zapíše postup (`storage.saveProgress`). Klíče úložiště: `main`, `progress`, `mission:<id>`.
 - `campaign.js` je samostatná stránka; jazyk a vzhled sdílí s pískovištěm přes `storage.patchSettings`.
+- Vzorová řešení: `os/linux/solutions.js` z `solution`/`best` každého úkolu vygeneruje `/root/.reseni/<id>.sh` (+ README.txt). Zapisuje je `withSolutions` v `main.js`
+  jednou na stroj v pískovišti (příznak `settings.solutions`; ručně smazaná se nevracejí). Skrytá složka v domově roota → najde je `sudo ls -a /root`; nejsou zamčená před zvědavostí, jen neleží na očích.
 - Nový úkol = JSON + řádek v `index.json`; `npm test` přehraje `solution` i `best` každého úkolu.
 
 ## Formát exportu

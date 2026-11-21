@@ -10,6 +10,7 @@ import { Interrupt, Logout, Restart } from './core/util.js';
 import { MissionRun, applySetup, startDir, recordResult, pick } from './core/mission.js';
 import * as storage from './core/storage.js';
 import linux from './os/linux/profile.js';
+import { installSolutions } from './os/linux/solutions.js';
 
 const $ = s => document.querySelector(s);
 const term = new Terminal($('#term'));
@@ -102,6 +103,13 @@ function afterLine(line) {
   if (run.update(machine, shell.cwd)) recordProgress(run);
 }
 
+// Vzorová řešení úloh v /root/.reseni; jednou na stroj (ručně smazaná se nevracejí), chyba načtení nevadí
+async function withSolutions(m) {
+  if (m.settings.solutions) return m;
+  try { await installSolutions(m, linux); m.settings.solutions = true; } catch (e) { console.warn('Vzorová řešení se nepodařilo uložit.', e); }
+  return m;
+}
+
 // --- relace ---
 async function login() {
   for (;;) {
@@ -175,7 +183,7 @@ $('#file').addEventListener('change', async e => {
     const st = await storage.readImportFile(f);
     if (!confirm(t('ui.import.confirm'))) return;
     await storage.mergeProgressFrom(st); // postup v kampani (je-li v souboru) se přidá k existujícímu
-    restart(Machine.fromState(linux, st));
+    restart(await withSolutions(Machine.fromState(linux, st)));
   } catch (err) { alert(t('ui.import.bad', { msg: err.message })); }
 });
 $('#btn-reset').addEventListener('click', async () => {
@@ -185,7 +193,7 @@ $('#btn-reset').addEventListener('click', async () => {
   if (typed === null) return;
   if (typed.trim().toLowerCase() !== word.toLowerCase()) { alert(t('ui.reset.cancelled')); return; }
   await storage.wipe();
-  restart(Machine.fresh(linux, { ...machine.settings }));
+  restart(await withSolutions(Machine.fresh(linux, { ...machine.settings })));
 });
 $('#btn-lang').addEventListener('click', () => machine.setSetting('lang', machine.settings.lang === 'cs' ? 'en' : 'cs'));
 $('#btn-theme').addEventListener('click', () => machine.setSetting('theme', machine.settings.theme === 'dark' ? 'light' : 'dark'));
@@ -207,7 +215,9 @@ async function main() {
     const saved = await storage.load();
     if (saved) { try { m = Machine.fromState(linux, saved); } catch (e) { console.warn('Uložený stav nelze načíst, začínám znovu.', e); } }
   }
-  attach(m ?? Machine.fresh(linux, { lang: 'cs' }));
+  m ??= Machine.fresh(linux, { lang: 'cs' });
+  if (!missionId) await withSolutions(m);
+  attach(m);
   storage.requestPersist();
   for (;;) {
     try { await sessionLoop(); }
