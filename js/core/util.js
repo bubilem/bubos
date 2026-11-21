@@ -14,13 +14,28 @@ export class Restart extends Error { constructor() { super('restart'); } }
 
 export const tick = () => new Promise(r => setTimeout(r, 0));
 
-export function sleep(ms, signal) {
+function sleepRaw(ms, signal) {
   return new Promise((res, rej) => {
     if (signal?.aborted) return rej(new Interrupt());
     const onAbort = () => { clearTimeout(id); rej(new Interrupt()); };
     const id = setTimeout(() => { signal?.removeEventListener('abort', onAbort); res(); }, ms);
     signal?.addEventListener('abort', onAbort, { once: true });
   });
+}
+
+// Čekání; s proc (proces příkazu) se dá pozastavit (Ctrl+Z / kill -STOP) – pozastavený čas se nepočítá
+export async function sleep(ms, signal, proc) {
+  if (!proc) return sleepRaw(ms, signal);
+  let left = ms;
+  while (left > 0) {
+    await proc.pause();
+    const t0 = Date.now();
+    let id;
+    await Promise.race([new Promise(r => { id = setTimeout(r, left); }), proc.change()]);
+    clearTimeout(id);
+    left -= Date.now() - t0;
+    if (signal?.aborted) throw new Interrupt();
+  }
 }
 
 export const byteLen = s => new TextEncoder().encode(s).length;

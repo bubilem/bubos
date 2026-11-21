@@ -16,9 +16,22 @@ js/core/                   BEZ DOM, testovatelné v Node
   i18n.js       t(klíč, {proměnné}); fallback en → klíč
   storage.js    IndexedDB + export/import + validateState
   machine.js    Machine = {os, fs, procs, settings}; snapshot() je formát exportu {format:1,app,os,savedAt,settings,fs}
-  process.js    ProcTable (simulované PID, AbortController)
+  process.js    ProcTable + Proc (simulované PID, signály TERM/KILL/STOP/CONT, pozastavení, onChange pro /proc)
   shell/        parse.js (lex+parse → AST), expand.js (~ $ $() split glob), complete.js (Tab), shell.js (Shell třída)
 ```
+
+## Procesy, úlohy a služby (blok C)
+- `Proc.deliver(sig)`: TERM/INT/HUP/KILL abortují `ac` (příkazy končí `Interrupt`), STOP/TSTP nastaví `stopped`, CONT ho zruší. Pozastavit jde jen kód, který
+  čeká přes `await proc.pause()` / `sleep(ms, signal, proc)` (sleep, yes, smyčky v `_execCompound`); nový dlouhý příkaz musí volat `ctx.proc.pause()`. Interaktivní `-bash` je `immune` (ignoruje TERM).
+- Úlohy: `Shell.jobs` (`_addJob`, `findJob`, `jobLine`). `cmd &` → `_background`; Ctrl+Z → `terminal.onStop` → `shell.suspend()` pozastaví `fg` a vrátí `_waitFg` (stav 148, z roury je úloha).
+  `fg` jen volá `sh.adopt(job)` a skutečné čekání dělá `_waitFg`; `bg` → `resumeBg`. Čekání na nejvyšší úrovni je jedno (`_top`), vnořené (smyčky, funkce) jen čekají.
+- Služby: `os/linux/services.js` (`UNITS`, start/stop/enabled). Běžící služba = systémový proces s polem `unit`; „zapnuto při startu“ je v `m.settings.units`
+  (exportuje se), `profile.boot` spouští zapnuté služby. `systemctl` a `service` jen volají tyto funkce a zapisují do `/var/log/syslog`.
+- Cron: `os/linux/cron.js` – `parseCrontab`, `matches`, `cronTick(m, date)` (testovatelné bez času) a `startCron` (interval 5 s, `unref`, zastaví ho `Machine.close()`).
+  Crontaby jsou v `/var/spool/cron/crontabs/<uživatel>`. Úloha běží přes `Shell.runLine` pod daným uživatelem, výstup se zahodí.
+- `/proc`: `os/linux/procfs.js` `mountProc` – adresáře `/proc/<pid>` se při změně tabulky procesů přepisují přímo ve stromu (bez `onChange`, aby se neukládalo) a soubory
+  mají uzel `{gen:'status:412'}`, jehož obsah doplní `VFS.read` přes `fs.gen`. Snapshot ho ukládá, ale `boot` ho vždy přepíše.
+- Kampaň: kontroly `procRunning`, `procStopped`, `serviceActive`, `serviceEnabled`; `setup.procs` (`applyProcs`) vyrobí proces, který `kill` odstraní z tabulky (`daemon`).
 
 ## Tok příkazu
 `main.js` → `shell.run(line)` → `parse` (aliasy se rozvinou už v parseru) → `runAst` (`; && || &`) → `_startPipeline`

@@ -1,0 +1,22 @@
+{
+  "id": "proc-pozastav", "rev": 1, "level": 2, "needs": ["sleep", "kill", "jobs"],
+  "title": { "cs": "Pozastavit a pokračovat", "en": "Pause and resume" },
+  "brief": {
+    "cs": "Proces se dá nejen ukončit, ale i pozastavit a později nechat pokračovat. Spusť sleep 600 na pozadí a pozastav ho signálem STOP. (Na popředí by stačila klávesa Ctrl+Z.)",
+    "en": "A process can not only be ended but also paused and later resumed. Run sleep 600 in the background and pause it with the STOP signal. (In the foreground the key Ctrl+Z would do.)"
+  },
+  "setup": {},
+  "goals": [
+    { "id": "stopped", "text": { "cs": "Proces sleep 600 je pozastavený", "en": "The process sleep 600 is stopped" }, "check": { "procStopped": "^sleep 600$" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Ověř stav příkazem jobs (uvidíš Stopped)", "en": "Check the state with jobs (you will see Stopped)" }, "check": { "line": "^jobs" } }
+  ],
+  "hints": [
+    { "cs": "Nejdřív sleep 600 & a potom kill s číslem signálu nebo jeho jménem.", "en": "First sleep 600 & and then kill with the signal number or name." },
+    { "cs": "kill -STOP %1 pozastaví úlohu číslo 1 (číslo vidíš v hranatých závorkách nebo v jobs).", "en": "kill -STOP %1 pauses job number 1 (see the number in square brackets or in jobs)." },
+    { "cs": "Pokračovat nechá kill -CONT %1 nebo bg %1.", "en": "kill -CONT %1 or bg %1 lets it continue." }
+  ],
+  "solution": ["sleep 600 &", "kill -STOP %1"],
+  "best": ["sleep 600 &", "kill -STOP %1", "jobs"]
+}

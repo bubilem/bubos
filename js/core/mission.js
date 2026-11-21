@@ -7,7 +7,7 @@ import { getUsers, getGroups, addUser, setPassword } from './users.js';
 export const HOME = '/home/student';
 export const CHECK_TYPES = ['all', 'any', 'not', 'fileExists', 'fileMissing', 'dirExists', 'isFile', 'fileContains', 'fileMatches',
   'fileEquals', 'fileLines', 'mode', 'executable', 'owner', 'symlink', 'userExists', 'inGroup', 'cwd', 'ran', 'line', 'pipeline',
-  'redirect', 'output'];
+  'redirect', 'output', 'procRunning', 'procStopped', 'serviceActive', 'serviceEnabled'];
 
 // --- příkazy na řádku ---
 export function commandsOf(line) {
@@ -65,6 +65,11 @@ export function evalCheck(c, env) {
     case 'pipeline': return env.lines.some(l => /(^|[^|])\|([^|]|$)/.test(l));
     case 'redirect': return env.lines.some(l => />/.test(l));
     case 'output': return new RegExp(a, 'm').test(env.out);
+    // procesy a služby (env.m = stroj; služby zná OS profil)
+    case 'procRunning': return !!env.m?.procs.list().some(p => p.cmd && !p.stopped && new RegExp(a).test(p.cmd));
+    case 'procStopped': return !!env.m?.procs.list().some(p => p.cmd && p.stopped && new RegExp(a).test(p.cmd));
+    case 'serviceActive': return !!env.m?.os.services?.active(env.m, a);
+    case 'serviceEnabled': return !!env.m?.os.services?.enabled(env.m, a);
     default: throw new Error('unknown check: ' + type);
   }
 }
@@ -97,7 +102,7 @@ export class MissionRun {
   }
   // Přepočítá cíle a bonus; vrací true, když přibyly hvězdy (výsledek je třeba zapsat do postupu)
   update(machine, cwd = HOME) {
-    const env = { fs: machine.fs, home: HOME, lines: this.lines, out: this.out, cwd };
+    const env = { m: machine, fs: machine.fs, home: HOME, lines: this.lines, out: this.out, cwd };
     this.goals = this.mission.goals.map(g => evalCheck(g.check, env));
     this.mission.bonus.forEach((b, i) => { if (!this.bonusDone[i] && evalCheck(b.check, env)) this.bonusDone[i] = true; });
     let gained = false;
@@ -127,7 +132,7 @@ export const pick = (v, lang) => (typeof v === 'string' ? v : v?.[lang] ?? v?.en
 
 // --- příprava stroje podle setup ---
 // setup: { files: { cesta: "text" | { data, mode:"640", user, group } }, dirs: [cesta], links: { cesta: cíl },
-//          remove: [cesta], users: [{ name, password, groups }], cwd }
+//          remove: [cesta], users: [{ name, password, groups }], procs: [{ cmd, user }], cwd }
 export function applySetup(machine, setup = {}) {
   const fs = machine.fs;
   const abs = p => resolvePath(HOME, p.replace(/^~(?=\/|$)/, HOME));
@@ -156,6 +161,15 @@ export function applySetup(machine, setup = {}) {
     fs.put(path, typeof v === 'string' ? v : v.data, { mode: o.mode ? parseInt(o.mode, 8) : 0o644, uid, gid });
   }
   for (const [p, target] of Object.entries(setup.links ?? {})) fs.putLink(abs(p), target);
+  applyProcs(machine, setup);
+}
+
+// Procesy připravené úkolem (např. proces, který "žere procesor"); kill je ukončí a z tabulky zmizí
+export function applyProcs(machine, setup = {}) {
+  for (const p of setup.procs ?? []) {
+    if (machine.procs.list().some(x => x.cmd === p.cmd && x.user === (p.user ?? 'student'))) continue;
+    machine.procs.add({ pid: machine.procs.next++, user: p.user ?? 'student', cmd: p.cmd, sys: false, daemon: true, start: Date.now() - 60e3 });
+  }
 }
 
 // --- kontrola definice úkolu (používají testy) ---

@@ -60,7 +60,7 @@ export function lex(src) {
       if (!m) throw new SyntaxErr('${' + body + '}: bad substitution');
       add({ t: 'var', name: m[1], mod: m[2], arg: m[3], q }); i = j + 1; return;
     }
-    const m = /^(?:[A-Za-z_]\w*|[?$0-9#@*])/.exec(src.slice(i + 1));
+    const m = /^(?:[A-Za-z_]\w*|[?$0-9#@*!])/.exec(src.slice(i + 1));
     if (m) { add({ t: 'var', name: m[0], q }); i += 1 + m[0].length; }
     else { lit('$', q); i++; }
   };

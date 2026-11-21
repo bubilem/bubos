@@ -1,0 +1,25 @@
+{
+  "id": "proc-zabit", "rev": 1, "level": 2, "needs": ["ps", "top", "kill", "pkill"],
+  "title": { "cs": "Proces, který žere procesor", "en": "The process that eats the CPU" },
+  "brief": {
+    "cs": "Počítač se zpomalil: nějaký proces zbytečně běží na plný výkon. Najdi viníka (třeba příkazem top nebo ps) a ukonči ho. Druhý proces, sleep 3600, je neškodný a má dál běžet.",
+    "en": "The computer slowed down: some process is needlessly running at full speed. Find the culprit (for example with top or ps) and end it. The other process, sleep 3600, is harmless and must keep running."
+  },
+  "setup": {
+    "procs": [{ "cmd": "yes", "user": "student" }, { "cmd": "sleep 3600", "user": "student" }]
+  },
+  "goals": [
+    { "id": "gone", "text": { "cs": "Proces yes už neběží", "en": "The process yes is no longer running" }, "check": { "not": { "procRunning": "^yes$" } } },
+    { "id": "kept", "text": { "cs": "Proces sleep 3600 stále běží", "en": "The process sleep 3600 is still running" }, "check": { "procRunning": "^sleep 3600$" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Viníka najdi pomocí příkazu top", "en": "Find the culprit with the top command" }, "check": { "ran": "top" } }
+  ],
+  "hints": [
+    { "cs": "top -b -n 1 ukáže procesy seřazené podle vytížení procesoru. Nahoře bude ten, který žere nejvíc.", "en": "top -b -n 1 shows the processes sorted by CPU usage. The one eating the most is at the top." },
+    { "cs": "Každý proces má číslo PID (zjistíš ho z top nebo ps). Příkaz kill PID ho ukončí.", "en": "Every process has a PID number (find it in top or ps). The command kill PID ends it." },
+    { "cs": "Můžeš i podle jména: pkill yes", "en": "You can also use the name: pkill yes" }
+  ],
+  "solution": ["ps", "pkill yes"],
+  "best": ["top -b -n 1", "pkill yes"]
+}

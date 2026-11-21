@@ -22,6 +22,8 @@ export class Machine {
     if (st.os !== os.id) throw new Error('unknown os');
     return new Machine(os, new VFS(st.fs), st.settings);
   }
+  // Zastaví časovače stroje (cron) – volá se, když ho nahradí jiný
+  close() { this.closed = true; clearInterval(this.cronTimer); }
   get hostname() {
     try { return this.fs.read('/etc/hostname', null).trim() || 'bubos'; } catch { return 'bubos'; }
   }

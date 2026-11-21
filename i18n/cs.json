@@ -147,5 +147,7 @@
   "editor.paste": "Vložit",
   "editor.saved": "Zapsáno řádků: {n}",
   "editor.error": "Chyba při zápisu: {msg}",
-  "editor.ask": "Uložit změněný text? A = ano, N = ne, Esc = zrušit"
+  "editor.ask": "Uložit změněný text? A = ano, N = ne, Esc = zrušit",
+  "live.hint": "q nebo Esc = konec, obsah se obnovuje sám",
+  "crontab.template": "# Úlohy plánovače cron. Jeden řádek = jedna úloha:\n# minuta hodina den-v-měsíci měsíc den-v-týdnu příkaz\n# Příklad (každou minutu zapíše datum do souboru):\n# * * * * * date >> ~/cron.log\n"
 }

@@ -31,6 +31,7 @@ async function play(def, lines, { hint = false } = {}) {
     run.observe(l, r.out);
     run.update(h.m, h.sh.cwd);
   }
+  for (const p of h.m.procs.list()) if (!p.sys && p.cmd !== '-bash') p.deliver(9); // ať po testu nezůstanou sleep na pozadí
   return { run, h, start };
 }
 

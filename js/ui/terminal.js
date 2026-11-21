@@ -4,6 +4,7 @@ import { Interrupt, columns } from '../core/util.js';
 import { renderAnsi } from './ansi.js';
 import { pager } from './pager.js';
 import { editor } from './editor.js';
+import { live } from './live.js';
 
 const MAX_NODES = 6000;
 
@@ -19,7 +20,7 @@ export class Terminal {
       </div>
       <div class="keys" aria-hidden="true">
         <button data-k="tab">Tab</button><button data-k="up">↑</button><button data-k="down">↓</button>
-        <button data-k="int">Ctrl+C</button><button data-k="eof">Ctrl+D</button>
+        <button data-k="int">Ctrl+C</button><button data-k="stop">Ctrl+Z</button><button data-k="eof">Ctrl+D</button>
         <button data-c="|">|</button><button data-c="~">~</button><button data-c="/">/</button><button data-c="-">-</button><button data-c=">">&gt;</button>
       </div>`;
     this.screen = root.querySelector('.screen');
@@ -33,14 +34,17 @@ export class Terminal {
     this._raf = 0;
     this.isTTY = true;
     this.onInterrupt = null;
+    this.onStop = null; // Ctrl+Z
 
     this.inp.addEventListener('keydown', e => this._onKey(e));
     this.inp.addEventListener('input', () => { if (this._read) this._read.tab = 0; });
     this.screen.addEventListener('click', () => { if (!getSelection().toString()) this.focus(); });
     // Ctrl+C během běhu příkazu (když se zrovna nečte řádek)
     document.addEventListener('keydown', e => {
-      if (this._read || this._overlay || !(e.ctrlKey && !e.altKey && e.key.toLowerCase() === 'c')) return;
-      if (getSelection().toString()) return;
+      if (this._read || this._overlay || !e.ctrlKey || e.altKey) return;
+      const k = e.key.toLowerCase();
+      if (k === 'z') { e.preventDefault(); this._stopRunning(); return; }
+      if (k !== 'c' || getSelection().toString()) return;
       e.preventDefault();
       this._interruptRunning();
     });
@@ -107,6 +111,7 @@ export class Terminal {
     r.reject(new Interrupt());
   }
   _interruptRunning() { this.write('^C\n'); this.onInterrupt?.(); }
+  _stopRunning() { this.write('^Z\n'); this.onStop?.(); }
   _eof() {
     if (this.inp.value) return;
     const r = this._end();
@@ -135,6 +140,7 @@ export class Terminal {
   }
   _action(k) {
     if (k === 'int') { if (this._read) this._interruptRead(); else this._interruptRunning(); return; }
+    if (k === 'stop') { if (!this._read) this._stopRunning(); return; }
     if (!this._read) return;
     if (k === 'tab') this._tab();
     else if (k === 'up') this._hist(-1);
@@ -236,4 +242,5 @@ export class Terminal {
   }
   pager(text, opts) { return pager(this, text, opts); }
   edit(opts) { return editor(this, opts); }
+  live(render, opts) { return live(this, render, opts); }
 }

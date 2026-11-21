@@ -7,7 +7,7 @@ import { Shell } from './core/shell/shell.js';
 import { checkPassword, findUser, sessionUser } from './core/users.js';
 import { loadDict, setLang, t, getLang } from './core/i18n.js';
 import { Interrupt, Logout, Restart } from './core/util.js';
-import { MissionRun, applySetup, startDir, recordResult, pick } from './core/mission.js';
+import { MissionRun, applySetup, applyProcs, startDir, recordResult, pick } from './core/mission.js';
 import * as storage from './core/storage.js';
 import linux from './os/linux/profile.js';
 import { installSolutions } from './os/linux/solutions.js';
@@ -47,6 +47,7 @@ function applySettings() {
   panel?.render();
 }
 function attach(m) {
+  if (machine && machine !== m) machine.close();
   machine = m;
   m.fs.onChange = scheduleSave;
   m.onSettings = () => {
@@ -73,6 +74,7 @@ async function buildMissionMachine(fresh = false) {
     try {
       const m = Machine.fromState(linux, { ...saved, settings: { ...saved.settings, ...settings } });
       m.mission = new MissionRun(mdef, saved.mission);
+      if (!m.mission.done) applyProcs(m, mdef.setup); // procesy se neukládají, rozdělaný úkol je dostane znovu
       return m;
     } catch (e) { console.warn('Rozpracovaný úkol nelze načíst, začínám znovu.', e); }
   }
@@ -135,6 +137,7 @@ async function sessionLoop() {
     autoLogin = false;
     shell = new Shell(machine, sessionUser(machine.fs, name), { tty: term });
     term.onInterrupt = () => shell.interrupt();
+    term.onStop = () => shell.suspend();
     await shell.start();
     if (machine.mission) {
       if (first) {

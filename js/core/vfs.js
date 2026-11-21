@@ -63,7 +63,7 @@ export function validateNode(n, depth = 0) {
 }
 
 export class VFS {
-  constructor(root = newDir()) { this.root = root; this.umask = 0o022; this.onChange = null; }
+  constructor(root = newDir()) { this.root = root; this.umask = 0o022; this.onChange = null; this.gen = null; }
   _changed() { this.onChange?.(); }
   child(d, name) { return Object.hasOwn(d.children, name) ? d.children[name] : undefined; }
 
@@ -113,6 +113,7 @@ export class VFS {
     const n = this.stat(path, user);
     if (n.type === 'dir') throw new FsError('EISDIR', path);
     if (!can(n, user, R)) throw new FsError('EACCES', path);
+    if (n.gen) return this.gen?.(n.gen) ?? ''; // obsah generovaný za běhu (/proc)
     return n.dev ? '' : n.data;
   }
   write(path, data, user, append = false) {

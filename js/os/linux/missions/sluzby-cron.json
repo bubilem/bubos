@@ -1,0 +1,22 @@
+{
+  "id": "sluzby-cron", "rev": 1, "level": 3, "needs": ["crontab", "date", "printf"],
+  "title": { "cs": "Hodiny v cronu", "en": "A clock in cron" },
+  "brief": {
+    "cs": "Naplánuj pomocí cronu úlohu, která každých 5 minut připíše aktuální datum (příkaz date) na konec souboru hodiny.log v tvém domovském adresáři. Plánovač se nastavuje příkazem crontab. Čas se zapisuje pěti poli: minuta hodina den měsíc den-v-týdnu.",
+    "en": "Use cron to schedule a job that appends the current date (the date command) to the end of the file hodiny.log in your home directory every 5 minutes. The scheduler is set with the crontab command. The time is written as five fields: minute hour day month weekday."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "tab", "text": { "cs": "Tvůj crontab obsahuje úlohu spouštěnou každých 5 minut, která přidává date do ~/hodiny.log", "en": "Your crontab has a job run every 5 minutes that appends date to ~/hodiny.log" }, "check": { "fileMatches": ["/var/spool/cron/crontabs/student", "^\\*/5 \\* \\* \\* \\* .*\\bdate\\b.*>>.*hodiny\\.log"] } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Ověř si zapsaný plán příkazem crontab -l", "en": "Check the saved schedule with crontab -l" }, "check": { "line": "^crontab\\s+-l" } }
+  ],
+  "hints": [
+    { "cs": "Pole * znamená „vždy“, */5 znamená „každých 5“. Pět polí a pak příkaz: */5 * * * * příkaz", "en": "The field * means “always”, */5 means “every 5”. Five fields and then the command: */5 * * * * command" },
+    { "cs": "crontab -e otevře editor. Jednodušší je řádek zapsat do souboru (printf) a nainstalovat ho příkazem crontab soubor.", "en": "crontab -e opens an editor. Easier is to write the line into a file (printf) and install it with crontab file." },
+    { "cs": "printf '*/5 * * * * date >> ~/hodiny.log\\n' > plan.txt a pak crontab plan.txt", "en": "printf '*/5 * * * * date >> ~/hodiny.log\\n' > plan.txt and then crontab plan.txt" }
+  ],
+  "solution": ["printf '*/5 * * * * date >> ~/hodiny.log\\n' > plan.txt", "crontab plan.txt"],
+  "best": ["printf '*/5 * * * * date >> ~/hodiny.log\\n' > plan.txt", "crontab plan.txt", "crontab -l"]
+}

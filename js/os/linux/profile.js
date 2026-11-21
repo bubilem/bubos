@@ -1,6 +1,9 @@
 // Profil operačního systému "Linux": seznam příkazů, PATH, prompt, výchozí souborový systém.
 // Další OS (např. Windows) = další profil se stejným rozhraním.
 import { buildFs } from './skeleton.js';
+import { bootUnits, isActive, isEnabled } from './services.js';
+import { startCron } from './cron.js';
+import { mountProc } from './procfs.js';
 
 // Všechny příkazy (každý = soubor v commands/). Nový příkaz: přidat soubor + název sem + stránku do man/*.txt
 export const COMMANDS = [
@@ -12,13 +15,14 @@ export const COMMANDS = [
   'stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'umask', 'groupadd', 'groupdel', 'usermod', 'userdel', 'read',
   'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[[',
   'cowsay', 'fortune', 'sl', 'factor',
+  'jobs', 'fg', 'bg', 'wait', 'top', 'systemctl', 'service', 'crontab', 'pgrep', 'pkill', 'killall',
 ];
 // Příkazy, které běží přímo v shellu (nemají soubor v /usr/bin)
-const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read', 'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[['];
+const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read', 'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[[', 'jobs', 'fg', 'bg', 'wait'];
 // Příkazy přidané po prvním vydání (starší uložené stroje pro ně nemají stub v /usr/bin)
-const ADDED_LATER = ['stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'groupadd', 'groupdel', 'usermod', 'userdel', 'cowsay', 'fortune', 'sl', 'factor'];
+const ADDED_LATER = ['stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'groupadd', 'groupdel', 'usermod', 'userdel', 'cowsay', 'fortune', 'sl', 'factor', 'jobs', 'fg', 'bg', 'wait', 'top', 'systemctl', 'service', 'crontab', 'pgrep', 'pkill', 'killall'];
 // Jméno příkazu → soubor modulu (pokud se liší)
-const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit' };
+const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit', pkill: 'pgrep', killall: 'pgrep' };
 
 export const manSource = { fn: null }; // pro testy v Node
 const manCache = {};
@@ -56,8 +60,9 @@ export default {
   // jak doplňovat argumenty (Tab): cmd | dir | path | user | alias | varname | none
   completions: { cd: 'dir', rmdir: 'dir', man: 'cmd', help: 'cmd', which: 'cmd', type: 'cmd', su: 'user', passwd: 'user',
     unalias: 'alias', unset: 'varname', export: 'varname', useradd: 'none', lang: 'none', history: 'none', mission: 'none',
-    usermod: 'user', userdel: 'user', groupadd: 'none', groupdel: 'none', read: 'varname', cal: 'none', df: 'none', umask: 'none' },
+    usermod: 'user', userdel: 'user', jobs: 'none', fg: 'none', bg: 'none', wait: 'none', top: 'none', groupadd: 'none', groupdel: 'none', read: 'varname', cal: 'none', df: 'none', umask: 'none' },
   buildFs,
+  services: { active: isActive, enabled: isEnabled },
   // Hlášky za "command not found" pro známé příkazy, které v simulátoru nejsou
   hints: {
     vim: { cs: 'Tip: zkus nano. A nezačínej svatou válku s Emacsem.', en: "Tip: try nano. And don't start a holy war with Emacs." },
@@ -76,10 +81,10 @@ export default {
       try { m.fs.stat('/usr/bin/' + c); } catch { m.fs.put('/usr/bin/' + c, `#!bubos:${c}\n`, { mode: 0o755 }); }
     }
     m.settings.stubs = [...COMMANDS];
-    m.procs.system([
-      [1, 'root', '/sbin/init', 0], [2, 'root', '[kthreadd]', 0], [412, 'root', '/usr/sbin/cron -f'],
-      [42, 'root', '/usr/sbin/deep-thought --compute-answer'], [533, 'root', '/usr/sbin/sshd -D'], [601, 'root', '/lib/systemd/systemd-journald'], [702, 'root', '/usr/sbin/rsyslogd -n'],
-    ]);
+    mountProc(m); // /proc podle tabulky procesů
+    m.procs.system([[1, 'root', '/sbin/init', 0], [2, 'root', '[kthreadd]', 0]]);
+    bootUnits(m); // služby zapnuté při startu (cron, ssh, …)
+    startCron(m);
   },
 
   prompt(sh) {

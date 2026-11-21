@@ -3,7 +3,7 @@ import { VFS } from '../../core/vfs.js';
 import { hashPw } from '../../core/users.js';
 import { COMMANDS, } from './profile.js';
 
-const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read', 'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[['];
+const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read', 'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[[', 'jobs', 'fg', 'bg', 'wait'];
 
 export function buildFs(lang = 'cs') {
   const fs = new VFS();
@@ -14,6 +14,7 @@ export function buildFs(lang = 'cs') {
   for (const d of ['boot', 'dev', 'etc', 'home', 'media', 'mnt', 'opt', 'proc', 'run', 'srv', 'sys', 'usr/bin', 'usr/sbin',
     'usr/lib', 'usr/share', 'usr/local/bin', 'var/log', 'var/tmp', 'var/www/html']) dir('/' + d);
   dir('/tmp', 0o1777);
+  dir('/var/spool/cron/crontabs', 0o730); // crontaby uživatelů (spravuje příkaz crontab)
   dir('/root', 0o700);
   fs.putLink('/bin', 'usr/bin');
   fs.putLink('/sbin', 'usr/sbin');

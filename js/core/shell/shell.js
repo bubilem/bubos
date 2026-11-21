@@ -13,7 +13,10 @@ export class Shell {
     this.m = machine; this.fs = machine.fs; this.os = machine.os;
     this.tty = tty; this.parent = parent;
     this.stack = []; this.fg = new Set();
-    this.status = 0; this.jobN = 0; this.args = []; this.scriptName = 'bash';
+    this.jobs = [];        // úlohy na pozadí a pozastavené (jobs, fg, bg): { n, procs, top, promise, notify }
+    this.lastBg = 0;       // PID poslední úlohy na pozadí ($!)
+    this._top = false; this._suspendFn = null; this._adopt = null;
+    this.status = 0; this.args = []; this.scriptName = 'bash';
     this.history = [];
     this.funcs = Object.create(null); // funkce definované v relaci
     this.frames = [];                 // zásobník volání funkcí (kvůli local)
@@ -44,6 +47,7 @@ export class Shell {
     this.cwd = cwd ?? (this.fs.exists(user.home, user) ? user.home : '/');
     this.vars.PWD = this.cwd;
     this.proc = this.m.procs.spawn({ user: user.name, cmd: '-bash', ppid: 1 });
+    this.proc.immune = true; // interaktivní shell ignoruje TERM/INT (jako bash)
   }
 
   async start() {
@@ -75,6 +79,7 @@ export class Shell {
   getVar(name) {
     if (name === '?') return String(this.status);
     if (name === '$') return String(this.proc.pid);
+    if (name === '!') return this.lastBg ? String(this.lastBg) : '';
     if (name === '#') return String(this.args.length);
     if (name === '@' || name === '*') return this.args.join(' ');
     if (/^\d+$/.test(name)) return name === '0' ? this.scriptName : this.args[+name - 1];
@@ -88,7 +93,14 @@ export class Shell {
   }
   prompt() { return this.os.prompt(this); }
   complete(line, cursor) { return complete(this, line, cursor); }
-  interrupt() { for (const p of this.fg) p.ac.abort(); }
+  interrupt() { for (const p of [...this.fg]) p.deliver(2); }
+  // Ctrl+Z: pozastaví vše na popředí; čekající řádek se vrátí a z roury se stane úloha
+  suspend() {
+    if (!this._suspendFn) return false;
+    for (const p of this.fg) p.stop();
+    this._suspendFn(null);
+    return true;
+  }
 
   // --- historie (ukládá se do ~/.bash_history, tedy i do exportu) ---
   _histPath() { return this.user.home + '/.bash_history'; }
@@ -209,13 +221,13 @@ export class Shell {
     for (const it of ast.items) {
       if (it.op === '&&' && st !== 0) continue;
       if (it.op === '||' && st === 0) continue;
-      if (it.bg) { this._background(it, io); st = 0; }
+      if (it.bg) { this._background(it, io); await tick(); st = 0; } // tick: příkaz na pozadí stihne rozbalit slova (jméno procesu)
       else {
-        st = await this._startPipeline(it.pipe, io).promise;
-        if (it.pipe.neg && st !== 130) st = st === 0 ? 1 : 0; // ! negace
+        st = await this._waitFg(this._startPipeline(it.pipe, io));
+        if (it.pipe.neg && st !== 130 && st !== 148) st = st === 0 ? 1 : 0; // ! negace
       }
       this.status = st;
-      if (st === 130) break;
+      if (st === 130 || st === 148) break; // Ctrl+C / Ctrl+Z ukončí zbytek řádku
     }
     return st;
   }
@@ -228,12 +240,92 @@ export class Shell {
     return out.text.replace(/\n+$/, '');
   }
 
+  // --- úlohy (jobs): příkazy na pozadí a pozastavené Ctrl+Z ---
+  _addJob(procs, top, promise) {
+    const n = this.jobs.reduce((m, j) => Math.max(m, j.n), 0) + 1;
+    const job = { n, procs, top, promise, notify: true };
+    this.jobs.push(job);
+    promise.then(st => {
+      this.jobs = this.jobs.filter(j => j !== job);
+      if (job.notify) this._say(`${this.jobLine(job, st)}\n`);
+    }).catch(() => { this.jobs = this.jobs.filter(j => j !== job); });
+    return job;
+  }
+  _say(s) { try { this.tty?.write(s); } catch { /* terminál nemusí existovat */ } }
+  jobCmd(job) { return job.top.map(p => p.cmd).join(' | '); }
+  jobState(job) { return job.procs.some(p => p.stopped) ? 'Stopped' : 'Running'; }
+  // Řádek jako ve výpisu jobs; s hotovou úlohou (st) říká Done / Exit N / Terminated
+  jobLine(job, st) {
+    const i = this.jobs.indexOf(job);
+    const mark = i < 0 || i === this.jobs.length - 1 ? '+' : i === this.jobs.length - 2 ? '-' : ' ';
+    let state, amp = '';
+    if (st === undefined) { state = this.jobState(job); amp = state === 'Running' ? ' &' : ''; }
+    else {
+      const sig = job.top.at(-1)?.sig;
+      state = sig ? ({ 1: 'Hangup', 9: 'Killed', 15: 'Terminated', 2: '', 3: 'Quit' }[sig] ?? 'Terminated') : st === 0 ? 'Done' : `Exit ${st}`;
+    }
+    return `[${job.n}]${mark}  ${state.padEnd(22)}${this.jobCmd(job)}${amp}`;
+  }
+  // Najde úlohu podle %n, %%, %+, %-, n nebo PID; bez argumentu aktuální
+  findJob(spec) {
+    if (spec === undefined || spec === '%' || spec === '%%' || spec === '%+') return this.jobs.at(-1);
+    if (spec === '%-') return this.jobs.at(-2);
+    const m = /^%?(\d+)$/.exec(spec);
+    if (!m) return undefined;
+    return spec.startsWith('%') ? this.jobs.find(j => j.n === +m[1]) : this.jobs.find(j => j.procs.some(p => p.pid === +m[1]) || j.n === +m[1]);
+  }
+  // Přesune úlohu na konec (je nejnovější = '+')
+  touchJob(job) { this.jobs = [...this.jobs.filter(j => j !== job), job]; }
+  // Pokračuje na pozadí (bg)
+  resumeBg(job) {
+    this.touchJob(job);
+    for (const p of job.procs) { this.fg.delete(p); p.cont(); }
+    job.notify = true;
+  }
+  // fg: úloha se po skončení příkazu fg stane čekaným procesem (viz _waitFg)
+  adopt(job) {
+    this.touchJob(job);
+    job.notify = false;
+    for (const p of job.procs) { this.fg.add(p); p.cont(); }
+    this._adopt = job;
+  }
+
   _background(it, io) {
-    const n = ++this.jobN;
     const { procs, promise } = this._startPipeline(it.pipe, { ...io, stdin: Stdin.fromString('') }, { bg: true });
     const last = procs.at(-1);
-    io.stderr.write(`[${n}] ${last.pid}\n`);
-    promise.then(() => this.tty?.write(`[${n}]+  ${last.ac.signal.aborted ? 'Terminated' : 'Done'}                    ${last.cmd}\n`)).catch(() => {});
+    const job = this._addJob(procs, procs, promise);
+    this.lastBg = last.pid;
+    io.stderr.write(`[${job.n}] ${last.pid}\n`);
+  }
+
+  // Čekání na roury z popředí. Na nejvyšší úrovni jde Ctrl+Z (suspend): roura se pozastaví,
+  // stane se z ní úloha a řádek se vrátí (stav 148). Vnořená čekání (smyčky, funkce) jen čekají.
+  async _waitFg({ procs, promise }) {
+    if (this._top) return promise;
+    this._top = true;
+    try {
+      let target = { procs, top: procs, promise, job: null };
+      for (;;) {
+        const susp = new Promise(r => { this._suspendFn = r; });
+        const res = await Promise.race([target.promise.then(st => ({ st })), susp]);
+        this._suspendFn = null;
+        if (!res) { // Ctrl+Z
+          const stopped = [...this.fg];
+          const job = target.job ?? this._addJob(stopped, target.top, target.promise);
+          job.procs = stopped;
+          for (const p of stopped) this.fg.delete(p);
+          job.notify = true;
+          this.touchJob(job);
+          this._say(`${this.jobLine(job)}\n`);
+          return 148;
+        }
+        if (target.job) this.jobs = this.jobs.filter(j => j !== target.job);
+        if (!this._adopt) return res.st;
+        const job = this._adopt;
+        this._adopt = null;
+        target = { procs: job.procs, top: job.top, promise: job.promise, job };
+      }
+    } finally { this._top = false; this._suspendFn = null; this._adopt = null; }
   }
 
   // Spustí všechny příkazy roury souběžně; procesy se zakládají hned (kvůli PID u &)
@@ -275,7 +367,7 @@ export class Shell {
   async _execCompound(c, io, proc) {
     // v nekonečné smyčce musí jít přerušit Ctrl+C a prohlížeč nesmí zamrznout
     const guard = async n => {
-      if (proc.ac.signal.aborted) throw new Interrupt();
+      await proc.pause(); // pozastavený (Ctrl+Z) čeká; zrušený (kill, Ctrl+C) končí s Interrupt
       if ((n & 63) === 63) await tick();
     };
     // tělo smyčky: vrací 'break' / 'continue' / undefined (break 2 se předává výš)

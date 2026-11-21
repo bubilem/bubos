@@ -1,0 +1,22 @@
+{
+  "id": "proc-pozadi", "rev": 1, "level": 1, "needs": ["sleep", "jobs"],
+  "title": { "cs": "Na pozadí", "en": "In the background" },
+  "brief": {
+    "cs": "Příkaz sleep 300 čeká pět minut a celou dobu blokuje terminál. Spusť ho na pozadí (přidej & na konec příkazu), aby sis mohl(a) dál psát další příkazy.",
+    "en": "The command sleep 300 waits for five minutes and blocks the terminal the whole time. Run it in the background (add & at the end of the command) so you can keep typing other commands."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "bg", "text": { "cs": "Proces sleep 300 běží na pozadí", "en": "The process sleep 300 runs in the background" }, "check": { "procRunning": "^sleep 300$" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Podívej se, co běží na pozadí, příkazem jobs", "en": "Look at what runs in the background with the jobs command" }, "check": { "ran": "jobs" } }
+  ],
+  "hints": [
+    { "cs": "Znak & na konci řádku pošle příkaz na pozadí.", "en": "The & character at the end of the line sends the command to the background." },
+    { "cs": "sleep 300 &", "en": "sleep 300 &" },
+    { "cs": "Výpis úloh na pozadí dá příkaz jobs, procesy ukáže ps.", "en": "The jobs command lists background jobs, ps shows processes." }
+  ],
+  "solution": ["sleep 300 &"],
+  "best": ["sleep 300 &", "jobs"]
+}

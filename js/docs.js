@@ -11,10 +11,11 @@ const CATS = [
   ['Uživatelé a práva', ['whoami', 'id', 'groups', 'su', 'sudo', 'useradd', 'usermod', 'userdel', 'groupadd', 'groupdel', 'passwd', 'chmod', 'chown', 'chgrp', 'umask']],
   ['Shell, proměnné a skripty', ['export', 'unset', 'env', 'printenv', 'alias', 'unalias', 'history', 'source', 'type', 'which', 'test', '[[', 'true', 'false', 'sleep', 'read', 'let', 'break', 'return', 'shift', 'local', ':', 'exit']],
   ['Zábava a drobnosti', ['cowsay', 'fortune', 'sl', 'factor']],
-  ['Systém a nápověda', ['help', 'man', 'clear', 'date', 'uname', 'hostname', 'cal', 'lang', 'mission', 'ps', 'kill']],
+  ['Systém a nápověda', ['help', 'man', 'clear', 'date', 'uname', 'hostname', 'cal', 'lang', 'mission']],
+  ['Procesy a služby', ['ps', 'top', 'kill', 'pgrep', 'pkill', 'jobs', 'fg', 'bg', 'wait', 'systemctl', 'service', 'crontab']],
 ];
 // Jméno příkazu → soubor modulu (shodné s FILE v js/os/linux/profile.js)
-const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit' };
+const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit', pkill: 'pgrep', killall: 'pgrep' };
 
 const state = { lang: 'cs', theme: 'dark', pages: [] };
 

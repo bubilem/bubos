@@ -11,7 +11,7 @@ export default {
     if (flags.has('u')) {
       out.push('USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND');
       for (const p of procs)
-        out.push(`${p.user.padEnd(8)} ${String(p.pid).padStart(6)}  0.${p.pid % 10}  0.${p.pid % 7} ${String(10000 + (p.pid % 90) * 100).padStart(6)} ${String(1000 + (p.pid % 50) * 40).padStart(5)} ${p.sys ? '?' : 'pts/0'}${p.sys ? '    ' : ' '}   ${p.sys ? 'Ss' : 'R+'}   ${hhmm(p.start)}   0:00 ${p.cmd}`);
+        out.push(`${p.user.padEnd(8)} ${String(p.pid).padStart(6)}  0.${p.pid % 10}  0.${p.pid % 7} ${String(10000 + (p.pid % 90) * 100).padStart(6)} ${String(1000 + (p.pid % 50) * 40).padStart(5)} ${p.sys ? '?' : 'pts/0'}${p.sys ? '    ' : ' '}   ${p.stopped ? 'T ' : p.sys ? 'Ss' : 'R+'}   ${hhmm(p.start)}   0:00 ${p.cmd}`);
     } else if (flags.has('f')) {
       out.push('UID          PID    PPID  C STIME TTY          TIME CMD');
       for (const p of procs)

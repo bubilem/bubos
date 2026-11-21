@@ -22,10 +22,11 @@ Přehled rozhodnutí a plán: `docs/PROJEKT.md`. Architektura a konvence: `docs/
 - Automatizace píše dřív, než naskočí další prompt → píšte po jednom příkazu, ne v dávce.
 - Cyklický import `profile.js` ↔ `skeleton.js` funguje jen proto, že `COMMANDS` se čte až za běhu funkce.
 - Před commitem/přidáním příkazu spustit `npm test`; kontrola, že každý příkaz má stránku v `man/cs.txt` i `man/en.txt` a klíče v obou `i18n/*.json` (skript se dá snadno znovu napsat – viz `docs/ARCHITEKTURA.md`).
-- Složka zatím NENÍ git repozitář.
+- Prohlížeč (i python server) cachuje ES moduly; po změně souborů se v preview míchají staré a nové (chyba „does not provide an export“). Pomůže `fetch(url,{cache:'reload'})` pro změněné soubory a pak reload.
+- Python v Bash heredocu s apostrofy občas padá; složitější skripty zapsat nástrojem Write a spustit ze souboru.
 
 - Kampaň: úkoly jsou JSON v `js/os/linux/missions/` (+ řádek v `index.json`), každý s `solution` a `best`, které přehrává `npm test`. Postup žáka je oddělený od pískoviště (viz `docs/ARCHITEKTURA.md`, sekce Kampaň).
 - Port 8080 bývá obsazený; preview_start pak přidělí 8081, ale python server běží jen na 8080 → v prohlížeči otevřít `http://localhost:8080`.
 
 ## Stav
-MVP hotové a ověřené (viz `docs/PROJEKT.md`, sekce Stav a Plán). Kampaň: 28 úkolů v 10 kapitolách (vč. Bonus pro hackery). Easter eggy: cowsay, fortune, sl, factor, hlášky pro vim/make/fork bombu, proces 42, `tests/fun.test.js`. Druhá iterace příkazů: blok A (sed, awk, diff, xargs, printf, stat, du, df, cal, chgrp, umask, groupadd/del, usermod, userdel, read, Ctrl+R) hotový; testy `tests/block-a.test.js`, `tests/consistency.test.js`. Blok B skriptování (if/for/while/case, funkce, `$((…))`, `[[ ]]`) hotový, testy `tests/block-b.test.js`. Další: blok C procesy a služby.
+MVP hotové a ověřené (viz `docs/PROJEKT.md`, sekce Stav a Plán). Kampaň: 34 úkolů v 11 kapitolách (vč. Procesy a služby a Bonus pro hackery). Easter eggy: cowsay, fortune, sl, factor, hlášky pro vim/make/fork bombu, proces 42, `tests/fun.test.js`. Druhá iterace příkazů: blok A (sed, awk, diff, xargs, printf, stat, du, df, cal, chgrp, umask, groupadd/del, usermod, userdel, read, Ctrl+R) hotový; testy `tests/block-a.test.js`, `tests/consistency.test.js`. Blok B skriptování (if/for/while/case, funkce, `$((…))`, `[[ ]]`) hotový, testy `tests/block-b.test.js`. Blok C procesy a služby (úlohy `&`/jobs/fg/bg/Ctrl+Z, signály, top, systemctl, cron, dynamický `/proc`) hotový, testy `tests/block-c.test.js`; popis v `docs/ARCHITEKTURA.md`. Další: blok D síť (viz `docs/PROJEKT.md`).

@@ -147,5 +147,7 @@
   "editor.paste": "Paste",
   "editor.saved": "Wrote {n} lines",
   "editor.error": "Error writing file: {msg}",
-  "editor.ask": "Save modified buffer? Y = yes, N = no, Esc = cancel"
+  "editor.ask": "Save modified buffer? Y = yes, N = no, Esc = cancel",
+  "live.hint": "q or Esc = quit, the content refreshes by itself",
+  "crontab.template": "# Cron jobs. One line = one job:\n# minute hour day-of-month month day-of-week command\n# Example (writes the date to a file every minute):\n# * * * * * date >> ~/cron.log\n"
 }

@@ -638,19 +638,29 @@ POUŽITÍ
     ps [aux | -ef]
 POPIS
     Bez argumentů ukáže vaše procesy v tomto terminálu. "ps aux" a "ps -ef" ukážou všechny procesy.
+    Sloupec STAT: S = čeká (spí), R = běží, T = pozastavený (Ctrl+Z nebo kill -STOP).
 VIZ TÉŽ
-    kill
+    kill, top, jobs
 
 #### kill
 JMÉNO
-    kill - ukončí proces
+    kill - pošle signál procesu (většinou ho ukončí)
 POUŽITÍ
-    kill [-SIGNÁL] PID...
+    kill [-SIGNÁL | -s SIGNÁL] PID | %ÚLOHA ...
+    kill -l
 POPIS
-    Zastaví proces se zadaným PID (zjistíte ho příkazem ps). Smíte ukončit jen své procesy.
+    Pošle signál procesu se zadaným PID (zjistíte ho příkazem ps) nebo úloze (%1, viz jobs).
+    Bez volby jde o signál TERM (15), který proces slušně požádá o ukončení. Smíte ovlivňovat jen své procesy.
+    Signály: HUP (1), INT (2), QUIT (3), KILL (9, nelze ignorovat), TERM (15), CONT (18, pokračuj),
+    STOP (19, pozastav), TSTP (20, pozastav jako Ctrl+Z). "kill -l" je vypíše.
 PŘÍKLADY
     sleep 100 &
-    kill 2345
+    kill %1           ukončí úlohu číslo 1
+    kill -STOP 2345   pozastaví proces
+    kill -CONT 2345   nechá ho pokračovat
+    kill -9 2345      ukončí ho natvrdo
+VIZ TÉŽ
+    ps, jobs, top
 
 #### yes
 JMÉNO
@@ -1053,3 +1063,164 @@ POPIS
 PŘÍKLADY
     factor 42
     seq 10 | factor
+
+#### jobs
+JMÉNO
+    jobs - vypíše úlohy tohoto shellu (na pozadí a pozastavené)
+POUŽITÍ
+    jobs [-l] [-p] [%ÚLOHA]
+POPIS
+    Příkaz zakončený & běží na pozadí jako úloha. Úlohu, která běží na popředí, pozastavíte klávesou Ctrl+Z.
+    Výpis ukazuje číslo [1], značku + (aktuální úloha) nebo - (předchozí), stav (Running, Stopped) a příkaz.
+    -l přidá PID, -p vypíše jen PID.
+PŘÍKLADY
+    sleep 100 &
+    jobs
+VIZ TÉŽ
+    fg, bg, wait, kill
+
+#### fg
+JMÉNO
+    fg - vrátí úlohu na popředí
+POUŽITÍ
+    fg [%ÚLOHA]
+POPIS
+    Vrátí úlohu na popředí (bez argumentu tu aktuální, označenou + ve výpisu jobs). Pozastavená úloha
+    pokračuje. Ctrl+C ji ukončí, Ctrl+Z ji znovu pozastaví.
+PŘÍKLADY
+    sleep 100
+    (Ctrl+Z)
+    fg
+VIZ TÉŽ
+    bg, jobs
+
+#### bg
+JMÉNO
+    bg - nechá pozastavenou úlohu pokračovat na pozadí
+POUŽITÍ
+    bg [%ÚLOHA]
+POPIS
+    Pozastavenou úlohu (Ctrl+Z) znovu spustí, ale na pozadí, takže můžete dál psát příkazy.
+PŘÍKLADY
+    sleep 100
+    (Ctrl+Z)
+    bg
+    jobs
+VIZ TÉŽ
+    fg, jobs
+
+#### wait
+JMÉNO
+    wait - počká na úlohy na pozadí
+POUŽITÍ
+    wait [%ÚLOHA | PID]...
+POPIS
+    Bez argumentů počká na všechny úlohy na pozadí. Jinak na zadané; vrací jejich návratový kód.
+PŘÍKLADY
+    sleep 2 &
+    wait
+    echo hotovo
+VIZ TÉŽ
+    jobs, sleep
+
+#### top
+JMÉNO
+    top - ukazuje procesy a vytížení systému
+POUŽITÍ
+    top [-b] [-n POČET] [-d SEKUNDY] [-u UŽIVATEL]
+POPIS
+    Přehled zatížení, paměti a procesů; seřazeno podle využití procesoru. Obrazovka se sama obnovuje,
+    ukončíte ji klávesou q (nebo Esc). Výpočty jsou jen zdánlivé, simulátor nemá skutečný procesor.
+    -b dávkový režim: vypíše text a skončí (hodí se do rour), -n počet výpisů, -d prodleva mezi nimi.
+PŘÍKLADY
+    top
+    top -b -n 1 | head -12
+VIZ TÉŽ
+    ps, kill
+
+#### systemctl
+JMÉNO
+    systemctl - řídí služby (systemd)
+POUŽITÍ
+    systemctl status|start|stop|restart|reload|enable|disable|is-active|is-enabled SLUŽBA...
+    systemctl list-units [--all] | list-unit-files
+POPIS
+    Služba je program, který běží stále na pozadí (cron, ssh, apache2, ...). Zjistit stav smí každý,
+    spouštět, zastavovat a zapínat při startu jen správce (sudo systemctl ...).
+    enable zapne službu při startu systému, disable ji vypne; --now ji hned i spustí / zastaví.
+    Změny se zapisují do /var/log/syslog.
+PŘÍKLADY
+    systemctl status cron
+    sudo systemctl start apache2
+    sudo systemctl enable --now apache2
+    systemctl list-units
+VIZ TÉŽ
+    service, ps, crontab
+
+#### service
+JMÉNO
+    service - spustí, zastaví nebo zkontroluje službu (starší rozhraní)
+POUŽITÍ
+    service SLUŽBA start|stop|restart|reload|status
+    service --status-all
+POPIS
+    Zkratka za systemctl: "service cron status" je totéž co "systemctl status cron".
+    --status-all vypíše všechny služby; [ + ] běží, [ - ] neběží.
+PŘÍKLADY
+    service --status-all
+    sudo service apache2 restart
+VIZ TÉŽ
+    systemctl
+
+#### crontab
+JMÉNO
+    crontab - spravuje plánované úlohy (cron)
+POUŽITÍ
+    crontab -l | -e | -r
+    crontab SOUBOR
+    crontab -u UŽIVATEL -l          (jen správce)
+POPIS
+    Služba cron spouští příkazy v pravidelných časech. Každý řádek crontabu má pět časových polí a příkaz:
+        minuta hodina den-v-měsíci měsíc den-v-týdnu příkaz
+    Pole: číslo, * (vždy), čárka (1,15), rozsah (1-5), krok (*/10), zkratky @hourly @daily @weekly.
+    Dny v týdnu: 0 nebo 7 = neděle, 1 = pondělí. Úlohy běží jen, když je spuštěná služba cron
+    (systemctl status cron). Výstup úlohy se zahodí, proto ho přesměrujte do souboru. Záznam o spuštění
+    najdete v /var/log/syslog.
+    -l vypíše váš crontab, -e ho upraví v editoru, -r ho smaže, SOUBOR ho nahradí obsahem souboru.
+PŘÍKLADY
+    crontab -e
+    * * * * * date >> ~/cron.log       každou minutu
+    30 8 * * 1-5 echo ráno             v 8:30 od pondělí do pátku
+VIZ TÉŽ
+    systemctl, date
+
+#### pgrep
+JMÉNO
+    pgrep - najde procesy podle jména
+POUŽITÍ
+    pgrep [-l] [-f] [-x] [-u UŽIVATEL] VZOREC
+POPIS
+    Vypíše PID procesů, jejichž jméno odpovídá vzorci (regulární výraz). -l přidá i jméno,
+    -f hledá v celém příkazu, -x vyžaduje shodu celého jména, -u hledá jen procesy uživatele.
+    Vrací 0, když něco našel, jinak 1. Hodí se pro kill: kill $(pgrep yes)
+PŘÍKLADY
+    pgrep -l cron
+    pgrep -f "sleep 300"
+VIZ TÉŽ
+    pkill, ps, kill
+
+#### pkill killall
+JMÉNO
+    pkill, killall - pošlou signál procesům podle jména
+POUŽITÍ
+    pkill [-SIGNÁL] [-f] [-x] [-u UŽIVATEL] VZOREC
+    killall [-SIGNÁL] JMÉNO
+POPIS
+    Jako kill, ale procesy se hledají podle jména, ne podle PID. pkill bere vzorec (regulární výraz),
+    killall přesné jméno. Bez volby se pošle TERM. Smíte ovlivňovat jen své procesy.
+PŘÍKLADY
+    pkill yes
+    killall sleep
+    pkill -STOP sleep
+VIZ TÉŽ
+    kill, pgrep, ps

@@ -1,0 +1,23 @@
+{
+  "id": "sluzby-ssh", "rev": 1, "level": 2, "needs": ["systemctl", "sudo"],
+  "title": { "cs": "Vypnout SSH", "en": "Turn SSH off" },
+  "brief": {
+    "cs": "Tento server nemá povolovat vzdálené přihlášení. Služba ssh teď běží a po každém startu naskočí sama. Zastav ji a zařiď, aby po restartu už nenaskočila. Správcem se staneš přes sudo (heslo je student).",
+    "en": "This server must not allow remote logins. The ssh service is running now and starts by itself after every boot. Stop it and make sure it does not start after a restart. You become administrator with sudo (the password is student)."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "stopped", "text": { "cs": "Služba ssh neběží", "en": "The ssh service is not running" }, "check": { "not": { "serviceActive": "ssh" } } },
+    { "id": "disabled", "text": { "cs": "Služba ssh není zapnutá při startu", "en": "The ssh service is not enabled at boot" }, "check": { "not": { "serviceEnabled": "ssh" } } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Nejdřív zjisti stav služby (systemctl status ssh)", "en": "First check the service state (systemctl status ssh)" }, "check": { "line": "^systemctl\\s+status\\s+ssh" } }
+  ],
+  "hints": [
+    { "cs": "Službami řídí příkaz systemctl. Stav zjistíš: systemctl status ssh. Měnit je smí jen správce, proto sudo.", "en": "Services are controlled with systemctl. Check the state: systemctl status ssh. Only the administrator may change them, hence sudo." },
+    { "cs": "stop zastaví službu hned, disable zruší spouštění při startu. Jsou to dvě různé věci.", "en": "stop stops the service now, disable removes starting at boot. These are two different things." },
+    { "cs": "sudo systemctl stop ssh a sudo systemctl disable ssh (nebo dohromady: sudo systemctl disable --now ssh)", "en": "sudo systemctl stop ssh and sudo systemctl disable ssh (or together: sudo systemctl disable --now ssh)" }
+  ],
+  "solution": ["sudo systemctl stop ssh", "sudo systemctl disable ssh"],
+  "best": ["systemctl status ssh", "sudo systemctl disable --now ssh"]
+}

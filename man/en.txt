@@ -638,19 +638,29 @@ SYNOPSIS
     ps [aux | -ef]
 DESCRIPTION
     Without arguments shows your processes in this terminal. "ps aux" and "ps -ef" show all processes.
+    STAT column: S = waiting (sleeping), R = running, T = stopped (Ctrl+Z or kill -STOP).
 SEE ALSO
-    kill
+    kill, top, jobs
 
 #### kill
 NAME
-    kill - terminate a process
+    kill - send a signal to a process (usually to end it)
 SYNOPSIS
-    kill [-SIGNAL] PID...
+    kill [-SIGNAL | -s SIGNAL] PID | %JOB ...
+    kill -l
 DESCRIPTION
-    Stops the process with the given PID (find it with ps). You can only kill your own processes.
+    Sends a signal to the process with the given PID (find it with ps) or to a job (%1, see jobs).
+    Without an option it sends TERM (15), which politely asks the process to end. You can only affect your own processes.
+    Signals: HUP (1), INT (2), QUIT (3), KILL (9, cannot be ignored), TERM (15), CONT (18, continue),
+    STOP (19, pause), TSTP (20, pause like Ctrl+Z). "kill -l" lists them.
 EXAMPLES
     sleep 100 &
-    kill 2345
+    kill %1           ends job number 1
+    kill -STOP 2345   pauses the process
+    kill -CONT 2345   lets it continue
+    kill -9 2345      ends it by force
+SEE ALSO
+    ps, jobs, top
 
 #### yes
 NAME
@@ -1053,3 +1063,164 @@ DESCRIPTION
 EXAMPLES
     factor 42
     seq 10 | factor
+
+#### jobs
+NAME
+    jobs - list the jobs of this shell (background and stopped)
+SYNOPSIS
+    jobs [-l] [-p] [%JOB]
+DESCRIPTION
+    A command ending with & runs in the background as a job. A foreground job is paused with Ctrl+Z.
+    The listing shows the number [1], the mark + (current job) or - (previous), the state (Running, Stopped) and the command.
+    -l adds the PID, -p prints only PIDs.
+EXAMPLES
+    sleep 100 &
+    jobs
+SEE ALSO
+    fg, bg, wait, kill
+
+#### fg
+NAME
+    fg - bring a job to the foreground
+SYNOPSIS
+    fg [%JOB]
+DESCRIPTION
+    Brings a job to the foreground (the current one, marked + in jobs, if none is given). A stopped job
+    continues. Ctrl+C ends it, Ctrl+Z stops it again.
+EXAMPLES
+    sleep 100
+    (Ctrl+Z)
+    fg
+SEE ALSO
+    bg, jobs
+
+#### bg
+NAME
+    bg - let a stopped job continue in the background
+SYNOPSIS
+    bg [%JOB]
+DESCRIPTION
+    Resumes a job stopped with Ctrl+Z, but in the background, so you can keep typing commands.
+EXAMPLES
+    sleep 100
+    (Ctrl+Z)
+    bg
+    jobs
+SEE ALSO
+    fg, jobs
+
+#### wait
+NAME
+    wait - wait for background jobs
+SYNOPSIS
+    wait [%JOB | PID]...
+DESCRIPTION
+    Without arguments waits for all background jobs. Otherwise for the given ones; returns their exit status.
+EXAMPLES
+    sleep 2 &
+    wait
+    echo done
+SEE ALSO
+    jobs, sleep
+
+#### top
+NAME
+    top - show processes and system load
+SYNOPSIS
+    top [-b] [-n COUNT] [-d SECONDS] [-u USER]
+DESCRIPTION
+    Overview of load, memory and processes, sorted by CPU usage. The screen refreshes by itself,
+    quit with q (or Esc). The numbers are only simulated, the simulator has no real processor.
+    -b batch mode: prints text and exits (handy in pipes), -n number of snapshots, -d delay between them.
+EXAMPLES
+    top
+    top -b -n 1 | head -12
+SEE ALSO
+    ps, kill
+
+#### systemctl
+NAME
+    systemctl - control services (systemd)
+SYNOPSIS
+    systemctl status|start|stop|restart|reload|enable|disable|is-active|is-enabled SERVICE...
+    systemctl list-units [--all] | list-unit-files
+DESCRIPTION
+    A service is a program that keeps running in the background (cron, ssh, apache2, ...). Anyone can check
+    the state; only the administrator can start, stop and enable them (sudo systemctl ...).
+    enable turns a service on at boot, disable turns it off; --now also starts / stops it immediately.
+    Changes are logged to /var/log/syslog.
+EXAMPLES
+    systemctl status cron
+    sudo systemctl start apache2
+    sudo systemctl enable --now apache2
+    systemctl list-units
+SEE ALSO
+    service, ps, crontab
+
+#### service
+NAME
+    service - start, stop or check a service (older interface)
+SYNOPSIS
+    service SERVICE start|stop|restart|reload|status
+    service --status-all
+DESCRIPTION
+    A shortcut for systemctl: "service cron status" is the same as "systemctl status cron".
+    --status-all lists all services; [ + ] is running, [ - ] is not.
+EXAMPLES
+    service --status-all
+    sudo service apache2 restart
+SEE ALSO
+    systemctl
+
+#### crontab
+NAME
+    crontab - manage scheduled jobs (cron)
+SYNOPSIS
+    crontab -l | -e | -r
+    crontab FILE
+    crontab -u USER -l          (administrator only)
+DESCRIPTION
+    The cron service runs commands at regular times. Each line of a crontab has five time fields and a command:
+        minute hour day-of-month month day-of-week command
+    A field is: a number, * (always), a comma list (1,15), a range (1-5), a step (*/10), or a shortcut
+    @hourly @daily @weekly. Weekdays: 0 or 7 = Sunday, 1 = Monday. Jobs run only while the cron service
+    is running (systemctl status cron). Job output is discarded, so redirect it to a file. A record of each
+    run is in /var/log/syslog.
+    -l prints your crontab, -e edits it in the editor, -r deletes it, FILE replaces it with the file's content.
+EXAMPLES
+    crontab -e
+    * * * * * date >> ~/cron.log       every minute
+    30 8 * * 1-5 echo morning          at 8:30 Monday to Friday
+SEE ALSO
+    systemctl, date
+
+#### pgrep
+NAME
+    pgrep - find processes by name
+SYNOPSIS
+    pgrep [-l] [-f] [-x] [-u USER] PATTERN
+DESCRIPTION
+    Prints the PIDs of processes whose name matches the pattern (a regular expression). -l also prints
+    the name, -f searches the whole command, -x requires the whole name to match, -u only looks at a user's processes.
+    Returns 0 if it found something, otherwise 1. Handy with kill: kill $(pgrep yes)
+EXAMPLES
+    pgrep -l cron
+    pgrep -f "sleep 300"
+SEE ALSO
+    pkill, ps, kill
+
+#### pkill killall
+NAME
+    pkill, killall - send a signal to processes by name
+SYNOPSIS
+    pkill [-SIGNAL] [-f] [-x] [-u USER] PATTERN
+    killall [-SIGNAL] NAME
+DESCRIPTION
+    Like kill, but processes are found by name instead of PID. pkill takes a pattern (a regular expression),
+    killall an exact name. Without an option TERM is sent. You can only affect your own processes.
+EXAMPLES
+    pkill yes
+    killall sleep
+    pkill -STOP sleep
+SEE ALSO
+    kill, pgrep, ps

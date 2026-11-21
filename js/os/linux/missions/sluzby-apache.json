@@ -1,0 +1,23 @@
+{
+  "id": "sluzby-apache", "rev": 1, "level": 2, "needs": ["systemctl", "sudo"],
+  "title": { "cs": "Web na startu", "en": "A web server at boot" },
+  "brief": {
+    "cs": "Na serveru je nainstalovaný webový server apache2, ale neběží a po restartu nenaskočí. Spusť ho a zařiď, aby naskakoval při každém startu. Použij sudo (heslo je student).",
+    "en": "The web server apache2 is installed on the server, but it is not running and will not start after a restart. Start it and make it start at every boot. Use sudo (the password is student)."
+  },
+  "setup": {},
+  "goals": [
+    { "id": "running", "text": { "cs": "Služba apache2 běží", "en": "The apache2 service is running" }, "check": { "serviceActive": "apache2" } },
+    { "id": "enabled", "text": { "cs": "Služba apache2 je zapnutá při startu", "en": "The apache2 service is enabled at boot" }, "check": { "serviceEnabled": "apache2" } }
+  ],
+  "bonus": [
+    { "text": { "cs": "Obojí jedním příkazem (enable s přepínačem --now)", "en": "Both with one command (enable with the --now switch)" }, "check": { "line": "systemctl\\s+enable\\s+--now" } }
+  ],
+  "hints": [
+    { "cs": "systemctl status apache2 ukáže, že služba neběží (inactive) a není zapnutá (disabled).", "en": "systemctl status apache2 shows that the service is not running (inactive) and not enabled (disabled)." },
+    { "cs": "start spustí službu teď, enable ji zapne při startu systému. Oboje chce sudo.", "en": "start starts the service now, enable turns it on at boot. Both need sudo." },
+    { "cs": "sudo systemctl start apache2 a sudo systemctl enable apache2 (nebo jedním: sudo systemctl enable --now apache2)", "en": "sudo systemctl start apache2 and sudo systemctl enable apache2 (or in one: sudo systemctl enable --now apache2)" }
+  ],
+  "solution": ["sudo systemctl start apache2", "sudo systemctl enable apache2"],
+  "best": ["sudo systemctl enable --now apache2"]
+}

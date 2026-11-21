@@ -19,6 +19,8 @@
     { "id": "skriptovani", "title": { "cs": "Skriptování", "en": "Scripting" },
       "missions": ["skr-soucet", "skr-zalohy", "skr-pozdrav", "skr-zaloha", "skr-funkce"] },
     { "id": "fun", "title": { "cs": "Bonus pro hackery", "en": "Bonus for hackers" },
-      "missions": ["fun-odpoved", "fun-turing", "fun-leet"] }
+      "missions": ["fun-odpoved", "fun-turing", "fun-leet"] },
+    { "id": "procesy", "title": { "cs": "Procesy a služby", "en": "Processes and services" },
+      "missions": ["proc-pozadi", "proc-zabit", "proc-pozastav", "sluzby-ssh", "sluzby-apache", "sluzby-cron"] }
   ]
 }
