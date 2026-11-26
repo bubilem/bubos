@@ -16,13 +16,14 @@ export const COMMANDS = [
   'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[[',
   'cowsay', 'fortune', 'sl', 'factor',
   'jobs', 'fg', 'bg', 'wait', 'top', 'systemctl', 'service', 'crontab', 'pgrep', 'pkill', 'killall',
+  'sh', 'bash', 'expr', 'getconf', 'command', 'set', 'getopts', 'trap',
 ];
 // Příkazy, které běží přímo v shellu (nemají soubor v /usr/bin)
-const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read', 'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[[', 'jobs', 'fg', 'bg', 'wait'];
+const SHELL_ONLY = ['cd', 'export', 'unset', 'alias', 'unalias', 'exit', 'logout', 'history', 'source', '.', 'type', 'help', 'umask', 'read', 'break', 'continue', 'return', 'shift', 'local', ':', 'let', '[[', 'jobs', 'fg', 'bg', 'wait', 'command', 'set', 'getopts', 'trap'];
 // Příkazy přidané po prvním vydání (starší uložené stroje pro ně nemají stub v /usr/bin)
-const ADDED_LATER = ['stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'groupadd', 'groupdel', 'usermod', 'userdel', 'cowsay', 'fortune', 'sl', 'factor', 'jobs', 'fg', 'bg', 'wait', 'top', 'systemctl', 'service', 'crontab', 'pgrep', 'pkill', 'killall'];
+const ADDED_LATER = ['stat', 'du', 'df', 'diff', 'cal', 'printf', 'xargs', 'sed', 'awk', 'chgrp', 'groupadd', 'groupdel', 'usermod', 'userdel', 'cowsay', 'fortune', 'sl', 'factor', 'jobs', 'fg', 'bg', 'wait', 'top', 'systemctl', 'service', 'crontab', 'pgrep', 'pkill', 'killall', 'sh', 'bash', 'expr', 'getconf'];
 // Jméno příkazu → soubor modulu (pokud se liší)
-const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit', pkill: 'pgrep', killall: 'pgrep' };
+const FILE = { '.': 'source', '[': 'test', '[[': 'test', ':': 'colon', logout: 'exit', bash: 'sh', pkill: 'pgrep', killall: 'pgrep' };
 
 export const manSource = { fn: null }; // pro testy v Node
 const manCache = {};

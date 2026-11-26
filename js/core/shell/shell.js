@@ -21,6 +21,11 @@ export class Shell {
     this.funcs = Object.create(null); // funkce definované v relaci
     this.frames = [];                 // zásobník volání funkcí (kvůli local)
     this._w = 0;
+    this.traps = {};                           // trap: { EXIT: 'příkazy', INT: … }
+    this.opts = parent ? { ...parent.opts } : { e: false }; // set -e
+    this.noErr = parent?.noErr ?? 0;           // > 0 = uvnitř podmínky, set -e se neuplatní
+    this.optPos = { ind: 1, pos: 1 };          // pozice getopts uvnitř slova
+    this.substStatus = 0;                      // návratový kód posledního $( … )
     const isTTY = tty?.isTTY ?? true;
     this.ttyOut = { isTTY, write: async s => { tty.write(s); if ((++this._w & 255) === 0) await tick(); }, end() {} };
     this.ttyErr = { isTTY, write: async s => { tty.write(s, 'err'); }, end() {} };
@@ -44,6 +49,7 @@ export class Shell {
       LANG: getLang() === 'cs' ? 'cs_CZ.UTF-8' : 'en_US.UTF-8',
     });
     this.exported = new Set(Object.keys(this.vars));
+    this.vars.OPTIND = '1';
     this.cwd = cwd ?? (this.fs.exists(user.home, user) ? user.home : '/');
     this.vars.PWD = this.cwd;
     this.proc = this.m.procs.spawn({ user: user.name, cmd: '-bash', ppid: 1 });
@@ -63,9 +69,10 @@ export class Shell {
 
   // --- uživatel / su ---
   async pushUser(user, login) {
-    this.stack.push({ user: this.user, cwd: this.cwd, vars: this.vars, exported: this.exported, proc: this.proc, history: this.history, aliases: this.aliases });
+    this.stack.push({ user: this.user, cwd: this.cwd, vars: this.vars, exported: this.exported, proc: this.proc, history: this.history, aliases: this.aliases, opts: this.opts, traps: this.traps });
     const keep = login ? undefined : this.cwd;
     this.aliases = {};
+    this.opts = { e: false }; this.traps = {};
     this._init(user, keep);
     await this.start();
   }
@@ -218,17 +225,76 @@ export class Shell {
 
   async runAst(ast, io) {
     let st = this.status;
-    for (const it of ast.items) {
+    for (const [k, it] of ast.items.entries()) {
       if (it.op === '&&' && st !== 0) continue;
       if (it.op === '||' && st === 0) continue;
+      // výsledek, který se dál testuje (vlevo od && ||, po !), shell při set -e neukončí
+      const next = ast.items[k + 1]?.op;
+      const tested = next === '&&' || next === '||' || it.pipe.neg;
       if (it.bg) { this._background(it, io); await tick(); st = 0; } // tick: příkaz na pozadí stihne rozbalit slova (jméno procesu)
       else {
-        st = await this._waitFg(this._startPipeline(it.pipe, io));
+        if (tested) this.noErr++;
+        try { st = await this._waitFg(this._startPipeline(it.pipe, io)); }
+        finally { if (tested) this.noErr--; }
         if (it.pipe.neg && st !== 130 && st !== 148) st = st === 0 ? 1 : 0; // ! negace
       }
       this.status = st;
       if (st === 130 || st === 148) break; // Ctrl+C / Ctrl+Z ukončí zbytek řádku
+      // set -e: jen v neinteraktivním shellu; u složených příkazů rozhodují příkazy uvnitř
+      if (st && this.opts.e && this.parent && !tested && !this.noErr && this._errexitApplies(it.pipe)) throw new ScriptExit(st);
     }
+    return st;
+  }
+
+  _errexitApplies({ cmds }) {
+    return cmds.length > 1 || [undefined, 'subshell', 'arith'].includes(cmds[0].kind);
+  }
+
+  // Podshell pro ( … ) a $( … ): kopie stavu, změny zůstanou uvnitř
+  _subshell(io, { shareFg = true } = {}) {
+    const c = new Shell(this.m, this.user, { tty: this.tty, parent: this });
+    Object.assign(c, {
+      funcs: { ...this.funcs }, args: [...this.args], scriptName: this.scriptName, status: this.status, base: io,
+      lastBg: this.lastBg, history: this.history, jobs: [...this.jobs], optPos: this.optPos,
+      frames: this.frames.map(() => ({ locals: new Map() })),
+    });
+    // procesy na popředí sdílí s rodičem, aby na ně dosáhlo Ctrl+C
+    if (shareFg) { c.fg = this.fg; c._top = true; }
+    return c;
+  }
+
+  // Nový shell pro skript a sh -c: z rodiče dostane jen exportované proměnné (prostředí)
+  newShell(io, { user = this.user, env = this.envObject(), proc = null } = {}) {
+    const c = new Shell(this.m, user, { tty: this.tty, parent: this });
+    c.vars = Object.assign(Object.create(null), env, { OPTIND: '1', PWD: c.cwd });
+    c.exported = new Set(Object.keys(env));
+    Object.assign(c, { aliases: {}, opts: { e: false }, noErr: 0, base: io });
+    if (proc) {
+      c.proc = proc;
+      if (this.fg.has(proc)) { c.fg = this.fg; c._top = true; }
+    }
+    return c;
+  }
+
+  // Spustí tělo shellu až do konce (i přes exit) a nakonec trap EXIT
+  async runToEnd(body, io) {
+    let st;
+    try { st = await body(); }
+    catch (e) {
+      if (e instanceof ScriptExit || e instanceof FuncReturn) st = e.code;
+      else if (e instanceof LoopCtl) st = 0;
+      else throw e;
+    }
+    return this.finish(st, io);
+  }
+
+  async finish(st, io) {
+    const cmd = this.traps.EXIT;
+    if (cmd === undefined) return st;
+    delete this.traps.EXIT; // jen jednou, i když trap sám volá exit
+    this.status = st;
+    try { await this.runLine(cmd, io); }
+    catch (e) { if (e instanceof ScriptExit) return e.code; throw e; }
     return st;
   }
 
@@ -236,7 +302,9 @@ export class Shell {
   async capture(src) {
     const out = new StringWriter();
     const ast = parse(src, { aliases: this.aliases });
-    await this.runAst(ast, { stdin: Stdin.fromString(''), stdout: out, stderr: this.base.stderr });
+    const io = { stdin: Stdin.fromString(''), stdout: out, stderr: this.base.stderr };
+    const child = this._subshell(io);
+    this.substStatus = await child.runToEnd(() => child.runAst(ast, io), io);
     return out.text.replace(/\n+$/, '');
   }
 
@@ -337,7 +405,10 @@ export class Shell {
     const stages = pipe.cmds.map((cmd, k) => {
       const stdin = k === 0 ? io.stdin : new Stdin(() => pipes[k - 1].read(), () => pipes[k - 1].close());
       const stdout = k === n - 1 ? io.stdout : pipes[k];
-      return this._runCommand(cmd, { stdin, stdout, stderr: io.stderr }, procs[k]).finally(() => {
+      let run = this._runCommand(cmd, { stdin, stdout, stderr: io.stderr }, procs[k]);
+      // exit (i od set -e) uvnitř roury ukončí jen svůj článek
+      if (n > 1) run = run.catch(e => { if (e instanceof ScriptExit) return e.code; throw e; });
+      return run.finally(() => {
         pipes[k]?.end();
         if (k > 0) stdin.close();
         this.fg.delete(procs[k]);
@@ -364,6 +435,13 @@ export class Shell {
     return st;
   }
 
+  // podmínka if / while: neúspěch tu set -e neukončí
+  async _cond(list, io) {
+    this.noErr++;
+    try { return await this._body(list, io); }
+    finally { this.noErr--; }
+  }
+
   async _execCompound(c, io, proc) {
     // v nekonečné smyčce musí jít přerušit Ctrl+C a prohlížeč nesmí zamrznout
     const guard = async n => {
@@ -383,14 +461,12 @@ export class Shell {
     switch (c.kind) {
       case 'group': return this._body(c.body, io);
       case 'subshell': {
-        const child = new Shell(this.m, this.user, { tty: this.tty, parent: this });
-        Object.assign(child, { funcs: { ...this.funcs }, args: [...this.args], scriptName: this.scriptName, status: this.status, base: io });
-        try { return await child.runAst(c.body, io); }
-        catch (e) { if (e instanceof ScriptExit) return e.code; throw e; }
+        const child = this._subshell(io, { shareFg: this.fg.has(proc) });
+        return child.runToEnd(() => child.runAst(c.body, io), io);
       }
       case 'if': {
         for (const cl of c.clauses) {
-          const st = await this._body(cl.cond, io);
+          const st = await this._cond(cl.cond, io);
           if (st === 130) return 130;
           if (st === 0) return this._body(cl.body, io);
         }
@@ -400,7 +476,7 @@ export class Shell {
         let st = 0, n = 0;
         for (;;) {
           await guard(n++);
-          const cs = await this._body(c.cond, io);
+          const cs = await this._cond(c.cond, io);
           if (cs === 130) return 130;
           if ((cs === 0) === c.until) break;
           const r = await loopBody(c.body);
@@ -469,6 +545,7 @@ export class Shell {
   async _runCommand(cmd, io, proc) {
     if (cmd.kind) return this._runCompound(cmd, io, proc);
     try {
+      this.substStatus = 0;
       const assigns = [];
       for (const a of cmd.assigns) assigns.push([a.name, await expandString(a.parts, this)]);
       const argv = [];
@@ -476,7 +553,7 @@ export class Shell {
       io = await this._redirect(cmd.redirs, io);
       if (!argv.length) {
         for (const [k, v] of assigns) this.setVar(k, v);
-        return 0;
+        return this.substStatus; // x=$(false) končí kódem 1
       }
       proc.cmd = argv.join(' ');
       const env = this.envObject();
@@ -534,9 +611,9 @@ export class Shell {
     return { error: 'notfound' };
   }
 
-  async _invoke(argv, io, proc, { user = this.user, env = this.envObject() } = {}) {
+  async _invoke(argv, io, proc, { user = this.user, env = this.envObject(), noFunc = false } = {}) {
     const name = argv[0];
-    if (user === this.user && Object.hasOwn(this.funcs, name)) return this._callFunc(name, argv, io);
+    if (!noFunc && user === this.user && Object.hasOwn(this.funcs, name)) return this._callFunc(name, argv, io);
     const hit = this.lookup(name, user);
     if (hit.error) {
       const msg = { notfound: t('sh.notfound'), nofile: t('err.ENOENT') }[hit.error] ?? t('err.' + hit.error);
@@ -545,7 +622,7 @@ export class Shell {
       if (joke) await io.stderr.write(joke + '\n');
       return hit.error === 'notfound' || hit.error === 'nofile' ? 127 : 126;
     }
-    if (hit.kind === 'script') return this._runScript(hit.data, argv, io, user, env);
+    if (hit.kind === 'script') return this._runScript(hit.data, argv, io, user, env, proc);
     const isBuiltin = this.os.builtins.includes(name);
     const prog = isBuiltin ? 'bash: ' + name : name;
     if (!isBuiltin && argv[1] === '--help') {
@@ -593,15 +670,14 @@ export class Shell {
   async _runDetached(argv, io, o = {}) {
     const proc = this.m.procs.spawn({ user: (o.user ?? this.user).name, cmd: argv.join(' '), ppid: this.proc.pid });
     this.fg.add(proc);
-    try { return await this._invoke(argv, io, proc, { user: o.user, env: o.env }); }
+    try { return await this._invoke(argv, io, proc, { user: o.user, env: o.env, noFunc: o.noFunc }); }
     finally { this.fg.delete(proc); this.m.procs.end(proc); }
   }
 
-  async _runScript(text, argv, io, user, env) {
-    const child = new Shell(this.m, user, { tty: this.tty, parent: this });
-    child.args = argv.slice(1); child.scriptName = argv[0]; child.base = io;
-    for (const [k, v] of Object.entries(env)) { child.vars[k] = v; child.exported.add(k); }
-    return child.runLines(text, io);
+  async _runScript(text, argv, io, user, env, proc) {
+    const child = this.newShell(io, { user, env, proc });
+    child.args = argv.slice(1); child.scriptName = argv[0];
+    return child.runToEnd(() => child.runLine(text, io), io);
   }
 
   async _report(e, prog, stderr) {

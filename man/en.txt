@@ -521,7 +521,7 @@ SYNOPSIS
     test EXPRESSION
     [ EXPRESSION ]
 DESCRIPTION
-    Exit status 0 means true. Tests: -e exists, -f regular file, -d directory, -r -w -x permissions,
+    Exit status 0 means true. Tests: -e exists, -f regular file, -d directory, -r -w -x permissions, -c character device,
     -s not empty, -z empty string, -n non-empty string, a = b, a != b, n -eq -ne -lt -le -gt -ge m.
 EXAMPLES
     [ -f notes.txt ] && echo exists
@@ -1224,3 +1224,101 @@ EXAMPLES
     pkill -STOP sleep
 SEE ALSO
     kill, pgrep, ps
+
+#### sh bash
+NAME
+    sh, bash - run a new shell
+SYNOPSIS
+    sh [-e] FILE [ARGUMENT]...
+    sh [-e] -c 'COMMANDS' [NAME [ARGUMENT]...]
+    sh
+DESCRIPTION
+    Runs a script from a file, commands from a string (-c) or from input. Without arguments on a
+    terminal it opens a nested shell; leave it with exit. The new shell sees only exported
+    variables; its changes to variables and directory are lost afterwards. In BubOS sh equals bash.
+OPTIONS
+    -c   commands are in the next argument
+    -e   exit on the first error (like set -e)
+EXAMPLES
+    sh script.sh one two
+    sh -c 'echo $((6*7))'
+
+#### command
+NAME
+    command - run a command or check that it exists
+SYNOPSIS
+    command [-v|-V] COMMAND [ARGUMENT]...
+DESCRIPTION
+    Runs the command, ignoring functions of the same name. With -v it only prints what would run
+    and returns 1 if there is no such command. Handy in scripts to check a program is available.
+OPTIONS
+    -v   print the path or name of the command
+    -V   describe the command in words
+EXAMPLES
+    command -v awk >/dev/null && echo "have awk"
+
+#### set
+NAME
+    set - set shell options and positional parameters
+SYNOPSIS
+    set [-e|+e] [-o errexit] [--] [ARGUMENT]...
+DESCRIPTION
+    set -e: the script exits as soon as a command fails (not in if and while conditions, left of
+    && and ||, or after !). The interactive BubOS shell ignores -e. set +e turns it off.
+    Arguments (or everything after --) become $1, $2 ... Without arguments it lists variables.
+    BubOS does not support options other than -e yet.
+EXAMPLES
+    set -e
+    set -- a b c; echo $#
+
+#### getopts
+NAME
+    getopts - parse script options (-a, -b value)
+SYNOPSIS
+    getopts OPTSTRING VARIABLE [ARGUMENT]...
+DESCRIPTION
+    Each call stores the next option letter in VARIABLE and returns 0; after the last option it
+    returns 1. A colon after a letter in OPTSTRING means the option takes a value (in $OPTARG).
+    $OPTIND is the number of the next argument. A leading colon silences error messages.
+EXAMPLES
+    while getopts vn: o; do case $o in v) echo verbose;; n) echo "n=$OPTARG";; esac; done
+    shift $((OPTIND - 1))
+
+#### trap
+NAME
+    trap - set commands to run when the shell exits
+SYNOPSIS
+    trap 'COMMANDS' EXIT
+    trap - EXIT
+    trap
+DESCRIPTION
+    Commands for EXIT (or 0) run when the script ends. - removes the setting, trap without
+    arguments lists them. BubOS remembers HUP, INT, QUIT and TERM but does not trigger them yet.
+EXAMPLES
+    trap 'rm -f /tmp/work.$$' EXIT
+
+#### expr
+NAME
+    expr - evaluate an expression and print the result
+SYNOPSIS
+    expr ARGUMENT...
+DESCRIPTION
+    Numbers and operators must be separate arguments: + - * / %, comparisons = != < <= > >=,
+    logical | and &, parentheses. Strings: length S, substr S POS LEN, index S CHARS, S : PATTERN.
+    Quote * < > | & ( ) or the shell will take them. Returns 1 when the result is 0 or empty.
+    In scripts $(( )) is usually more convenient.
+EXAMPLES
+    expr 2 + 3 \* 4
+    expr length hello
+
+#### getconf
+NAME
+    getconf - print system configuration values
+SYNOPSIS
+    getconf VARIABLE
+    getconf -a
+DESCRIPTION
+    For example _POSIX_VERSION, ARG_MAX, PATH_MAX, PAGE_SIZE. The values in BubOS are simulated;
+    _POSIX_VERSION does not mean the simulator implements the whole POSIX standard.
+EXAMPLES
+    getconf _POSIX_VERSION

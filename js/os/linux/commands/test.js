@@ -18,6 +18,7 @@ function evaluate(a, ctx) {
       case '-z': return x === '';
       case '-n': return x !== '';
       case '-e': return !!node(x);
+      case '-c': return !!node(x)?.dev; // znakové zařízení (/dev/null)
       case '-f': return node(x)?.type === 'file';
       case '-d': return node(x)?.type === 'dir';
       case '-L': case '-h': try { return ctx.fs.stat(ctx.path(x), ctx.user, false).type === 'link'; } catch { return false; }

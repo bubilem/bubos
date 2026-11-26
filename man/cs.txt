@@ -521,7 +521,7 @@ POUŽITÍ
     test VÝRAZ
     [ VÝRAZ ]
 POPIS
-    Návratový kód 0 znamená pravda. Testy: -e existuje, -f běžný soubor, -d adresář, -r -w -x práva,
+    Návratový kód 0 znamená pravda. Testy: -e existuje, -f běžný soubor, -d adresář, -r -w -x práva, -c znakové zařízení,
     -s neprázdný, -z prázdný řetězec, -n neprázdný řetězec, a = b, a != b, n -eq -ne -lt -le -gt -ge m.
 PŘÍKLADY
     [ -f poznamky.txt ] && echo existuje
@@ -1224,3 +1224,101 @@ PŘÍKLADY
     pkill -STOP sleep
 VIZ TÉŽ
     kill, pgrep, ps
+
+#### sh bash
+JMÉNO
+    sh, bash - spustí nový shell
+POUŽITÍ
+    sh [-e] SOUBOR [ARGUMENT]...
+    sh [-e] -c 'PŘÍKAZY' [JMÉNO [ARGUMENT]...]
+    sh
+POPIS
+    Provede skript ze souboru, příkazy z řetězce (-c), nebo ze vstupu. Bez argumentů na terminálu
+    otevře vnořený shell, který ukončí exit. Nový shell zná jen exportované proměnné; jeho změny
+    proměnných a adresáře se po skončení ztratí. V BubOS jsou sh a bash totéž.
+VOLBY
+    -c   příkazy jsou v následujícím argumentu
+    -e   skončí při první chybě (jako set -e)
+PŘÍKLADY
+    sh skript.sh jedna dva
+    sh -c 'echo $((6*7))'
+
+#### command
+JMÉNO
+    command - spustí příkaz nebo zjistí, zda existuje
+POUŽITÍ
+    command [-v|-V] PŘÍKAZ [ARGUMENT]...
+POPIS
+    Spustí příkaz a nevšímá si funkcí stejného jména. S -v jen vypíše, co by se spustilo;
+    když příkaz neexistuje, vrátí 1. Hodí se ve skriptech k ověření, že je program k dispozici.
+VOLBY
+    -v   vypíše cestu nebo jméno příkazu
+    -V   popíše příkaz slovně
+PŘÍKLADY
+    command -v awk >/dev/null && echo mám awk
+
+#### set
+JMÉNO
+    set - nastaví volby shellu a poziční parametry
+POUŽITÍ
+    set [-e|+e] [-o errexit] [--] [ARGUMENT]...
+POPIS
+    set -e: skript skončí, jakmile příkaz selže (neplatí v podmínce if a while, vlevo od && a ||
+    a po !). V interaktivním shellu BubOS se -e neuplatní. set +e volbu vypne.
+    Argumenty (nebo vše za --) se stanou parametry $1, $2 … Bez argumentů vypíše proměnné.
+    Jiné volby než -e zatím BubOS neumí.
+PŘÍKLADY
+    set -e
+    set -- a b c; echo $#
+
+#### getopts
+JMÉNO
+    getopts - zpracuje volby skriptu (-a, -b hodnota)
+POUŽITÍ
+    getopts SEZNAM PROMĚNNÁ [ARGUMENT]...
+POPIS
+    Při každém volání uloží do PROMĚNNÉ další písmeno volby a vrátí 0; po poslední volbě vrátí 1.
+    Dvojtečka za písmenem v SEZNAMU znamená, že volba má hodnotu (v $OPTARG). $OPTIND je číslo
+    dalšího argumentu. Začíná-li SEZNAM dvojtečkou, chyby se nevypisují.
+PŘÍKLADY
+    while getopts vn: o; do case $o in v) echo podrobně;; n) echo "n=$OPTARG";; esac; done
+    shift $((OPTIND - 1))
+
+#### trap
+JMÉNO
+    trap - nastaví příkazy, které se provedou při ukončení shellu
+POUŽITÍ
+    trap 'PŘÍKAZY' EXIT
+    trap - EXIT
+    trap
+POPIS
+    Příkazy pro EXIT (nebo 0) se provedou, když skript skončí. - nastavení zruší, trap bez
+    argumentů je vypíše. Signály HUP, INT, QUIT a TERM si BubOS zapamatuje, ale zatím je nevyvolá.
+PŘÍKLADY
+    trap 'rm -f /tmp/pracovni.$$' EXIT
+
+#### expr
+JMÉNO
+    expr - vyhodnotí výraz a vypíše výsledek
+POUŽITÍ
+    expr ARGUMENT...
+POPIS
+    Čísla a operátory musí být samostatné argumenty: + - * / %, porovnání = != < <= > >=,
+    logické | a &, závorky. Řetězce: length S, substr S OD DÉLKA, index S ZNAKY, S : VZOR.
+    Znaky * < > | & ( ) je nutné uvozit, jinak je zpracuje shell. Vrací 1, když je výsledek 0
+    nebo prázdný. Ve skriptech bývá pohodlnější $(( )).
+PŘÍKLADY
+    expr 2 + 3 \* 4
+    expr length ahoj
+
+#### getconf
+JMÉNO
+    getconf - vypíše systémové konstanty
+POUŽITÍ
+    getconf PROMĚNNÁ
+    getconf -a
+POPIS
+    Například _POSIX_VERSION, ARG_MAX, PATH_MAX, PAGE_SIZE. V BubOS jsou hodnoty simulované;
+    _POSIX_VERSION neznamená, že simulátor splňuje celou normu POSIX.
+PŘÍKLADY
+    getconf _POSIX_VERSION

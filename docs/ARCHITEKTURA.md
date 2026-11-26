@@ -42,6 +42,11 @@ Příkaz = `export default { async run(ctx) { … return kód; } }`. Užitečné
 `tty` (write, ask, pager, edit, clear, cols), `path(p)`, `fsMsg(e)`, `check()` (Ctrl+C), `each(operandy, fn, sloveso)` (chyby po operandech),
 `exec(argv,{user,env})`. Chyby: `throw new CmdError(text, kód, hint)` nebo nechat probublat `FsError`. Dlouhé smyčky volají `ctx.check()`.
 
+## Podřízené shelly
+- `newShell` (skript, `sh -c`): dostane jen prostředí, bez aliasů a funkcí. `_subshell` (`( … )`, `$( … )`): kopie všeho, změny zůstanou uvnitř.
+- Oba se spouštějí přes `runToEnd`, které zachytí `exit` a provede `trap EXIT`. Procesy na popředí sdílí `fg` s rodičem (Ctrl+C).
+- `set -e`: `runAst` vyhodí `ScriptExit` jen v neinteraktivním shellu; `noErr` > 0 značí podmínku (`if`, `while`, vlevo od `&&`/`||`, po `!`).
+
 ## Důležité konvence
 - Nový příkaz: soubor v `commands/`, název do `COMMANDS` (a do `SHELL_ONLY` v `profile.js` **i** `skeleton.js`, pokud nemá být soubor v `/usr/bin`),
   výjimky názvů → mapa `FILE` v `profile.js`, vestavěné běžící v shellu → `builtins`. Doplňování argumentů → `completions` v profilu.

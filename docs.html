@@ -239,6 +239,7 @@ Documents  Downloads  README.txt
         <h3>Skripty a <code>~/.bashrc</code></h3>
         <p>Textový soubor s příkazy (jeden na řádek) můžete spustit třemi způsoby: <code>source skript.sh</code> (v aktuálním shellu), nebo mu dát právo
           spuštění <code>chmod +x skript.sh</code> a zavolat <code>./skript.sh</code> (ve vlastním podřízeném shellu, s argumenty v <code>$1</code>, <code>$2</code>…).
+          Stejně funguje <code>sh skript.sh</code> a jeden řetězec příkazů spustí <code>sh -c '…'</code>. Podřízený shell dostane jen exportované proměnné.
           Při každém přihlášení se automaticky provede <code>~/.bashrc</code> – tam jsou aliasy a <code>export EDITOR=nano</code>.</p>
 
         <h3>Programování v shellu</h3>
@@ -261,8 +262,12 @@ Documents  Downloads  README.txt
           <code>${x/co/čím}</code>, <code>${x:2:3}</code> (podřetězec). <b>Řízení:</b> <code>break</code>, <code>continue</code>, <code>return</code>, negace <code>!</code>.
           Podmínku <code>[[ … ]]</code> lze psát s <code>&amp;&amp;</code>, vzory (<code>== *.txt</code>) i regulárním výrazem (<code>=~</code>).</p>
 
+        <p><b>Pro robustní skripty:</b> <code>set -e</code> (skončí při první chybě), <code>getopts</code> (volby jako <code>-v -n 5</code>),
+          <code>trap '…' EXIT</code> (úklid na konci) a <code>command -v program</code> (je k dispozici?).</p>
+
         <h3>Co zatím neumí</h3>
-        <p>Here-dokumenty (<code>&lt;&lt;</code>), pole, <code>$RANDOM</code>, <code>trap</code>
+        <p>Here-dokumenty (<code>&lt;&lt;</code>), pole, <code>$RANDOM</code>, <code>eval</code>, <code>exec</code>, <code>readonly</code>, jiné volby
+          <code>set</code> než <code>-e</code>, <code>trap</code> na signály (provede se jen <code>EXIT</code>)
           a tvrdé odkazy (<code>ln</code> bez <code>-s</code>). Jsou v plánu další iterace (viz <code>docs/PROJEKT.md</code>).</p>
       </section>
 

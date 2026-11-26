@@ -29,9 +29,9 @@ hard linky (`ln` bez `-s`) nejsou podporované záměrně (export JSON by sdíle
 ## Plán / nápady (priorita přibližně shora dolů)
 1. **Druhá iterace příkazů – blok A HOTOVÝ:** `sed`, `awk`-lite, `xargs`, `printf`, `stat`, `du`/`df`, `diff`, `cal`, `groupadd`/`groupdel`/`usermod`/`userdel`,
    `chgrp`, `umask`, `read`, `Ctrl+R`. Zbývá: `tail -f`, `vi` (blok E). Starší uložené stroje dostanou stuby nových příkazů při startu (`boot` v `profile.js`).
-2. **Skriptování – blok B HOTOVÝ:** `if/elif/else`, `for` (i `for ((…))`), `while`, `until`, `case`, funkce (`local`, `return`), `{ }`, `( )`, `$((…))`, `((…))`, `let`, `[[ ]]`, `$@ $# shift`, úpravy `${x%…}`, víceřádkový vstup s výzvou `>`. Parser: `core/shell/parse.js`, aritmetika `core/shell/arith.js`. Chybí: here-dokumenty, pole, `trap`.
+2. **Skriptování – blok B HOTOVÝ:** `if/elif/else`, `for` (i `for ((…))`), `while`, `until`, `case`, funkce (`local`, `return`), `{ }`, `( )`, `$((…))`, `((…))`, `let`, `[[ ]]`, `$@ $# shift`, úpravy `${x%…}`, víceřádkový vstup s výzvou `>`. Parser: `core/shell/parse.js`, aritmetika `core/shell/arith.js`. Doplněno pro průchod posixcheck-lite (`tests/posix.test.js`): `sh`/`bash`, `command`, `set -e`, `getopts`, `trap` (jen EXIT), `expr`, `getconf`, `test -c`. Chybí: here-dokumenty, pole, `eval`, `exec`, `readonly`, `set -u/-x`.
 3. **Procesy a služby – blok C HOTOVÝ:** `&`/`jobs`/`fg`/`bg`/`wait`/Ctrl+Z, signály v `kill` (+ `pkill`, `pgrep`, `killall`), `top`, `systemctl` a `service`
-   (cron, ssh, rsyslog, apache2…), `crontab` se skutečně spouštěným cronem, dynamický `/proc`; kapitola kampaně „Procesy a služby“ (6 úkolů). Chybí: `nohup`, `disown`, `trap`, `at`.
+   (cron, ssh, rsyslog, apache2…), `crontab` se skutečně spouštěným cronem, dynamický `/proc`; kapitola kampaně „Procesy a služby“ (6 úkolů). Chybí: `nohup`, `disown`, `trap` na signály, `at`.
 4. **Síť a více strojů:** `ping`, `ip a`, `ssh` mezi virtuálními stroji, `curl` na falešné servery.
 5. **Výuková vrstva = Kampaň** – rozhodnutá, viz sekce „Kampaň“ níže (děláme ji jako první). Zbytek nápadů: příkaz `explain`,
    bezstavový PHP ověřovač odevzdání.
